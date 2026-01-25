@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>J.A.R.V.I.S. · Обучение Python</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>⚡ МОДУЛЬ ОБУЧЕНИЯ PYTHON</h1>
+
+  <div class="mode-switch">
+    <button class="mode-btn" id="toggleMode">→ Перейти к практическим заданиям</button>
+  </div>
+
+  <!-- Кольцо прогресса -->
+  <div class="progress-ring-wrapper">
+    <div class="progress-ring-container">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#222" stroke-width="8"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="#FF6F00" stroke-width="8"
+                stroke-dasharray="314" stroke-dashoffset="314" id="progressRing"/>
+      </svg>
+      <div class="ring-label" id="ringLabel">0%</div>
+    </div>
+  </div>
+
+  <div class="progress-info" id="progressInfo">Режим: Лекции • Задание 1 из 25</div>
+
+  <div class="goto-task">
+    <label for="taskNumber">Перейти к заданию №</label>
+    <input type="number" id="taskNumber" min="1" placeholder="1">
+    <button class="goto-btn" onclick="goToTask()">Выполнить</button>
+  </div>
+
+  <!-- Кнопка перерыва -->
+  <div class="break-section">
+    <button class="break-btn" onclick="startBreak()">⏸️ Перерыв</button>
+  </div>
+
+  <div id="tasksContainer"></div>
+
+  <footer>Информатика · Заочное обучение · 2026</footer>
+
+  <!-- Конфетти -->
+  <canvas id="confettiCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas>
+
+  <!-- Модальное окно бейджа -->
+  <div id="badgeModal" class="badge-modal">
+    <div class="badge-content">
+      <h3>🎖️ НОВЫЙ БЕЙДЖ!</h3>
+      <div class="badge-icon" id="badgeIcon">🏆</div>
+      <p id="badgeName">Мастер Python</p>
+      <button class="badge-btn" onclick="closeBadge()">ЗАКРЫТЬ</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно змейки -->
+  <div id="snakeModal" class="snake-modal">
+    <div class="snake-content">
+      <h3>⚡ ЭНЕРГЕТИЧЕСКАЯ ПЕРЕЗАГРУЗКА</h3>
+      <div class="game-info">
+        Собрано: <span id="score">0</span> | Рекорд: <span id="highScore">0</span>
+      </div>
+      <canvas id="snakeCanvas" width="300" height="300"></canvas>
+      <div class="game-controls">
+        <p>Управление: ← ↑ → ↓</p>
+        <button class="game-btn" onclick="closeSnake()">Вернуться к обучению</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
