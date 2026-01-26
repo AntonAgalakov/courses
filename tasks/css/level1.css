@@ -1,0 +1,237 @@
+/* Анимация робота */
+.robot-container {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.robot {
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    margin: 0 auto 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    position: relative;
+    animation: robotFloat 3s ease-in-out infinite;
+    box-shadow: 
+        0 0 50px rgba(0, 180, 216, 0.5),
+        inset 0 -10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.robot::before {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: var(--light);
+    border-radius: 50%;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: robotBlink 3s infinite;
+}
+
+.robot::after {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 40px;
+    background: var(--accent);
+    border-radius: 20px;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: robotPulse 2s infinite;
+}
+
+@keyframes robotFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes robotBlink {
+    0%, 90%, 100% { height: 40px; }
+    95% { height: 5px; }
+}
+
+@keyframes robotPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* Диалог */
+.dialogue {
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 5px solid var(--accent);
+    padding: 25px;
+    border-radius: var(--radius-md);
+    margin: 25px 0;
+    position: relative;
+}
+
+.dialogue::before {
+    content: '🤖';
+    position: absolute;
+    left: -15px;
+    top: -15px;
+    background: var(--dark);
+    padding: 10px;
+    border-radius: 50%;
+    font-size: 24px;
+    border: 3px solid var(--accent);
+}
+
+/* Редактор кода */
+.code-editor {
+    background: #1e1e1e;
+    border-radius: var(--radius-md);
+    padding: 30px;
+    margin: 25px 0;
+    font-family: 'Courier New', monospace;
+    position: relative;
+    overflow: hidden;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #333;
+}
+
+.code-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    color: var(--primary);
+}
+
+.code-content {
+    line-height: 1.8;
+}
+
+.line {
+    display: flex;
+    margin: 5px 0;
+}
+
+.line-number {
+    color: #6e7681;
+    width: 40px;
+    text-align: right;
+    padding-right: 15px;
+    user-select: none;
+}
+
+.code-keyword {
+    color: #569cd6;
+}
+
+.code-var {
+    color: #9cdcfe;
+}
+
+.code-number {
+    color: #b5cea8;
+}
+
+.code-string {
+    color: #ce9178;
+}
+
+.code-comment {
+    color: #6a9955;
+    font-style: italic;
+}
+
+/* Подсказка */
+.hint-container {
+    background: rgba(255, 158, 0, 0.1);
+    border: 2px dashed var(--warning);
+    border-radius: var(--radius-md);
+    padding: 25px;
+    margin: 25px 0;
+    animation: fadeIn 0.5s ease;
+}
+
+.hint-container h3 {
+    color: var(--warning);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Инструкция */
+.instruction-steps {
+    list-style: none;
+    counter-reset: step-counter;
+}
+
+.instruction-steps li {
+    counter-increment: step-counter;
+    margin-bottom: 20px;
+    padding-left: 50px;
+    position: relative;
+    line-height: 1.6;
+}
+
+.instruction-steps li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: var(--primary);
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+}
+
+/* Анимация успеха */
+.success-animation {
+    animation: successPulse 0.5s ease 3;
+}
+
+@keyframes successPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Эффект типинга */
+.typing {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 3s steps(40, end);
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+/* Кнопки действий */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.action-buttons .btn {
+    flex: 1;
+}

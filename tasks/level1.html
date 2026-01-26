@@ -1,0 +1,129 @@
+<div class="level-container"></div>
+    <!-- Левая панель - история -->
+    <div class="panel story-panel">
+        <div class="badge badge-level">🎮 Уровень 1: Первый контакт</div>
+        
+        <div class="robot-container">
+            <div class="robot">🤖</div>
+        </div>
+        
+        <h2>Заброшенная лаборатория</h2>
+        <p>Ты находишься в темной комнате. В углу мигает слабый красный свет.</p>
+        
+        <div class="dialogue">
+            <div class="typing">
+                *пиип* Привет... меня зовут Питон... Я робот-помощник...
+            </div>
+            <div style="margin-top: 15px;">
+                Мои системы почти отключились... Батарея на 1%...
+            </div>
+            <div style="margin-top: 10px; color: var(--accent); font-weight: bold;">
+                Дай мне энергию! Создай переменную `power` со значением 10 и покажи её на экране!
+            </div>
+        </div>
+        
+        <h3>🎯 Цель уровня:</h3>
+        <ul class="instruction-steps">
+            <li>Открой среду разработки (Thonny, VS Code или другую)</li>
+            <li>Создай новый файл Python</li>
+            <li>Напиши код из задания справа</li>
+            <li>Запусти программу (F5 или кнопка Run)</li>
+            <li>Если увидишь <code>"Сила робота: 10"</code> - ты справился!</li>
+        </ul>
+    </div>
+    
+    <!-- Правая панель - задание -->
+    <div class="panel task-panel">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+            <div style="font-size: 50px;">💻</div>
+            <div>
+                <h2>СОЗДАНИЕ ПЕРЕМЕННОЙ</h2>
+                <p>Твоя первая программа на Python</p>
+            </div>
+        </div>
+        
+        <p>В программировании <strong>переменная</strong> — это как коробка с именем, в которую можно положить значение.</p>
+        
+        <div class="code-editor">
+            <div class="code-header">
+                <div class="code-title">ТВОЙ_КОД.py</div>
+                <div style="color: #6e7681; font-size: 14px;">Python</div>
+            </div>
+            <div class="code-content">
+                <div class="line">
+                    <span class="line-number">1</span>
+                    <span class="code-comment"># =============================</span>
+                </div>
+                <div class="line">
+                    <span class="line-number">2</span>
+                    <span class="code-comment"># ТВОЙ ПЕРВЫЙ КОД</span>
+                </div>
+                <div class="line">
+                    <span class="line-number">3</span>
+                    <span class="code-comment"># =============================</span>
+                </div>
+                <div class="line">
+                    <span class="line-number">4</span>
+                </div>
+                <div class="line">
+                    <span class="line-number">5</span>
+                    <span class="code-var">power</span> = <span class="code-number">10</span>
+                </div>
+                <div class="line">
+                    <span class="line-number">6</span>
+                    <span class="code-keyword">print</span>(<span class="code-string">"Сила робота:"</span>, <span class="code-var">power</span>)
+                </div>
+                <div class="line">
+                    <span class="line-number">7</span>
+                </div>
+                <div class="line">
+                    <span class="line-number">8</span>
+                    <span class="code-comment"># Запусти эту программу!</span>
+                </div>
+                <div class="line">
+                    <span class="line-number">9</span>
+                    <span class="code-comment"># Должно появиться: Сила робота: 10</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hint-container" id="hintContainer" style="display: none;">
+            <h3>💡 Как это работает?</h3>
+            <p><strong>1. Создание переменной:</strong></p>
+            <p><code>power = 10</code> — это как сказать "пусть power будет равно 10"</p>
+            
+            <p><strong>2. Вывод на экран:</strong></p>
+            <p><code>print("Сила робота:", power)</code> — команда "напечатай"</p>
+            <p>• Сначала печатает текст <code>"Сила робота:"</code></p>
+            <p>• Затем печатает значение переменной <code>power</code> (то есть 10)</p>
+            <p>• Между ними автоматически ставится пробел</p>
+            
+            <p><strong>Результат на экране:</strong> Сила робота: 10</p>
+            
+            <div style="background: rgba(0,180,216,0.1); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <p>🎯 <strong>Простая аналогия:</strong></p>
+                <p>Представь, что <code>power</code> — это наклейка на коробке.</p>
+                <p>Коробка (переменная) → Наклейка (имя) → Содержимое (значение)</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px;">
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="toggleHint()">
+                    <span>💡</span> Показать подсказку
+                </button>
+                <button class="btn btn-primary" onclick="completeLevel1()">
+                    <span>✅</span> Я выполнил задание!
+                </button>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <button class="btn btn-secondary" onclick="loadLevel(1)">
+                    <span>🔄</span> Начать уровень заново
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/level1.js"></script>

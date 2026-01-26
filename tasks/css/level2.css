@@ -1,0 +1,42 @@
+/* Специфичные стили для второго уровня */
+.level2-robot {
+    background: linear-gradient(135deg, #9d4edd, #7b2cbf) !important;
+}
+
+.input-demo {
+    background: #2d2d2d;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    font-family: 'Courier New', monospace;
+}
+
+.input-demo .prompt {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.input-demo .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 20px;
+    background: var(--primary);
+    animation: blink 1s infinite;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Стили для примера работы программы */
+.program-output {
+    background: #1a1a1a;
+    border-left: 4px solid var(--accent2);
+    padding: 15px;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    margin: 15px 0;
+}

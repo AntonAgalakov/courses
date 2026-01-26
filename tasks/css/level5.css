@@ -1,0 +1,168 @@
+/* level5.css */
+/* Стили для пятого уровня - Циклы */
+
+/* Анимация цикла */
+.loop-animation {
+    position: relative;
+    overflow: hidden;
+}
+
+.loop-animation::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: loopFlow 3s linear infinite;
+}
+
+@keyframes loopFlow {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Стили для демонстрации цикла */
+.cycle-demo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.cycle-step {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
+    animation: stepPulse 2s infinite;
+    animation-delay: calc(var(--step) * 0.3s);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+@keyframes stepPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* Стили для секторов памяти */
+.memory-sector {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    margin: 2px;
+    background: rgba(0, 180, 216, 0.2);
+    border: 1px solid rgba(0, 180, 216, 0.4);
+    border-radius: 4px;
+    text-align: center;
+    line-height: 30px;
+    font-size: 10px;
+    transition: all 0.3s ease;
+}
+
+.memory-sector:hover {
+    background: rgba(0, 180, 216, 0.4);
+    transform: scale(1.1);
+}
+
+/* Акцент на числах в задании */
+.big-sum {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--accent);
+    text-shadow: 0 0 10px rgba(255, 0, 110, 0.3);
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    display: inline-block;
+    margin: 10px 0;
+}
+
+/* Стили для кнопки проверки */
+.check-btn-level5 {
+    position: relative;
+    overflow: hidden;
+}
+
+.check-btn-level5::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 70%
+    );
+    animation: buttonShimmer 3s infinite linear;
+}
+
+@keyframes buttonShimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Подсветка правильного ответа */
+.correct-answer-highlight {
+    animation: correctGlow 2s infinite;
+    border: 2px solid var(--success) !important;
+}
+
+@keyframes correctGlow {
+    0%, 100% { box-shadow: 0 0 5px var(--success); }
+    50% { box-shadow: 0 0 20px var(--success); }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .memory-sector {
+        width: 25px;
+        height: 25px;
+        font-size: 8px;
+        line-height: 25px;
+    }
+    
+    .big-sum {
+        font-size: 22px;
+        padding: 8px 16px;
+    }
+    
+    .cycle-step {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
+
+/* Специальные стили для робота 5 уровня */
+.level5-robot {
+    background: linear-gradient(135deg, #9d4edd, #7b2cbf) !important;
+    animation: robotProcessing 3s ease-in-out infinite;
+}
+
+@keyframes robotProcessing {
+    0%, 100% { 
+        transform: rotate(0deg) scale(1);
+        box-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+    }
+    25% { 
+        transform: rotate(5deg) scale(1.05);
+        box-shadow: 0 0 40px rgba(157, 78, 221, 0.7);
+    }
+    75% { 
+        transform: rotate(-5deg) scale(1.05);
+        box-shadow: 0 0 40px rgba(157, 78, 221, 0.7);
+    }
+}
