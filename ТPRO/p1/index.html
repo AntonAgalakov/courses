@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Спаси проект "Новичок"!</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+  <div class="container">
+    <!-- Шапка -->
+    <div class="header">
+      <h1><i class="fas fa-code-branch"></i> Спаси проект "Новичок"!</h1>
+      <div class="header-subtitle">Вводное практическое задание по ТРПО</div>
+      <div class="header-icon">
+        <i class="fas fa-laptop-code"></i>
+      </div>
+    </div>
+
+    <!-- Блок прогресса -->
+    <div class="progress-container">
+      <div class="progress-info">
+        <div class="progress-label">
+          <i class="fas fa-chart-line"></i> Статус проекта:
+        </div>
+        <div class="progress-value" id="health">100%</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-bar" style="width: 100%"></div>
+      </div>
+      <div class="level-counter">
+        <span class="level-number">Этап <span id="current-level">1</span> из 13</span>
+      </div>
+    </div>
+
+    <!-- Начальный экран -->
+    <div id="start-screen" class="content start-screen">
+      <div class="avatar-large">
+        <i class="fas fa-user-graduate"></i>
+      </div>
+      
+      <h2 class="mb-30">ТРПО</h2>
+      
+      <p style="font-size: 18px; color: var(--text-medium); margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.8;">
+        Вы - стажёр Алексей, начинающий разработчик. Ваш первый проект находится в критическом состоянии. 
+        Примите верные решения на каждом этапе разработки, чтобы спасти проект и показать себя как перспективного специалиста.
+      </p>
+      
+      <button class="btn" onclick="startGame()">
+        <i class="fas fa-play"></i> Начать практикум
+      </button>
+    </div>
+
+    <!-- Игровой экран -->
+    <div id="game-screen" class="content hidden">
+      <div class="level-info">
+        <div class="level-badge">
+          <i class="fas fa-puzzle-piece"></i> Практический кейс
+        </div>
+        <div>
+          <span class="level-number" id="level-title-display">Уровень 1: Анализ требований</span>
+        </div>
+      </div>
+      
+      <div class="challenge-card">
+        <div class="challenge-title">
+          <i class="fas fa-tasks"></i> Ситуация
+        </div>
+        <div class="challenge-description" id="situation-text">
+          Заказчик: «Мне нужно приложение, как у Uber, но для кошек».
+          Что спросить в первую очередь?
+        </div>
+        
+        <!-- Кнопка для показа вариантов -->
+        <div class="show-options-container" id="show-options-container">
+          <button class="btn-show-options" onclick="showOptions()">
+            <i class="fas fa-lightbulb"></i> Показать варианты ответов
+          </button>
+          <p class="hint-text">Подумайте, как бы вы поступили в этой ситуации, прежде чем смотреть варианты</p>
+        </div>
+        
+        <!-- Контейнер с вариантами ответов (изначально скрыт) -->
+        <div class="options-container hidden" id="options-container">
+          <div class="options-grid" id="options-grid">
+            <!-- Динамически заполняется JS -->
+          </div>
+        </div>
+        
+        <div id="feedback" class="feedback-card hidden">
+          <!-- Динамически заполняется JS -->
+        </div>
+        
+        <!-- Контейнер для кнопки "Следующий вопрос" будет добавлен сюда динамически -->
+        
+      </div>
+    </div>
+
+    <!-- Финальный экран -->
+    <div id="final-screen" class="hidden final-screen">
+      <div class="result-badge" id="result-icon">
+        <i class="fas fa-trophy"></i>
+      </div>
+      
+      <h1 class="result-title" id="final-message">Практикум завершён!</h1>
+      
+      <div class="result-message" id="final-text">
+        Вы прошли через все ключевые этапы разработки проекта и приобрели практические навыки, 
+        которые отличают профессионального разработчика от новичка. Теперь вы готовы к реальным задачам!
+      </div>
+      
+      <div class="result-stats">
+        <div class="stat-item">
+          <div class="stat-value" id="final-health">100%</div>
+          <div class="stat-label">Успешность проекта</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="completed-levels">10</div>
+          <div class="stat-label">Пройдено кейсов</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="correct-answers">0</div>
+          <div class="stat-label">Верных решений</div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
