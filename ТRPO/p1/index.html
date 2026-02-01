@@ -1,135 +1,185 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TRPO. Lesson 1</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap">
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRPO. Lesson 1</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div class="container">
-    <!-- Шапка -->
-    <div class="header">
-      <h1><i class="fas fa-code-branch"></i> Немножко вопросов для начала</h1>
-      <div class="header-subtitle">Вводное практическое задание по ТРПО</div>
-      <div class="header-icon">
-        <i class="fas fa-laptop-code"></i>
-      </div>
+    <div class="container">
+        <!-- Стартовый экран -->
+        <div id="start-screen" class="start-screen">
+            <div class="header">
+                <h1>ТРПО. Занятие 1</h1>
+                <div class="header-subtitle">Немножко вопросов для начала</div>
+                <div class="header-icon">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="level-info">
+                    <div class="level-badge">
+                        <i class="fas fa-rocket"></i> Вводное практическое задание по ТРПО
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <div class="progress-label">
+                                <i class="fas fa-heartbeat"></i> Статус проекта:
+                            </div>
+                            <div class="progress-value" id="health">100%</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-bar" style="width: 100%;"></div>
+                        </div>
+                        <div class="level-counter">
+                            <div class="level-number">Этап <span id="current-level">1</span> из 15</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="challenge-card">
+                    <div class="challenge-title">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="challenge-description">
+                        Вы - стажёр Алексей, начинающий разработчик. Ваш первый проект находится в критическом состоянии. 
+                        Примите верные решения на каждом этапе разработки, чтобы спасти проект и показать себя как перспективного специалиста.
+                    </div>
+                    
+                    <div class="text-center">
+                        <button class="btn btn-primary" id="start-btn">
+                            <i class="fas fa-play"></i> Начать практикум
+                        </button>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+
+        <!-- Игровой экран -->
+        <div id="game-screen" class="hidden">
+            <div class="header">
+                <h1>TRPO. Lesson 1</h1>
+                <div class="header-subtitle" id="level-title-display">Этап 1: Анализ требований</div>
+            </div>
+            
+            <div class="content">
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <div class="progress-label">
+                            <i class="fas fa-heartbeat"></i> Статус проекта:
+                        </div>
+                        <div class="progress-value" id="health-display">100%</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-bar-fill" style="width: 100%;"></div>
+                    </div>
+                    <div class="level-counter">
+                        <div class="level-number">Этап <span id="current-level-display">1</span> из 15</div>
+                    </div>
+                </div>
+                
+                <div class="challenge-card">
+                    <div class="challenge-title">
+                        <i class="fas fa-exclamation-triangle"></i> Ситуация
+                    </div>
+                    <div class="challenge-description" id="situation-text">
+                        Заказчик: «Мне нужно приложение, как у Uber, но для кошек».<br><br>Что спросить в первую очередь?
+                    </div>
+                    
+                    <!-- Контейнер пароля -->
+                    <div id="password-container" class="password-container">
+                        <div class="password-header">
+                            <i class="fas fa-lock" style="font-size: 28px; color: var(--primary); margin-bottom: 15px;"></i>
+                            <h3 style="font-weight: 700; margin-bottom: 10px;">Введите код для доступа к вариантам</h3>
+                        </div>
+                        
+                        <div id="password-error" class="password-error" style="display: none;"></div>
+                        
+                        <div class="password-input-display">
+                            <div class="password-digits" id="password-digits">
+                                <span class="password-digit">_</span>
+                                <span class="password-digit">_</span>
+                                <span class="password-digit">_</span>
+                            </div>
+                        </div>
+                        
+                        <div class="password-buttons">
+                            <button class="password-btn" data-key="1">1</button>
+                            <button class="password-btn" data-key="2">2</button>
+                            <button class="password-btn" data-key="3">3</button>
+                            <button class="password-btn" data-key="4">4</button>
+                        </div>
+                        
+                        <div class="password-instruction">
+                            <p style="color: var(--text-muted); margin-top: 15px; font-size: 14px;">
+                                <small>
+                                    <!-- Введено: <span id="password-progress">0/3</span> |  -->
+                                    <!-- Попыток: <span id="password-attempts">0/3</span> -->
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Варианты ответов -->
+                    <div id="options-container" class="options-container hidden">
+                        <div class="options-grid" id="options-grid">
+                            
+                        </div>
+                    </div>
+                    
+                    <!-- Обратная связь -->
+                    <div id="feedback" class="feedback-card hidden"></div>
+                    
+                    <!-- Кнопка "Далее" -->
+                    <div id="next-button-container" class="next-button-container hidden">
+                        <button class="btn btn-primary btn-next" id="next-btn">
+                            <span>Следующий этап</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Финальный экран -->
+        <div id="final-screen" class="final-screen hidden">
+            <div class="result-container">
+                <div class="result-badge" id="result-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h1 class="result-title">Практикум завершён!</h1>
+                <div class="result-message">
+                </div>
+                <div class="result-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="final-health">100%</div>
+                        <div class="stat-label">Успешность проекта</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="completed-levels">0</div>
+                        <div class="stat-label">Пройдено кейсов</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="correct-answers">0</div>
+                        <div class="stat-label">Верных решений</div>
+                    </div>
+                </div>
+                <div class="result-text" id="final-text">Отличная работа!</div>
+                <button id="restart-btn" class="btn btn-restart">
+                    <i class="fas fa-redo"></i>
+                    <span>Пройти снова</span>
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Блок прогресса -->
-    <div class="progress-container">
-      <div class="progress-info">
-        <div class="progress-label">
-          <i class="fas fa-chart-line"></i> Статус проекта:
-        </div>
-        <div class="progress-value" id="health">100%</div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress-bar" style="width: 100%"></div>
-      </div>
-      <div class="level-counter">
-        <span class="level-number">Этап <span id="current-level">1</span> из 13</span>
-      </div>
-    </div>
-
-    <!-- Начальный экран -->
-    <div id="start-screen" class="content start-screen">
-      <div class="avatar-large">
-        <i class="fas fa-user-graduate"></i>
-      </div>
-      
-      <h2 class="mb-30">ТРПО</h2>
-      
-      <p style="font-size: 18px; color: var(--text-medium); margin-bottom: 30px; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.8;">
-        Вы - стажёр Алексей, начинающий разработчик. Ваш первый проект находится в критическом состоянии. 
-        Примите верные решения на каждом этапе разработки, чтобы спасти проект и показать себя как перспективного специалиста.
-      </p>
-      
-      <button class="btn" onclick="startGame()">
-        <i class="fas fa-play"></i> Начать практикум
-      </button>
-    </div>
-
-    <!-- Игровой экран -->
-    <div id="game-screen" class="content hidden">
-      <div class="level-info">
-        <div class="level-badge">
-          <i class="fas fa-puzzle-piece"></i> Практический кейс
-        </div>
-        <div>
-          <span class="level-number" id="level-title-display">Уровень 1: Анализ требований</span>
-        </div>
-      </div>
-      
-      <div class="challenge-card">
-        <div class="challenge-title">
-          <i class="fas fa-tasks"></i> Ситуация
-        </div>
-        <div class="challenge-description" id="situation-text">
-          Заказчик: «Мне нужно приложение, как у Uber, но для кошек».
-          Что спросить в первую очередь?
-        </div>
-        
-        <!-- Кнопка для показа вариантов -->
-        <div class="show-options-container" id="show-options-container">
-          <button class="btn-show-options" onclick="showOptions()">
-            <i class="fas fa-lightbulb"></i> Показать варианты ответов
-          </button>
-          <p class="hint-text">Подумайте, как бы вы поступили в этой ситуации, прежде чем смотреть варианты</p>
-        </div>
-        
-        <!-- Контейнер с вариантами ответов (изначально скрыт) -->
-        <div class="options-container hidden" id="options-container">
-          <div class="options-grid" id="options-grid">
-            <!-- Динамически заполняется JS -->
-          </div>
-        </div>
-        
-        <div id="feedback" class="feedback-card hidden">
-          <!-- Динамически заполняется JS -->
-        </div>
-        
-        <!-- Контейнер для кнопки "Следующий вопрос" будет добавлен сюда динамически -->
-        
-      </div>
-    </div>
-
-    <!-- Финальный экран -->
-    <div id="final-screen" class="hidden final-screen">
-      <div class="result-badge" id="result-icon">
-        <i class="fas fa-trophy"></i>
-      </div>
-      
-      <h1 class="result-title" id="final-message">Практикум завершён!</h1>
-      
-      <div class="result-message" id="final-text">
-        Вы прошли через все ключевые этапы разработки проекта и приобрели практические навыки, 
-        которые отличают профессионального разработчика от новичка. Теперь вы готовы к реальным задачам!
-      </div>
-      
-      <div class="result-stats">
-        <div class="stat-item">
-          <div class="stat-value" id="final-health">100%</div>
-          <div class="stat-label">Успешность проекта</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="completed-levels">10</div>
-          <div class="stat-label">Пройдено кейсов</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="correct-answers">0</div>
-          <div class="stat-label">Верных решений</div>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
