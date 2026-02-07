@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Декодер отчётов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin: 20px 0;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .result h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .info-item {
+            margin: 10px 0;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .error {
+            color: red;
+            margin-top: 10px;
+            padding: 10px;
+            background: #ffe6e6;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Декодер отчётов</h1>
+    
+    <div class="input-group">
+        <input type="text" id="reportId" placeholder="Введите ID отчёта (начинается с RPT-)" />
+    </div>
+    
+    <button onclick="decodeReport()">Декодировать</button>
+    
+    <div id="error" class="error" style="display: none;"></div>
+    
+    <div id="result" class="result" style="display: none;">
+        <h3>📋 Информация об отчёте:</h3>
+        <div class="info-item">
+            <span class="info-label">Студент:</span>
+            <span class="info-value" id="studentName">—</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Дата создания:</span>
+            <span class="info-value" id="creationDate">—</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Время создания:</span>
+            <span class="info-value" id="creationTime">—</span>
+        </div>
+    </div>
+
+    <script>
+        function decodeReport() {
+            const reportId = document.getElementById('reportId').value.trim();
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            
+            // Скрываем предыдущие результаты
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            
+            // Проверяем формат
+            if (!reportId.startsWith('RPT-')) {
+                showError('ID должен начинаться с "RPT-"');
+                return;
+            }
+            
+            // Извлекаем закодированную часть
+            const encoded = reportId.substring(4);
+            
+            try {
+                // Декодируем base64 URL-safe
+                let base64 = encoded
+                    .replace(/-/g, '+')
+                    .replace(/_/g, '/');
+                
+                // Добавляем padding если нужно
+                while (base64.length % 4) {
+                    base64 += '=';
+                }
+                
+                // Декодируем
+                const decoded = decodeURIComponent(escape(atob(base64)));
+                
+                // Разбираем данные: фамилия|ММДДЧЧММ
+                const parts = decoded.split('|');
+                
+                if (parts.length !== 2) {
+                    showError('Некорректный формат данных в ID');
+                    return;
+                }
+                
+                const lastName = parts[0];
+                const dateCode = parts[1];
+                
+                if (dateCode.length !== 8) {
+                    showError('Некорректный код даты в ID');
+                    return;
+                }
+                
+                // Извлекаем дату и время
+                const month = dateCode.substring(0, 2);
+                const day = dateCode.substring(2, 4);
+                const hour = dateCode.substring(4, 6);
+                const minute = dateCode.substring(6, 8);
+                
+                // Форматируем для отображения
+                const creationDate = `${day}.${month}`;
+                const creationTime = `${hour}:${minute}`;
+                
+                // Показываем результат
+                document.getElementById('studentName').textContent = lastName;
+                document.getElementById('creationDate').textContent = creationDate;
+                document.getElementById('creationTime').textContent = creationTime;
+                
+                resultDiv.style.display = 'block';
+                
+            } catch (error) {
+                showError('Ошибка декодирования: ' + error.message);
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        // Пример для тестирования (сгенерируйте новый ID для теста)
+        function fillExample() {
+            // Пример ID для фамилии "Иванов" созданного 8 февраля в 00:53
+            // Фактический ID будет зависеть от реализации
+            document.getElementById('reportId').value = 'RPT-0JjQstCw0L3QvtCyfDAyMDgwMDUz';
+            decodeReport();
+        }
+        
+        // Декодировать при нажатии Enter
+        document.getElementById('reportId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                decodeReport();
+            }
+        });
+    </script>
+</body>
+</html>
