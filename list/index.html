@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Урок: Списки - Практические задания</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/lists.css">
+</head>
+<body>
+    <!-- Прогресс бар -->
+    <div class="progress-container">
+        <div class="progress-header">
+            <div class="progress-label">Прогресс урока</div>
+            <div class="level-number">Задание 1/10</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 10%;"></div>
+        </div>
+        <div style="margin-top: 15px; display: flex; justify-content: space-between;">
+            <button class="btn btn-small btn-secondary" onclick="resetProgress()">
+                Сбросить
+            </button>
+            <button class="btn btn-small btn-secondary" onclick="showStats()">
+                Статистика
+            </button>
+        </div>
+    </div>
+
+    <!-- Контейнер для контента -->
+    <div id="content-container">
+        <!-- Контент будет загружаться сюда -->
+    </div>
+
+    <!-- Модальное окно -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modal-text"></div>
+        </div>
+    </div>
+
+    <!-- Аудио элементы -->
+    <audio id="sound-click" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-success" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Подключаем JavaScript -->
+    <script src="js/main.js"></script>
+    <script src="js/lists.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Урок "Списки в Python" загружается...');
+            
+            setTimeout(function() {
+                if (typeof loadContent === 'function') {
+                    loadContent('main');
+                } else {
+                    document.getElementById('content-container').innerHTML = `
+                        <div class="error">
+                            <h2>Ошибка загрузки</h2>
+                            <p>Проверьте консоль браузера для отладки.</p>
+                        </div>
+                    `;
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
