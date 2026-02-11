@@ -164,13 +164,13 @@ False</pre>
     </div>
     <div class="accordion-content">
         <div class="accordion-content-inner">
-            <p><strong>Задача:</strong> Действительный пароль BEEGEEK банка имеет вид a:b:c, где a, b и c – натуральные числа. Требования:</p>
+            <p><strong>Задача:</strong>  цифровой игре «Три Ключа» секретный код для прохождения уровня задаётся в виде трёх чисел, разделённых двоеточием: a:b:c. Чтобы код был действителен, необходимо:</p>
             <ul>
                 <li>число a должно быть палиндромом;</li>
                 <li>число b должно быть простым;</li>
                 <li>число c должно быть чётным.</li>
             </ul>
-            <p>Напишите функцию is_valid_password(password), которая принимает в качестве аргумента строковое значение пароля password и возвращает значение True, если пароль является действительным паролем BEEGEEK банка, или False в противном случае.</p>
+            <p>Напишите функцию-валидатор is_valid_password(code), которая проверяет, можно ли использовать введённый код для открытия двери.</p>
             <p><strong>Пример:</strong></p>
             <pre>
 print(is_valid_password('1221:101:22'))
@@ -203,13 +203,13 @@ False</pre>
             </ul>
             <p><strong>Данные:</strong></p>
             <pre>
-users = [
-    {'name': 'Andrew', 'email': 'and@gmail.com'},
-    {'name': 'Tim', 'phone': '555-1618', 'email': 'tim-tim@yandex.ru'},
-    {'name': 'Olivia', 'phone': '449-3141', 'email': ''},
-    {'name': 'Vika', 'phone': '547-2123', 'email': 'Viko4ka@gmail.com'},
-    {'name': 'Kate', 'surname': 'Maltseva', 'city': 'Vologda'},
-]</pre>
+                users = [
+                {'name': 'Harry Potter', 'email': 'h.potter@hogwarts.wiz'},
+                {'name': 'Hermione Granger', 'phone': '555-1618', 'email': 'h.granger@hogwarts.wiz'},
+                {'name': 'Ron Weasley', 'phone': '449-3141', 'email': ''},
+                {'name': 'Draco Malfoy', 'phone': '547-2123', 'email': 'd.malfoy@slytherin.wiz'},
+                {'name': 'Severus Snape', 'surname': 'Prince', 'city': 'Hogwarts'},
+            ]</pre>
         </div>
     </div>
 </div>
