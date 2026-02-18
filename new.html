@@ -379,8 +379,8 @@
             background: #e2e8f0;
         }
 
-        /* Snake Game Section */
-        .snake-section {
+        /* Game Section */
+        .game-section {
             background: var(--card-gradient);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
@@ -391,7 +391,7 @@
             position: relative;
         }
 
-        .snake-motivation {
+        .game-motivation {
             font-size: 1.1rem;
             color: var(--primary);
             font-weight: 500;
@@ -403,33 +403,63 @@
             display: inline-block;
         }
 
-        .snake-title {
+        .game-title {
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 20px;
             color: var(--text);
-            background: linear-gradient(45deg, #dc2626, #ea580c, #ca8a04);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
-        .snake-container {
+        .game-container {
             position: relative;
             margin: 20px auto;
             display: flex;
             justify-content: center;
         }
 
-        #snake-game {
-            border: 3px solid #dc2626;
+        /* 2048 Game Styles */
+        .game-2048-container {
+            background: #bbada0;
             border-radius: 10px;
-            background: linear-gradient(135deg, #0c4a6e 0%, #1e40af 100%);
-            display: block;
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+            padding: 15px;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .snake-controls {
+        #game-2048 {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+            background: #bbada0;
+        }
+
+        .tile {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            border-radius: 5px;
+            background: #cdc1b4;
+            color: #776e65;
+            transition: none;
+        }
+
+        .tile-2 { background: #eee4da; }
+        .tile-4 { background: #ede0c8; }
+        .tile-8 { background: #f2b179; color: #f9f6f2; }
+        .tile-16 { background: #f59563; color: #f9f6f2; }
+        .tile-32 { background: #f67c5f; color: #f9f6f2; }
+        .tile-64 { background: #f65e3b; color: #f9f6f2; }
+        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 32px; }
+        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 32px; }
+        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 32px; }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 28px; }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 28px; }
+
+        .game-controls {
             display: flex;
             justify-content: center;
             gap: 15px;
@@ -437,8 +467,8 @@
             flex-wrap: wrap;
         }
 
-        .snake-btn {
-            background: linear-gradient(45deg, #dc2626, #ea580c);
+        .game-btn {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
             color: white;
             border: none;
             padding: 12px 24px;
@@ -447,19 +477,19 @@
             cursor: pointer;
             transition: var(--transition);
             font-family: inherit;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
-        .snake-btn:hover {
+        .game-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
         }
 
-        .snake-btn.secondary {
-            background: linear-gradient(45deg, #059669, #0d9488);
+        .game-btn.secondary {
+            background: linear-gradient(45deg, #64748b, #94a3b8);
         }
 
-        .snake-stats {
+        .game-stats {
             display: flex;
             justify-content: center;
             gap: 30px;
@@ -468,33 +498,55 @@
             color: var(--text);
         }
 
-        .game-over, .game-start {
+        .game-over {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(15, 23, 42, 0.98);
             color: white;
             padding: 30px;
             border-radius: 15px;
             text-align: center;
-            z-index: 10;
-            border: 2px solid #dc2626;
-            box-shadow: 0 0 30px rgba(220, 38, 38, 0.5);
+            z-index: 100;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+            backdrop-filter: blur(4px);
         }
 
-        .game-start {
-            border-color: #059669;
+        /* Touch controls for mobile */
+        .touch-controls {
+            display: none;
+            grid-template-columns: repeat(3, 80px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
         }
 
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+        .touch-btn {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
         }
 
-        .floating {
-            animation: float 3s ease-in-out infinite;
+        .touch-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .touch-btn:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .touch-controls {
+                display: grid;
+            }
         }
 
         /* Responsive */
@@ -525,10 +577,23 @@
                 text-align: center;
             }
 
-            #snake-game {
-                width: 100%;
-                max-width: 400px;
-                height: 300px;
+            #game-2048 {
+                grid-template-columns: repeat(4, 70px);
+                gap: 8px;
+            }
+
+            .tile {
+                width: 70px;
+                height: 70px;
+                font-size: 24px;
+            }
+
+            .tile-128, .tile-256, .tile-512 {
+                font-size: 22px;
+            }
+
+            .tile-1024, .tile-2048 {
+                font-size: 18px;
             }
         }
 
@@ -541,14 +606,24 @@
                 grid-template-columns: 1fr;
             }
             
-            .snake-controls {
+            .game-controls {
                 flex-direction: column;
                 align-items: center;
             }
-            
-            #snake-game {
-                max-width: 320px;
-                height: 240px;
+
+            #game-2048 {
+                grid-template-columns: repeat(4, 60px);
+                gap: 5px;
+            }
+
+            .tile {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+
+            .game-2048-container {
+                padding: 10px;
             }
         }
     </style>
@@ -568,7 +643,7 @@
                         <div class="progress-stats">17/20 занятий</div>
                     </div>
                     <div class="progress-bar-container">
-                        <div class="progress-bar"></div>
+                        <div class="progress-bar" style="width: 85%;"></div>
                     </div>
                     <div class="progress-labels">
                         <span>🎯 Начало</span>
@@ -602,54 +677,18 @@
             </div>
             <div class="topics-body">
                 <div class="topics-grid">
-                    <div class="topic-item">
-                        <div class="topic-number">1</div>
-                        <div class="topic-name">Переменные</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">2</div>
-                        <div class="topic-name">Типы данных</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">3</div>
-                        <div class="topic-name">Ввод и вывод</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">4</div>
-                        <div class="topic-name">Арифметические операции</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">5</div>
-                        <div class="topic-name">Условный оператор</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">6</div>
-                        <div class="topic-name">Цикл While</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">7</div>
-                        <div class="topic-name">Цикл For</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">8</div>
-                        <div class="topic-name">Строки</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">9</div>
-                        <div class="topic-name">Списки</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">10</div>
-                        <div class="topic-name">Функции</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">11</div>
-                        <div class="topic-name">Библиотеки</div>
-                    </div>
-                    <div class="topic-item">
-                        <div class="topic-number">12</div>
-                        <div class="topic-name">Словари</div>
-                    </div>
+                    <div class="topic-item"><div class="topic-number">1</div><div class="topic-name">Переменные</div></div>
+                    <div class="topic-item"><div class="topic-number">2</div><div class="topic-name">Типы данных</div></div>
+                    <div class="topic-item"><div class="topic-number">3</div><div class="topic-name">Ввод и вывод</div></div>
+                    <div class="topic-item"><div class="topic-number">4</div><div class="topic-name">Арифметические операции</div></div>
+                    <div class="topic-item"><div class="topic-number">5</div><div class="topic-name">Условный оператор</div></div>
+                    <div class="topic-item"><div class="topic-number">6</div><div class="topic-name">Цикл While</div></div>
+                    <div class="topic-item"><div class="topic-number">7</div><div class="topic-name">Цикл For</div></div>
+                    <div class="topic-item"><div class="topic-number">8</div><div class="topic-name">Строки</div></div>
+                    <div class="topic-item"><div class="topic-number">9</div><div class="topic-name">Списки</div></div>
+                    <div class="topic-item"><div class="topic-number">10</div><div class="topic-name">Функции</div></div>
+                    <div class="topic-item"><div class="topic-number">11</div><div class="topic-name">Библиотеки</div></div>
+                    <div class="topic-item"><div class="topic-number">12</div><div class="topic-name">Словари</div></div>
                 </div>
             </div>
         </div>
@@ -659,7 +698,7 @@
             <h2 class="section-title">🎯 Практические работы</h2>
             
             <div class="practice-grid">
-                <!-- Available lessons -->
+                <!-- 1 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon primary">1</div>
@@ -674,7 +713,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 2 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon primary">2</div>
@@ -689,7 +728,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 3 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon primary">3</div>
@@ -704,7 +743,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 4 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon secondary">4</div>
@@ -719,7 +758,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 5 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon secondary">5</div>
@@ -734,7 +773,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 6 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">6</div>
@@ -749,7 +788,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 7 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">7</div>
@@ -764,7 +803,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 8 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">8</div>
@@ -779,8 +818,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Future lessons -->
+                <!-- 9 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">9</div>
@@ -795,7 +833,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 10 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">10</div>
@@ -810,7 +848,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 11 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">11</div>
@@ -825,7 +863,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 12 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">12</div>
@@ -840,7 +878,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 13 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">13</div>
@@ -855,6 +893,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- 14 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">14</div>
@@ -869,7 +908,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 15 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">15</div>
@@ -884,7 +923,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 16 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">16</div>
@@ -899,7 +938,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 17 -->
                 <div class="practice-card active">
                     <div class="practice-header">
                         <div class="practice-icon accent">17</div>
@@ -914,7 +953,7 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- 18 future -->
                 <div class="practice-card future">
                     <div class="practice-header">
                         <div class="practice-icon muted">18</div>
@@ -932,40 +971,47 @@
             </div>
         </div>
 
-        <!-- Snake Game -->
-        <div class="snake-section">
-            <h2 class="snake-title">🎄 Новогодняя Змейка 🎅</h2>
+        <!-- 2048 Game -->
+        <div class="game-section">
+            <h2 class="game-title">🎮 2048</h2>
             
-            <div class="snake-motivation">
-                🎮 Отдыхать тоже нужно! Передохни и поиграй в новогоднюю змейку 🐍
+            <div class="game-motivation">
+                🧠 Тренируй мозг и логическое мышление
             </div>
             
-            <p style="color: var(--text-light); margin-bottom: 20px;">🎁 Собери подарки к Новому Году!</p>
+            <p style="color: var(--text-light); margin-bottom: 20px;">Соединяй плитки с одинаковыми числами!</p>
             
-            <div class="snake-container">
-                <canvas id="snake-game" width="600" height="400"></canvas>
-                <div class="game-start" id="game-start">
-                    <h3 style="margin-bottom: 15px; color: #10b981;">🎄 Новогодняя Змейка! 🎄</h3>
-                    <p style="margin-bottom: 10px;">Нажми "Старт" чтобы начать игру</p>
-                    <p style="margin-bottom: 15px; font-size: 0.9rem; color: #cbd5e1;">🎯 Управление: Стрелки ← ↑ → ↓</p>
-                    <button class="snake-btn" onclick="snakeGame.startGame()">🎮 Начать игру</button>
+            <div class="game-container">
+                <div class="game-2048-container">
+                    <div id="game-2048">
+                        <!-- Grid будет сгенерирован JS -->
+                    </div>
                 </div>
-                <div class="game-over" id="game-over">
-                    <h3 style="margin-bottom: 10px; color: #fbbf24;">🎉 С Новым Годом! 🎉</h3>
-                    <p style="margin-bottom: 15px;">🏆 Твой счет: <span id="final-score">0</span></p>
-                    <button class="snake-btn" onclick="snakeGame.resetGame()">🔄 Играть снова</button>
+                <div class="game-over" id="game-over-2048" style="display: none;">
+                    <h3 style="margin-bottom: 10px; color: var(--secondary);">🎮 Игра окончена</h3>
+                    <p style="margin-bottom: 15px;">🏆 Счет: <span id="final-score-2048">0</span></p>
+                    <button class="game-btn" onclick="game2048.newGame()">🔄 Новая игра</button>
                 </div>
             </div>
             
-            <div class="snake-stats">
-                <div>🎁 Счет: <span id="score">0</span></div>
-                <div>🏅 Рекорд: <span id="high-score">0</span></div>
+            <div class="game-stats">
+                <div>⭐ Счет: <span id="score-2048">0</span></div>
+                <div>🏆 Рекорд: <span id="high-score-2048">0</span></div>
             </div>
             
-            <div class="snake-controls">
-                <button class="snake-btn" onclick="snakeGame.startGame()">▶️ Старт</button>
-                <button class="snake-btn secondary" onclick="snakeGame.pauseGame()">⏸️ Пауза</button>
-                <button class="snake-btn" onclick="snakeGame.resetGame()">🔄 Сброс</button>
+            <div class="game-controls">
+                <button class="game-btn" onclick="game2048.newGame()">🔄 Новая игра</button>
+                <button class="game-btn secondary" onclick="game2048.undo()">↩️ Отменить</button>
+            </div>
+
+            <!-- Touch controls for mobile -->
+            <div class="touch-controls">
+                <div></div>
+                <button class="touch-btn" onclick="game2048.move('up')">⬆️</button>
+                <div></div>
+                <button class="touch-btn" onclick="game2048.move('left')">⬅️</button>
+                <button class="touch-btn" onclick="game2048.move('down')">⬇️</button>
+                <button class="touch-btn" onclick="game2048.move('right')">➡️</button>
             </div>
             
             <div style="margin-top: 20px; font-size: 0.9rem; color: var(--text-light);">
@@ -975,211 +1021,225 @@
     </div>
 
     <script>
-        // Snake Game implementation
-        class SnakeGame {
+        // 2048 Game Implementation - без анимации, стандартное управление
+        class Game2048 {
             constructor() {
-                this.canvas = document.getElementById('snake-game');
-                this.ctx = this.canvas.getContext('2d');
-                this.gameStartScreen = document.getElementById('game-start');
-                this.gameOverScreen = document.getElementById('game-over');
-                this.scoreElement = document.getElementById('score');
-                this.finalScoreElement = document.getElementById('final-score');
-                this.highScoreElement = document.getElementById('high-score');
-
-                this.gridSize = 20;
-                this.tileCountX = this.canvas.width / this.gridSize;
-                this.tileCountY = this.canvas.height / this.gridSize;
-
-                this.snake = [{x: 10, y: 10}];
-                this.food = this.randomFood();
-                this.dx = 0;
-                this.dy = 0;
+                this.grid = [];
                 this.score = 0;
-                this.highScore = localStorage.getItem('newYearSnakeHighScore') || 0;
-                this.gameRunning = false;
-                this.gameStarted = false;
-                this.gameLoop = null;
-
-                this.highScoreElement.textContent = this.highScore;
+                this.highScore = parseInt(localStorage.getItem('game2048HighScore')) || 0;
+                this.size = 4;
+                this.gameOver = false;
+                this.history = [];
                 
+                this.gridElement = document.getElementById('game-2048');
+                this.scoreElement = document.getElementById('score-2048');
+                this.highScoreElement = document.getElementById('high-score-2048');
+                this.finalScoreElement = document.getElementById('final-score-2048');
+                this.gameOverElement = document.getElementById('game-over-2048');
+                
+                this.highScoreElement.textContent = this.highScore;
                 this.init();
             }
-
+            
             init() {
-                this.drawGame();
+                this.grid = Array(this.size).fill().map(() => Array(this.size).fill(0));
+                this.addNewTile();
+                this.addNewTile();
+                this.saveState();
+                this.updateDisplay();
                 this.setupEventListeners();
             }
-
-            randomFood() {
-                return {
-                    x: Math.floor(Math.random() * this.tileCountX),
-                    y: Math.floor(Math.random() * this.tileCountY)
-                };
-            }
-
-            drawGame() {
-                const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
-                gradient.addColorStop(0, '#0c4a6e');
-                gradient.addColorStop(1, '#1e40af');
-                this.ctx.fillStyle = gradient;
-                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-                this.snake.forEach((segment, index) => {
-                    if (index === 0) {
-                        this.ctx.fillStyle = '#dc2626';
-                    } else {
-                        this.ctx.fillStyle = '#16a34a';
-                    }
-                    
-                    this.ctx.fillRect(segment.x * this.gridSize, segment.y * this.gridSize, this.gridSize - 2, this.gridSize - 2);
+            
+            saveState() {
+                this.history.push({
+                    grid: JSON.parse(JSON.stringify(this.grid)),
+                    score: this.score
                 });
-
-                this.ctx.fillStyle = '#fbbf24';
-                this.ctx.fillRect(this.food.x * this.gridSize, this.food.y * this.gridSize, this.gridSize - 2, this.gridSize - 2);
+                if (this.history.length > 10) this.history.shift();
             }
-
-            updateGame() {
-                if (!this.gameRunning) return;
-
-                const head = {x: this.snake[0].x + this.dx, y: this.snake[0].y + this.dy};
-
-                if (head.x < 0) head.x = this.tileCountX - 1;
-                if (head.x >= this.tileCountX) head.x = 0;
-                if (head.y < 0) head.y = this.tileCountY - 1;
-                if (head.y >= this.tileCountY) head.y = 0;
-
-                for (let i = 1; i < this.snake.length; i++) {
-                    if (head.x === this.snake[i].x && head.y === this.snake[i].y) {
-                        this.gameOver();
-                        return;
+            
+            undo() {
+                if (this.history.length < 2) return;
+                this.history.pop();
+                const prev = this.history[this.history.length - 1];
+                this.grid = JSON.parse(JSON.stringify(prev.grid));
+                this.score = prev.score;
+                this.gameOver = false;
+                this.gameOverElement.style.display = 'none';
+                this.updateDisplay();
+                this.scoreElement.textContent = this.score;
+            }
+            
+            addNewTile() {
+                const empty = [];
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        if (this.grid[i][j] === 0) empty.push({x: i, y: j});
                     }
                 }
-
-                this.snake.unshift(head);
-
-                if (head.x === this.food.x && head.y === this.food.y) {
-                    this.score += 10;
-                    this.scoreElement.textContent = this.score;
-                    this.food = this.randomFood();
-                } else {
-                    this.snake.pop();
+                if (empty.length > 0) {
+                    const {x, y} = empty[Math.floor(Math.random() * empty.length)];
+                    this.grid[x][y] = Math.random() < 0.9 ? 2 : 4;
                 }
-
-                this.drawGame();
             }
-
-            gameOver() {
-                this.gameRunning = false;
-                this.gameStarted = false;
-                clearInterval(this.gameLoop);
+            
+            updateDisplay() {
+                this.gridElement.innerHTML = '';
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        const value = this.grid[i][j];
+                        const tile = document.createElement('div');
+                        tile.className = `tile tile-${value}`;
+                        tile.textContent = value || '';
+                        this.gridElement.appendChild(tile);
+                    }
+                }
+            }
+            
+            move(direction) {
+                if (this.gameOver) return false;
+                
+                this.saveState();
+                
+                let moved = false;
+                const oldGrid = JSON.parse(JSON.stringify(this.grid));
+                
+                // Нормальное управление: вверх = вверх, вниз = вниз
+                let vector = {x: 0, y: 0};
+                switch(direction) {
+                    case 'up':    vector = {x: 0, y: -1}; break;
+                    case 'down':  vector = {x: 0, y: 1}; break;
+                    case 'left':  vector = {x: -1, y: 0}; break;
+                    case 'right': vector = {x: 1, y: 0}; break;
+                }
+                
+                const newGrid = Array(this.size).fill().map(() => Array(this.size).fill(0));
+                
+                if (vector.y !== 0) {
+                    // Вертикальное движение
+                    for (let col = 0; col < this.size; col++) {
+                        let column = [];
+                        for (let row = 0; row < this.size; row++) {
+                            if (this.grid[row][col] !== 0) {
+                                column.push(this.grid[row][col]);
+                            }
+                        }
+                        
+                        for (let i = 0; i < column.length - 1; i++) {
+                            if (column[i] === column[i + 1]) {
+                                column[i] *= 2;
+                                this.score += column[i];
+                                column.splice(i + 1, 1);
+                            }
+                        }
+                        
+                        while (column.length < this.size) {
+                            if (vector.y > 0) column.unshift(0);
+                            else column.push(0);
+                        }
+                        
+                        for (let row = 0; row < this.size; row++) {
+                            newGrid[row][col] = column[row];
+                        }
+                    }
+                } else {
+                    // Горизонтальное движение
+                    for (let row = 0; row < this.size; row++) {
+                        let line = this.grid[row].filter(val => val !== 0);
+                        
+                        for (let i = 0; i < line.length - 1; i++) {
+                            if (line[i] === line[i + 1]) {
+                                line[i] *= 2;
+                                this.score += line[i];
+                                line.splice(i + 1, 1);
+                            }
+                        }
+                        
+                        while (line.length < this.size) {
+                            if (vector.x > 0) line.unshift(0);
+                            else line.push(0);
+                        }
+                        
+                        newGrid[row] = line;
+                    }
+                }
+                
+                if (JSON.stringify(oldGrid) !== JSON.stringify(newGrid)) {
+                    moved = true;
+                    this.grid = newGrid;
+                    this.addNewTile();
+                    this.updateDisplay();
+                }
+                
+                this.scoreElement.textContent = this.score;
                 
                 if (this.score > this.highScore) {
                     this.highScore = this.score;
-                    localStorage.setItem('newYearSnakeHighScore', this.highScore);
+                    localStorage.setItem('game2048HighScore', this.highScore);
                     this.highScoreElement.textContent = this.highScore;
                 }
                 
-                this.finalScoreElement.textContent = this.score;
-                this.gameOverScreen.style.display = 'block';
-            }
-
-            startGame() {
-                if (this.gameRunning) return;
-                
-                this.gameRunning = true;
-                this.gameStarted = true;
-                this.gameStartScreen.style.display = 'none';
-                this.gameOverScreen.style.display = 'none';
-                
-                if (this.dx === 0 && this.dy === 0) {
-                    this.dx = 1;
-                    this.dy = 0;
+                if (this.checkGameOver()) {
+                    this.gameOver = true;
+                    this.finalScoreElement.textContent = this.score;
+                    this.gameOverElement.style.display = 'block';
                 }
                 
-                this.gameLoop = setInterval(() => this.updateGame(), 150);
+                return moved;
             }
-
-            pauseGame() {
-                if (!this.gameStarted) return;
-                
-                this.gameRunning = !this.gameRunning;
-                if (this.gameRunning) {
-                    this.gameLoop = setInterval(() => this.updateGame(), 150);
-                } else {
-                    clearInterval(this.gameLoop);
+            
+            checkGameOver() {
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        if (this.grid[i][j] === 0) return false;
+                    }
                 }
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size - 1; j++) {
+                        if (this.grid[i][j] === this.grid[i][j + 1]) return false;
+                    }
+                }
+                for (let j = 0; j < this.size; j++) {
+                    for (let i = 0; i < this.size - 1; i++) {
+                        if (this.grid[i][j] === this.grid[i + 1][j]) return false;
+                    }
+                }
+                return true;
             }
-
-            resetGame() {
-                this.snake = [{x: 10, y: 10}];
-                this.dx = 0;
-                this.dy = 0;
+            
+            newGame() {
+                this.grid = Array(this.size).fill().map(() => Array(this.size).fill(0));
                 this.score = 0;
+                this.gameOver = false;
+                this.history = [];
+                this.addNewTile();
+                this.addNewTile();
+                this.saveState();
+                this.updateDisplay();
                 this.scoreElement.textContent = this.score;
-                this.food = this.randomFood();
-                this.gameStartScreen.style.display = 'block';
-                this.gameOverScreen.style.display = 'none';
-                this.gameRunning = false;
-                this.gameStarted = false;
-                clearInterval(this.gameLoop);
-                this.drawGame();
+                this.gameOverElement.style.display = 'none';
             }
-
+            
             setupEventListeners() {
                 document.addEventListener('keydown', (e) => {
-                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                         e.preventDefault();
-                    }
-
-                    if (!this.gameStarted && e.key !== ' ') return;
-
-                    const goingUp = this.dy === -1;
-                    const goingDown = this.dy === 1;
-                    const goingRight = this.dx === 1;
-                    const goingLeft = this.dx === -1;
-
-                    switch(e.key) {
-                        case 'ArrowUp':
-                            if (!goingDown) {
-                                this.dx = 0;
-                                this.dy = -1;
+                        if (!this.gameOver) {
+                            switch(e.key) {
+                                case 'ArrowUp': this.move('up'); break;
+                                case 'ArrowDown': this.move('down'); break;
+                                case 'ArrowLeft': this.move('left'); break;
+                                case 'ArrowRight': this.move('right'); break;
                             }
-                            break;
-                        case 'ArrowDown':
-                            if (!goingUp) {
-                                this.dx = 0;
-                                this.dy = 1;
-                            }
-                            break;
-                        case 'ArrowLeft':
-                            if (!goingRight) {
-                                this.dx = -1;
-                                this.dy = 0;
-                            }
-                            break;
-                        case 'ArrowRight':
-                            if (!goingLeft) {
-                                this.dx = 1;
-                                this.dy = 0;
-                            }
-                            break;
-                        case ' ':
-                            if (!this.gameStarted) {
-                                this.startGame();
-                            } else if (!this.gameRunning) {
-                                this.startGame();
-                            } else {
-                                this.pauseGame();
-                            }
-                            break;
+                        }
                     }
                 });
             }
         }
 
-        let snakeGame;
+        let game2048;
         document.addEventListener('DOMContentLoaded', () => {
-            snakeGame = new SnakeGame();
+            game2048 = new Game2048();
         });
     </script>
 </body>
