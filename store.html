@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏪 Магазин - Задания</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .level {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid;
+        }
+
+        .level-novice { border-left-color: #28a745; }
+        .level-amateur { border-left-color: #17a2b8; }
+        .level-advanced { border-left-color: #ffc107; }
+
+        .level h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .task h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .task ul {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .code-section {
+            background: #1e1e1e;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .code-section h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+        }
+
+        pre {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            color: #f8f8f2;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .comment { color: #75715e; }
+        .keyword { color: #f92672; }
+        .string { color: #e6db74; }
+        .number { color: #ae81ff; }
+        .function { color: #66d9ef; }
+
+        .checklist {
+            background: #e8f5e9;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .checklist h2 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+
+        .checklist ul {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            color: #555;
+        }
+
+        .checklist li:before {
+            content: "☐ ";
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .grading {
+            background: #fff3e0;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .grading h2 {
+            color: #ef6c00;
+            margin-bottom: 20px;
+        }
+
+        .grading table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .grading th, .grading td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ffe0b2;
+        }
+
+        .grading th {
+            background: #ff9800;
+            color: white;
+        }
+
+        .bonus-table {
+            background: #f3e5f5;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .bonus-table h2 {
+            color: #7b1fa2;
+            margin-bottom: 20px;
+        }
+
+        .tips {
+            background: #e3f2fd;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .tips h2 {
+            color: #1976d2;
+            margin-bottom: 20px;
+        }
+
+        .tips pre {
+            background: #1e1e1e;
+            max-height: 300px;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content { padding: 20px; }
+            header h1 { font-size: 1.8em; }
+            pre { font-size: 11px; }
+            .copy-btn { position: relative; top: 0; right: 0; margin-bottom: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏪 Магазин</h1>
+            <p>Задания по программированию для школьников</p>
+        </header>
+
+        <div class="content">
+            <!-- УРОВЕНЬ 1 -->
+            <div class="level level-novice">
+                <h2>🎯 УРОВЕНЬ 1: НОВИЧОК (20 баллов)</h2>
+                <p style="margin-bottom: 20px; color: #666;">Базовые переменные — настройка магазина</p>
+
+                <div class="task">
+                    <h3>Задание 1.1: Название магазина</h3>
+                    <p>Измени значение переменной <code>shop</code> на своё название магазина.</p>
+                </div>
+
+                <div class="task">
+                    <h3>Задание 1.2: Название товара</h3>
+                    <p>Измени значение переменной <code>product</code> на свой товар (что продаёшь?).</p>
+                </div>
+
+                <div class="task">
+                    <h3>Задание 1.3: Настройка цен</h3>
+                    <p>Установи свои значения для <code>price</code> (цена покупки) и <code>sell</code> (цена продажи). Покупка должна быть дешевле продажи!</p>
+                </div>
+
+                <div class="task">
+                    <h3>Задание 1.4: Стартовый баланс</h3>
+                    <p>Измени значение переменной <code>balance</code> на свою стартовую сумму.</p>
+                </div>
+
+                <div class="task" style="background: #e8f5e9;">
+                    <strong>✅ Проверка:</strong> Запусти программу и убедись, что все значения отобразились на экране.
+                </div>
+            </div>
+
+            <!-- УРОВЕНЬ 2 -->
+            <div class="level level-amateur">
+                <h2>🎯 УРОВЕНЬ 2: ЛЮБИТЕЛЬ (30 баллов)</h2>
+                <p style="margin-bottom: 20px; color: #666;">Логика покупок и продаж</p>
+
+                <div class="task">
+                    <h3>Задание 2.1: Реализуй покупку</h3>
+                    <p>В блоке <code>elif cmd == "buy":</code> напиши код, который:</p>
+                    <ul>
+                        <li>Спрашивает количество товара</li>
+                        <li>Считает общую сумму</li>
+                        <li>Проверяет, хватает ли денег на балансе</li>
+                        <li>Если хватает — списывает деньги и добавляет товар на склад</li>
+                        <li>Если не хватает — выводит сообщение об ошибке</li>
+                    </ul>
+                </div>
+
+                <div class="task">
+                    <h3>Задание 2.2: Реализуй продажу</h3>
+                    <p>В блоке <code>elif cmd == "sell":</code> напиши код, который:</p>
+                    <ul>
+                        <li>Спрашивает количество товара</li>
+                        <li>Проверяет, есть ли товар на складе</li>
+                        <li>Если есть — добавляет деньги и убирает товар со склада</li>
+                        <li>Если нет — выводит сообщение об ошибке</li>
+                    </ul>
+                </div>
+
+                <div class="task">
+                    <h3>Задание 2.3: Реализуй сюрприз</h3>
+                    <p>В блоке <code>elif cmd == "surprise":</code> напиши код, который:</p>
+                    <ul>
+                        <li>Генерирует случайное число от 1 до 5</li>
+                        <li>Добавляет это количество товаров на склад</li>
+                        <li>Выводит сообщение о подарке</li>
+                    </ul>
+                </div>
+
+                <div class="task" style="background: #e8f5e9;">
+                    <strong>✅ Проверка:</strong> Протестируй все три команды по очереди.
+                </div>
+            </div>
+
+            <!-- УРОВЕНЬ 3 -->
+            <div class="level level-advanced">
+                <h2>🎯 УРОВЕНЬ 3: ПРОДВИНУТЫЙ (30 баллов)</h2>
+                <p style="margin-bottom: 20px; color: #666;">Дополнительные функции</p>
+
+                <div class="task">
+                    <h3>Задание 3.1: Скидка за опт</h3>
+                    <p>Добавь логику: если покупают больше 10 штук, применяй скидку 10% к общей сумме.</p>
+                </div>
+
+                <div class="task">
+                    <h3>Задание 3.2: Налог на прибыль</h3>
+                    <p>Добавь логику: после каждой продажи удерживай 5% налога от суммы продажи.</p>
+                </div>
+
+                <div class="task">
+                    <h3>Задание 3.3: Статистика</h3>
+                    <p>Добавь новую команду <code>stats</code>, которая выводит текущую прибыль (разница между текущим и стартовым балансом).</p>
+                </div>
+            </div>
+
+
+
+            <!-- СИСТЕМА ОЦЕНИВАНИЯ -->
+            <div class="grading">
+                <h2>📊 СИСТЕМА ОЦЕНИВАНИЯ</h2>
+                <table>
+                    <tr>
+                        <th>Уровень</th>
+                        <th>Задания</th>
+                        <th>Макс. баллы</th>
+                    </tr>
+                    <tr>
+                        <td>🟢 Новичок</td>
+                        <td>1.1–1.4</td>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <td>🔵 Любитель</td>
+                        <td>2.1–2.3</td>
+                        <td>30</td>
+                    </tr>
+                    <tr>
+                        <td>🟡 Продвинутый</td>
+                        <td>3.1–3.3</td>
+                        <td>30</td>
+                    </tr>
+                    <tr>
+                        <td>🟣 Бонус</td>
+                        <td>Любое</td>
+                        <td>+20</td>
+                    </tr>
+                    <tr style="background: #ff9800;">
+                        <td><strong>ИТОГО</strong></td>
+                        <td></td>
+                        <td><strong>100</strong></td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px;">
+                    <strong>Оценки:</strong><br>
+                    ⭐⭐⭐ 90–100 баллов = Отлично<br>
+                    ⭐⭐ 60–89 баллов = Хорошо<br>
+                    ⭐ 30–59 баллов = Удовлетворительно<br>
+                    0–29 баллов = Нужно доработать
+                </div>
+            </div>
+
+            <!-- ПОДСКАЗКИ -->
+            <div class="tips">
+                <h2>💡 ПОДСКАЗКИ</h2>
+                <pre><code><span class="comment"># Как изменить переменную:</span>
+balance = <span class="number">5000</span>          <span class="comment"># Установить значение</span>
+balance += <span class="number">100</span>          <span class="comment"># Прибавить</span>
+balance -= <span class="number">50</span>           <span class="comment"># Вычесть</span>
+balance *= <span class="number">2</span>            <span class="comment"># Умножить</span>
+
+<span class="comment"># Как сравнить:</span>
+<span class="keyword">if</span> balance > <span class="number">1000</span>:      <span class="comment"># Больше</span>
+<span class="keyword">if</span> balance < <span class="number">0</span>:         <span class="comment"># Меньше</span>
+<span class="keyword">if</span> balance == <span class="number">0</span>:        <span class="comment"># Равно</span>
+
+<span class="comment"># Как получить случайное число:</span>
+<span class="keyword">import</span> random
+gift = random.randint(<span class="number">1</span>, <span class="number">10</span>)  <span class="comment"># От 1 до 10</span></code></pre>
+            </div>
+
+            <!-- ИСХОДНЫЙ КОД -->
+            <div class="code-section">
+                <h2>📄 ИСХОДНЫЙ КОД (скопируй для начала работы)</h2>
+                <button class="copy-btn" onclick="copyCode()">📋 Копировать код</button>
+                <pre id="sourceCode"><code><span class="comment"># ============================================================</span>
+<span class="comment"># ЧАСТЬ 1: ГРАФИЧЕСКАЯ БИБЛИОТЕКА (НЕ ТРОГАТЬ!)</span>
+<span class="comment"># ============================================================</span>
+<span class="keyword">import</span> turtle
+<span class="keyword">import</span> time
+<span class="keyword">import</span> builtins
+<span class="keyword">import</span> random
+
+<span class="comment"># ---------- НАСТРОЙКИ ОКНА ----------</span>
+turtle.setup(<span class="number">800</span>, <span class="number">600</span>)
+turtle.title(<span class="string">"🏪 Магазин на Turtle"</span>)
+turtle.tracer(<span class="number">0</span>)
+turtle.hideturtle()
+
+<span class="comment"># ---------- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ----------</span>
+balance = <span class="number">1000</span>
+count = <span class="number">5</span>
+price = <span class="number">100</span>
+sell = <span class="number">150</span>
+shop = <span class="string">"Магазин"</span>
+product = <span class="string">"Товар"</span>
+_message = <span class="string">""</span>
+_message_time = <span class="number">0</span>
+
+<span class="comment"># ---------- ФУНКЦИИ ОТРИСОВКИ ----------</span>
+<span class="keyword">def</span> <span class="function">update_display</span>():
+    <span class="string">"""Перерисовывает интерфейс с текущими значениями переменных"""</span>
+    turtle.clear()
+    _draw_background()
+    _draw_text(<span class="number">0</span>, <span class="number">210</span>, f<span class="string">"🏪 {shop} 🏪"</span>, <span class="number">28</span>, <span class="string">"#4a4a4a"</span>, <span class="string">"center"</span>)
+    _draw_text(-<span class="number">280</span>, <span class="number">150</span>, f<span class="string">"💰 Баланс: {balance} руб."</span>, <span class="number">18</span>, <span class="string">"#2e7d32"</span>)
+    _draw_text(<span class="number">50</span>, <span class="number">150</span>, f<span class="string">"📦 {product}: {count} шт."</span>, <span class="number">18</span>, <span class="string">"#8d6e63"</span>)
+    _draw_text(-<span class="number">280</span>, <span class="number">100</span>, f<span class="string">"Цена покупки: {price} руб."</span>, <span class="number">16</span>, <span class="string">"#666666"</span>)
+    _draw_text(<span class="number">50</span>, <span class="number">100</span>, f<span class="string">"Цена продажи: {sell} руб."</span>, <span class="number">16</span>, <span class="string">"#666666"</span>)
+    _draw_text(<span class="number">0</span>, <span class="number">20</span>, <span class="string">"Твоя программа управляет магазином!"</span>, <span class="number">16</span>, <span class="string">"#333333"</span>, <span class="string">"center"</span>)
+
+    y_pos = -<span class="number">150</span>
+    <span class="keyword">if</span> balance > <span class="number">10000</span>:
+        _draw_text(<span class="number">0</span>, y_pos, <span class="string">"⭐ ВЫ БОГАТЫ! ⭐"</span>, <span class="number">22</span>, <span class="string">"#ffd700"</span>, <span class="string">"center"</span>)
+        y_pos -= <span class="number">30</span>
+    <span class="keyword">if</span> count > <span class="number">10</span>:
+        _draw_text(<span class="number">0</span>, y_pos, <span class="string">"🎁 СКИДКА 10% на след. покупку!"</span>, <span class="number">18</span>, <span class="string">"#9c27b0"</span>, <span class="string">"center"</span>)
+        y_pos -= <span class="number">30</span>
+
+    <span class="keyword">if</span> _message <span class="keyword">and</span> time.time() - _message_time < <span class="number">3</span>:
+        _draw_text(<span class="number">0</span>, -<span class="number">200</span>, _message, <span class="number">16</span>, <span class="string">"#ff5722"</span>, <span class="string">"center"</span>)
+
+    turtle.update()
+
+<span class="keyword">def</span> <span class="function">_draw_background</span>():
+    turtle.penup()
+    turtle.goto(-<span class="number">350</span>, <span class="number">250</span>)
+    turtle.pendown()
+    turtle.fillcolor(<span class="string">"#e6f3ff"</span>)
+    turtle.begin_fill()
+    <span class="keyword">for</span> _ <span class="keyword">in</span> range(<span class="number">2</span>):
+        turtle.forward(<span class="number">700</span>)
+        turtle.right(<span class="number">90</span>)
+        turtle.forward(<span class="number">500</span>)
+        turtle.right(<span class="number">90</span>)
+    turtle.end_fill()
+    turtle.penup()
+
+<span class="keyword">def</span> <span class="function">_draw_text</span>(x, y, text, size=<span class="number">14</span>, color=<span class="string">"black"</span>, align=<span class="string">"left"</span>):
+    turtle.goto(x, y)
+    turtle.color(color)
+    turtle.write(text, align=align, font=(<span class="string">"Arial"</span>, size, <span class="string">"bold"</span>))
+
+<span class="comment"># ---------- ПЕРЕОПРЕДЕЛЁННЫЙ PRINT ----------</span>
+original_print = builtins.print
+<span class="keyword">def</span> <span class="function">print</span>(*args, **kwargs):
+    <span class="keyword">global</span> _message, _message_time
+    _message = <span class="string">' '</span>.join(str(arg) <span class="keyword">for</span> arg <span class="keyword">in</span> args)
+    _message_time = time.time()
+    update_display()
+builtins.print = print
+
+<span class="comment"># ---------- ФУНКЦИЯ ВВОДА ----------</span>
+<span class="keyword">def</span> <span class="function">input</span>(prompt=<span class="string">"Введите значение:"</span>, title=<span class="string">"Ввод"</span>):
+    <span class="keyword">return</span> turtle.textinput(title, prompt) <span class="keyword">or</span> <span class="string">""</span>
+
+<span class="comment"># ============================================================</span>
+<span class="comment"># ЧАСТЬ 2: КОД ШКОЛЬНИКА (МОЖНО МЕНЯТЬ ВСЁ, ЧТО НИЖЕ)</span>
+<span class="comment"># ============================================================</span>
+
+<span class="comment"># ПЕРВЫЙ РАЗ ПОКАЗЫВАЕМ ОКНО (УЖЕ С НАЧАЛЬНЫМИ ЗНАЧЕНИЯМИ)</span>
+update_display()
+
+<span class="comment"># -------------------------------------------------</span>
+<span class="comment"># 1. НАСТРОЙКА НАЧАЛЬНЫХ ПАРАМЕТРОВ</span>
+<span class="comment"># -------------------------------------------------</span>
+
+<span class="comment"># Задание 1. Название магазина</span>
+shop = 
+
+<span class="comment"># Задание 2. Название товара</span>
+<span class="comment"># product = </span>
+
+<span class="comment"># Задание 3. Цена покупки</span>
+<span class="comment"># price = </span>
+
+<span class="comment"># Задание 4. Цена продажи</span>
+<span class="comment"># sell = </span>
+
+
+<span class="comment"># Задание 5. Стартовый баланс</span>
+<span class="comment"># balance = </span>
+
+update_display()
+
+<span class="comment"># -------------------------------------------------</span>
+<span class="comment"># 2. ПРОВЕРКА БОГАТСТВА</span>
+<span class="comment"># -------------------------------------------------</span>
+<span class="keyword">if</span> balance > <span class="number">10000</span>:
+    print(<span class="string">"⭐ ВЫ БОГАТЫ! ⭐"</span>)
+    shop = <span class="string">"VIP "</span> + shop
+    update_display()
+
+<span class="comment"># -------------------------------------------------</span>
+<span class="comment"># 3. ИГРОВОЙ ЦИКЛ</span>
+<span class="comment"># -------------------------------------------------</span>
+<span class="keyword">while</span> True:
+    cmd = input(<span class="string">"Введите команду (buy, sell, surprise, exit):"</span>, <span class="string">"Команда"</span>)
+
+    <span class="keyword">if</span> cmd == <span class="string">"exit"</span>:
+        print(<span class="string">"До свидания!"</span>)
+
+    <span class="keyword">elif</span> cmd == <span class="string">"buy"</span>:
+        <span class="keyword">pass</span>
+        <span class="comment"># TODO</span>
+
+    <span class="keyword">elif</span> cmd == <span class="string">"sell"</span>:
+        <span class="keyword">pass</span>
+        <span class="comment"># TODO</span>
+
+    <span class="keyword">elif</span> cmd == <span class="string">"surprise"</span>:
+        <span class="keyword">pass</span>
+        <span class="comment"># TODO</span>
+
+    <span class="keyword">else</span>:
+        print(<span class="string">"❌ Неизвестная команда. Используй buy, sell, surprise, exit"</span>)
+
+    <span class="comment"># Обновляем экран после любой команды</span>
+    update_display()</code></pre>
+            </div>
+        </div>
+
+        <footer>
+            <p>🎓 Учебный проект для школьников | Python + Turtle</p>
+            <p style="margin-top: 10px; opacity: 0.7;">Запускай файл через: <code>python имя_файла.py</code></p>
+        </footer>
+    </div>
+
+    <script>
+        function copyCode() {
+            const code = document.getElementById('sourceCode').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ Скопировано!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋 Копировать код';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
