@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест по C: указатели и динамические массивы</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Google Sans', 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 500;
+            color: #202124;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        .header-subtitle {
+            color: #5f6368;
+            font-size: 14px;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .badge {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        /* Progress */
+        .progress-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            border: 1px solid #ecedef;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .progress-title {
+            color: #202124;
+            font-weight: 500;
+            font-size: 15px;
+        }
+        .progress-stats {
+            color: #5f6368;
+            font-size: 14px;
+        }
+        .progress-stats span {
+            color: #1a73e8;
+            font-weight: 500;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #ecedef;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #1a73e8;
+            width: 0%;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 100px;
+        }
+        
+        /* Question Card */
+        .question-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            border: 1px solid #ecedef;
+        }
+        .question-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .question-number {
+            background: #f1f3f4;
+            color: #5f6368;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .question-type {
+            color: #5f6368;
+            font-size: 13px;
+        }
+        .question-text {
+            font-size: 22px;
+            font-weight: 400;
+            color: #202124;
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #ecedef;
+            border-radius: 16px;
+            padding: 20px;
+            font-family: 'Google Mono', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #202124;
+            margin-bottom: 32px;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        /* Options */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option {
+            background: #ffffff;
+            border: 2px solid #ecedef;
+            border-radius: 100px;
+            padding: 16px 24px;
+            font-size: 16px;
+            color: #202124;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 400;
+        }
+        .option:hover:not(.selected):not(.correct):not(.incorrect) {
+            border-color: #1a73e8;
+            background: #f8fbff;
+        }
+        .option.selected {
+            border-color: #1a73e8;
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+        .option.correct {
+            border-color: #34a853;
+            background: #e6f4ea;
+            color: #0d652d;
+        }
+        .option.incorrect {
+            border-color: #ea4335;
+            background: #fce8e6;
+            color: #b31412;
+        }
+        
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+        }
+        .nav-left {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            padding: 12px 28px;
+            border-radius: 100px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            background: transparent;
+            color: #5f6368;
+        }
+        .btn:hover:not(:disabled) {
+            background: #f1f3f4;
+            color: #202124;
+        }
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: #1557b0;
+            color: white;
+            box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
+        }
+        .btn-success {
+            background: #34a853;
+            color: white;
+        }
+        .btn-success:hover:not(:disabled) {
+            background: #2d8744;
+            color: white;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Restart button */
+        .restart-btn {
+            background: #f1f3f4;
+            color: #202124;
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .restart-btn:hover {
+            background: #e4e5e7;
+        }
+        
+        /* Result Card */
+        .result-card {
+            background: white;
+            border-radius: 32px;
+            padding: 48px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            border: 1px solid #ecedef;
+        }
+        .result-score {
+            font-size: 96px;
+            font-weight: 400;
+            color: #1a73e8;
+            line-height: 1;
+            margin: 24px 0 8px;
+            letter-spacing: -2px;
+        }
+        .result-message {
+            font-size: 28px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
+        }
+        .result-details {
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 400px;
+            margin: 0 auto 40px;
+            border: 1px solid #ecedef;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #ecedef;
+            font-size: 16px;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            color: #5f6368;
+        }
+        .detail-value {
+            color: #202124;
+            font-weight: 500;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: #ecedef;
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>C: указатели и динамические массивы</h1>
+            <div class="header-subtitle">
+                <span>Проверьте свои знания</span>
+                <span class="badge">10 теория + 6 практика</span>
+                <button class="restart-btn" onclick="restartTest()">
+                    <span>↻</span> Новый вариант
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <span class="progress-title">Прогресс</span>
+                <span class="progress-stats">
+                    <span id="questionCounter">Вопрос 1 / 16</span> • 
+                    Правильных: <span id="scoreCounter">0 / 0</span>
+                </span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Content -->
+        <div id="quizContent">
+            <div class="question-card">
+                <div class="question-meta">
+                    <span class="question-number" id="questionNumber">Вопрос 1</span>
+                    <span class="question-type" id="questionType">Теория</span>
+                </div>
+                <div class="question-text" id="questionText"></div>
+                <div class="code-block hidden" id="codeBlock"></div>
+                <div class="options" id="optionsContainer"></div>
+            </div>
+
+            <div class="navigation">
+                <div class="nav-left">
+                    <button class="btn" id="btnBack" onclick="prevQuestion()">← Назад</button>
+                </div>
+                <div>
+                    <button class="btn btn-primary" id="btnNext" onclick="nextQuestion()">Далее →</button>
+                    <button class="btn btn-success hidden" id="btnFinish" onclick="finishTest()">Завершить</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Content -->
+        <div id="resultContent" class="hidden">
+            <div class="result-card">
+                <div class="result-score" id="resultScore">0 / 16</div>
+                <div class="result-message" id="resultMessage"></div>
+                <div class="result-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Теория</span>
+                        <span class="detail-value" id="theoryScore">0/10</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Практика</span>
+                        <span class="detail-value" id="practiceScore">0/6</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="detail-item">
+                        <span class="detail-label">Всего</span>
+                        <span class="detail-value" id="percentage">0%</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="restartTest()" style="padding: 12px 32px;">
+                    Пройти заново
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // БАЗОВЫЕ ТЕОРЕТИЧЕСКИЕ ВОПРОСЫ
+        // ============================================
+        const theoryQuestions = [
+            {
+                question: "Что такое указатель в языке C?",
+                code: null,
+                options: ["Переменная, хранящая значение", "Переменная, хранящая адрес", "Ключевое слово", "Функция памяти"],
+                correct: 1,
+                type: "theory"
+            },
+            {
+                question: "Какой оператор используется для получения адреса переменной?",
+                code: null,
+                options: ["*", "&", "->", "."],
+                correct: 1,
+                type: "theory"
+            },
+            {
+                question: "Какой оператор используется для разыменования указателя?",
+                code: null,
+                options: ["*", "&", "->", "."],
+                correct: 0,
+                type: "theory"
+            },
+            {
+                question: "Какая функция используется для выделения динамической памяти?",
+                code: null,
+                options: ["alloc()", "malloc()", "new()", "create()"],
+                correct: 1,
+                type: "theory"
+            },
+            {
+                question: "Что нужно сделать после использования динамической памяти?",
+                code: null,
+                options: ["Ничего", "Освободить через free()", "Присвоить NULL", "Перезаписать"],
+                correct: 1,
+                type: "theory"
+            },
+            {
+                question: "Как правильно объявить указатель на int?",
+                code: null,
+                options: ["int p;", "int *p;", "pointer int p;", "int &p;"],
+                correct: 1,
+                type: "theory"
+            },
+            {
+                question: "Какой заголовочный файл нужен для работы с malloc/free?",
+                code: null,
+                options: ["#include <stdlib.h>", "#include <stdio.h>", "#include <memory.h>", "#include <alloc.h>"],
+                correct: 0,
+                type: "theory"
+            },
+            {
+                question: "Что такое висячий указатель (dangling pointer)?",
+                code: null,
+                options: ["Указатель на NULL", "Указатель на освобождённую память", "Неинициализированный указатель", "Указатель на константу"],
+                correct: 1,
+                type: "theory"
+            },
+            {
+                question: "Какой тип данных имеет указатель на int?",
+                code: null,
+                options: ["int", "int*", "pointer", "address"],
+                correct: 1,
+                type: "theory"
+            },
+            {
+                question: "Что вернет sizeof(int*) на 64-битной системе?",
+                code: null,
+                options: ["4 байта", "8 байт", "16 байт", "Зависит от int"],
+                correct: 1,
+                type: "theory"
+            }
+        ];
+
+        // ============================================
+        // БАНК ВОПРОСОВ С КОДОМ
+        // ============================================
+        const codeQuestionsBank = [
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    int x = 10;
+    int *p = &x;
+    *p = 20;
+    printf("%d", x);
+    return 0;
+}`,
+                options: ["10", "20", "0", "Ошибка компиляции"],
+                correct: 1,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    int arr[] = {1, 2, 3, 4, 5};
+    int *p = arr;
+    printf("%d", *(p + 2));
+    return 0;
+}`,
+                options: ["1", "2", "3", "4"],
+                correct: 2,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int *p = (int*)malloc(sizeof(int) * 3);
+    p[0] = 10;
+    p[1] = 20;
+    p[2] = 30;
+    printf("%d", p[1]);
+    free(p);
+    return 0;
+}`,
+                options: ["10", "20", "30", "Ошибка"],
+                correct: 1,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    int arr[] = {10, 20, 30};
+    int *p = arr;
+    p++;
+    printf("%d", *p);
+    return 0;
+}`,
+                options: ["10", "20", "30", "Неопределённо"],
+                correct: 1,
+                type: "practice"
+            },
+            {
+                question: "Какое значение примет переменная a?",
+                code: `#include <stdio.h>
+
+int main() {
+    int arr[] = {1, 2, 3, 4};
+    int *p = arr + 2;
+    int a = *p - arr[0];
+    printf("%d", a);
+    return 0;
+}`,
+                options: ["1", "2", "3", "4"],
+                correct: 1,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    char *str = "Hello";
+    char *p = str + 2;
+    printf("%c", *p);
+    return 0;
+}`,
+                options: ["H", "e", "l", "o"],
+                correct: 2,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    int a = 5;
+    int *p = &a;
+    int *q = p;
+    *q = 10;
+    printf("%d", a);
+    return 0;
+}`,
+                options: ["5", "10", "Адрес a", "Ошибка"],
+                correct: 1,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    int a = 7;
+    int *p = &a;
+    int b = *p;
+    b = 15;
+    printf("%d", a);
+    return 0;
+}`,
+                options: ["7", "15", "0", "Ошибка"],
+                correct: 0,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int *p = (int*)malloc(sizeof(int));
+    *p = 100;
+    printf("%d", *p);
+    free(p);
+    return 0;
+}`,
+                options: ["100", "0", "Мусор", "Ошибка"],
+                correct: 0,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    int arr[] = {5, 10, 15, 20};
+    int *p = arr;
+    p = p + 3;
+    printf("%d", *p);
+    return 0;
+}`,
+                options: ["5", "10", "15", "20"],
+                correct: 3,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    int x = 25;
+    int *p = &x;
+    int y = *p + 5;
+    printf("%d", y);
+    return 0;
+}`,
+                options: ["25", "30", "5", "Ошибка"],
+                correct: 1,
+                type: "practice"
+            },
+            {
+                question: "Что выведет эта программа?",
+                code: `#include <stdio.h>
+
+int main() {
+    int arr[] = {2, 4, 6, 8};
+    int *p = &arr[2];
+    printf("%d", *p);
+    return 0;
+}`,
+                options: ["2", "4", "6", "8"],
+                correct: 2,
+                type: "practice"
+            }
+        ];
+
+        // ============================================
+        // ЛОГИКА ТЕСТА
+        // ============================================
+        let currentQuestions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = [];
+
+        function initTest() {
+            const shuffledCode = [...codeQuestionsBank].sort(() => Math.random() - 0.5);
+            const selectedCode = shuffledCode.slice(0, 6);
+            currentQuestions = [...theoryQuestions, ...selectedCode];
+            
+            currentQuestion = 0;
+            score = 0;
+            answers = new Array(currentQuestions.length).fill(null);
+            
+            updateProgressBar();
+            showQuestion();
+        }
+
+        function restartTest() {
+            document.getElementById('quizContent').classList.remove('hidden');
+            document.getElementById('resultContent').classList.add('hidden');
+            initTest();
+        }
+
+        function updateProgressBar() {
+            const progress = (currentQuestion + 1) / currentQuestions.length * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function showQuestion() {
+            const q = currentQuestions[currentQuestion];
+            
+            document.getElementById('questionCounter').textContent = 
+                `Вопрос ${currentQuestion + 1} / ${currentQuestions.length}`;
+            document.getElementById('questionNumber').textContent = 
+                `Вопрос ${currentQuestion + 1}`;
+            document.getElementById('questionType').textContent = 
+                q.type === 'theory' ? 'Теория' : 'Практика';
+            
+            document.getElementById('questionText').textContent = q.question;
+            
+            const codeBlock = document.getElementById('codeBlock');
+            if (q.code) {
+                codeBlock.textContent = q.code;
+                codeBlock.classList.remove('hidden');
+            } else {
+                codeBlock.classList.add('hidden');
+            }
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                
+                if (answers[currentQuestion] !== null) {
+                    if (index === q.correct) {
+                        optionDiv.classList.add('correct');
+                    } else if (index === answers[currentQuestion] && answers[currentQuestion] !== q.correct) {
+                        optionDiv.classList.add('incorrect');
+                    }
+                }
+                
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('btnBack').disabled = currentQuestion === 0;
+            
+            if (currentQuestion === currentQuestions.length - 1) {
+                document.getElementById('btnNext').classList.add('hidden');
+                document.getElementById('btnFinish').classList.remove('hidden');
+            } else {
+                document.getElementById('btnNext').classList.remove('hidden');
+                document.getElementById('btnFinish').classList.add('hidden');
+            }
+            
+            updateScoreCounter();
+            updateProgressBar();
+        }
+    
+        function selectOption(selectedIndex) {
+            if (answers[currentQuestion] !== null) return;
+            
+            const q = currentQuestions[currentQuestion];
+            answers[currentQuestion] = selectedIndex;
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, idx) => {
+                if (idx === q.correct) {
+                    opt.classList.add('correct');
+                }
+                if (idx === selectedIndex && idx !== q.correct) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedIndex === q.correct) {
+                score++;
+            }
+            
+            updateScoreCounter();
+        }
+    
+        function nextQuestion() {
+            if (currentQuestion < currentQuestions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            }
+        }
+    
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+    
+        function updateScoreCounter() {
+            const answeredCount = answers.filter(a => a !== null).length;
+            document.getElementById('scoreCounter').textContent = 
+                `${score} / ${answeredCount}`;
+        }
+    
+        function finishTest() {
+            const unanswered = answers.filter(a => a === null).length;
+            if (unanswered > 0) {
+                if (!confirm(`Осталось ${unanswered} неотвеченных вопросов. Завершить тест?`)) {
+                    return;
+                }
+            }
+            
+            let theoryCorrect = 0;
+            let practiceCorrect = 0;
+            
+            for (let i = 0; i < currentQuestions.length; i++) {
+                if (answers[i] === currentQuestions[i].correct) {
+                    if (i < 10) {
+                        theoryCorrect++;
+                    } else {
+                        practiceCorrect++;
+                    }
+                }
+            }
+            
+            const percentage = Math.round((score / currentQuestions.length) * 100);
+            
+            document.getElementById('quizContent').classList.add('hidden');
+            document.getElementById('resultContent').classList.remove('hidden');
+            
+            document.getElementById('resultScore').textContent = 
+                `${score} / ${currentQuestions.length}`;
+            document.getElementById('theoryScore').textContent = 
+                `${theoryCorrect}/10`;
+            document.getElementById('practiceScore').textContent = 
+                `${practiceCorrect}/6`;
+            document.getElementById('percentage').textContent = `${percentage}%`;
+            
+            let message = '';
+            if (percentage >= 80) message = 'Отлично! Вы хорошо знаете тему.';
+            else if (percentage >= 60) message = 'Хорошо, но практику стоит подтянуть.';
+            else message = 'Нужно повторить тему указателей.';
+            
+            document.getElementById('resultMessage').textContent = message;
+        }
+    
+        document.addEventListener('DOMContentLoaded', initTest);
+    </script>
+</body>
+</html>

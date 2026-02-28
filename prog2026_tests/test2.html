@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Тест по C: рекурсия и функции</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 850px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #f8fafc;
+      color: #2d3748;
+    }
+    h1 {
+      text-align: center;
+      color: #2b6cb0;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+    #scoreboard {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      background: #e6f7ff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #bae6fd;
+    }
+    .question-container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+    .question-text {
+      font-size: 18px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .options label {
+      display: block;
+      margin: 12px 0;
+      padding: 11px 11px 11px 40px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #f8fafc;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .options label:hover {
+      background-color: #edf2f7;
+    }
+    .options input[type="radio"] {
+      margin-right: 10px;
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .feedback-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .correct-answer {
+      border-color: #48bb78 !important;
+      background-color: #f0fff4 !important;
+    }
+    .incorrect-answer {
+      border-color: #e53e3e !important;
+      background-color: #fff5f5 !important;
+    }
+    code {
+      display: block;
+      white-space: pre;
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+      font-size: 14px;
+      background-color: #1a202c;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      overflow-x: auto;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    button {
+      padding: 11px 22px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #3182ce;
+      color: white;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #2c5282;
+    }
+    button:disabled {
+      background-color: #cbd5e0;
+      cursor: not-allowed;
+    }
+    #result {
+      text-align: center;
+      font-size: 19px;
+      font-weight: bold;
+      margin-top: 30px;
+      padding: 22px;
+      border-radius: 12px;
+      background-color: #ebf8ff;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Тест по C: рекурсия и функции</h1>
+  <div class="subtitle">15 вопросов. Выберите правильный ответ.</div>
+
+  <div id="scoreboard">Правильных ответов: <span id="correctCount">0</span> / <span id="totalAnswered">0</span></div>
+
+  <div id="quizContainer">
+    <div class="question-container">
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="nav-buttons">
+        <button id="prevBtn" onclick="prevQuestion()" disabled>← Назад</button>
+        <button id="nextBtn" onclick="nextQuestion()">Далее →</button>
+      </div>
+    </div>
+  </div>
+
+  <button id="submitBtn" style="display:none; width:220px; margin:25px auto;" onclick="submitQuiz()">Завершить тест</button>
+
+  <div id="result"></div>
+
+  <script>
+    const allQuestions = [
+      // ─── ТЕОРИЯ (5 вопросов) ──────────────────────────────────
+      { 
+        q: "Что из перечисленного является ОБЯЗАТЕЛЬНЫМ для предотвращения бесконечной рекурсии?", 
+        o: [
+          "Использование глобальных переменных",
+          "Наличие базового случая (терминального условия)",
+          "Использование циклов for или while внутри функции",
+          "Объявление функции как static"
+        ], 
+        c: 1 
+      },
+      { 
+        q: "Какая структура данных лежит в основе работы рекурсивных вызовов?", 
+        o: [
+          "Очередь (Queue)",
+          "Стек (Stack)",
+          "Связный список (Linked List)",
+          "Двоичное дерево (Binary Tree)"
+        ], 
+        c: 1 
+      },
+
+      // ─── ВЫЧИСЛИТЬ РЕЗУЛЬТАТ (5 вопросов) ─────────────────────
+      { 
+        q: "Чему равно sum(5)?", 
+        code: `int sum(int n) {
+    if (n == 1) {
+        return 1;
+    }
+    return n + sum(n - 1);
+}`,
+        o: ["10", "15", "20", "5"], 
+        c: 1 
+      },
+      { 
+        q: "Чему равно fib(5)?", 
+        code: `int fib(int n) {
+    if (n <= 1) {
+        return n;
+    }
+    return fib(n - 1) + fib(n - 2);
+}`,
+        o: ["3", "5", "8", "13"], 
+        c: 1 
+      },
+      { 
+        q: "Чему равно secret(1234)?", 
+        code: `int secret(int n) {
+    if (n < 10) {
+        return n;
+    }
+    return secret(n / 10) + (n % 10);
+}`,
+        o: ["1234", "10", "1+2+3+4=10", "ошибка"], 
+        c: 1 
+      },
+      { 
+        q: "Чему равно f(2, 1)?", 
+        code: `int f(int x, int y) {
+    if (x <= 0 || y <= 0) {
+        return 1;
+    }
+    return f(x - 1, y) + f(x, y - 1);
+}`,
+        o: ["2", "3", "4", "5"], 
+        c: 1 
+      },
+      { 
+        q: "Чему равно step(7)?", 
+        code: `int step(int n) {
+    if (n <= 0) return 0;
+    if (n == 1) return 1;
+    return step(n - 2) + step(n - 3);
+}`,
+        o: ["1", "2", "3", "4"], 
+        c: 1 
+      },
+      { 
+  q: "Что выведет программа?", 
+  code: `#include <stdio.h>
+
+void print(int n) {
+    if (n == 0) return;
+    printf("%d ", n);
+    print(n - 1);
+}
+
+int main() {
+    print(3);
+    return 0;
+}`,
+  o: ["3 2 1", "1 2 3", "3 3 3", "ничего"], 
+  c: 0 
+},
+{ 
+  q: "Что выведет программа?", 
+  code: `#include <stdio.h>
+
+void print(int n) {
+    if (n == 0) return;
+    print(n - 1);
+    printf("%d ", n);
+}
+
+int main() {
+    print(3);
+    return 0;
+}`,
+  o: ["3 2 1", "1 2 3", "3 3 3", "ничего"], 
+  c: 1 
+},
+{ 
+  q: "Что выведет программа?", 
+  code: `#include <stdio.h>
+
+void print(int n) {
+    if (n <= 0) return;
+    printf("%d ", n);
+    print(n - 2);
+}
+
+int main() {
+    print(5);
+    return 0;
+}`,
+  o: ["5 3 1", "5 4 3 2 1", "5 3", "1 3 5"], 
+  c: 0 
+},
+{ 
+  q: "Что выведет программа?", 
+  code: `#include <stdio.h>
+
+void print(int n) {
+    if (n <= 0) return;
+    print(n - 2);
+    printf("%d ", n);
+}
+
+int main() {
+    print(5);
+    return 0;
+}`,
+  o: ["5 3 1", "1 3 5", "5 3", "3 5"], 
+  c: 1 
+},
+{ 
+  q: "Что выведет программа?", 
+  code: `#include <stdio.h>
+
+void print(int n) {
+    if (n == 0) {
+        printf("0 ");
+        return;
+    }
+    printf("%d ", n);
+    print(n - 1);
+    printf("%d ", n);
+}
+
+int main() {
+    print(2);
+    return 0;
+}`,
+  o: ["2 1 0 1 2", "2 1 0", "2 2 1 1 0", "2 1 0 2"], 
+  c: 0 
+},
+{ 
+  q: "Что выведет программа?", 
+  code: `#include <stdio.h>
+
+void stars(int n) {
+    if (n == 0) return;
+    printf("*");
+    stars(n - 1);
+    printf("+");
+}
+
+int main() {
+    stars(3);
+    return 0;
+}`,
+  o: ["***+++", "***+", "*+*+*+", "+++***"], 
+  c: 0 
+},
+{ 
+  q: "Что выведет программа?", 
+  code: `#include <stdio.h>
+
+void line(int n) {
+    if (n < 1) return;
+    printf("[%d]", n);
+    line(n - 1);
+    printf("(%d)", n);
+}
+
+int main() {
+    line(2);
+    return 0;
+}`,
+  o: ["[2][1](1)(2)", "[2][1](2)(1)", "[2](2)[1](1)", "[2](1)[1](2)"], 
+  c: 0 
+},
+{ 
+  q: "Что выведет программа?", 
+  code: `#include <stdio.h>
+
+void abracadabra(int n) {
+    if (n <= 0) {
+        printf("!");
+        return;
+    }
+    printf("%d", n);
+    abracadabra(n - 1);
+    printf("%d", n);
+}
+
+int main() {
+    abracadabra(2);
+    return 0;
+}`,
+  o: ["21!12", "2!2", "21!2", "2!12"], 
+  c: 0 
+},
+
+      // ─── ГДЕ ОШИБКА? (3 вопроса) ──────────────────────────────
+      { 
+        q: "Где ошибка в этой рекурсивной функции?", 
+        code: `int sum_of_digits(int x) {
+    return sum_of_digits(x / 10) + (x % 10);
+}`,
+        o: [
+          "Нет ошибки, функция корректна",
+          "Отсутствует базовый случай",
+          "Неверный тип возвращаемого значения",
+          "Ошибка в операции % для отрицательных чисел"
+        ], 
+        c: 1 
+      },
+      { 
+        q: "Почему этот код приведет к ошибке?", 
+        code: `int bad_recursion(int x) {
+    return x * bad_recursion(x - 1);
+}`,
+        o: [
+          "Нет базового случая",
+          "Не хватает точки с запятой",
+          "Слишком много аргументов",
+          "Неверный тип возвращаемого значения"
+        ], 
+        c: 0 
+      },
+      { 
+        q: "Где ошибка в функции, которая должна печатать числа от 1 до N?", 
+        code: `void print_1_to_n(int n) {
+    if (n > 0) {
+        print_1_to_n(n - 1);
+        printf("%d ", n);
+    }
+}`,
+        o: [
+          "Ошибки нет, функция работает верно",
+          "Функция печатает числа от N до 1",
+          "Функция никогда не напечатает число N",
+          "Функция войдет в бесконечную рекурсию"
+        ], 
+        c: 0 
+      },
+
+      // ─── ЧТО ВЫВЕДЕТ ПРОГРАММА? (2 вопроса) ───────────────────
+      { 
+        q: "Что выведет программа?", 
+        code: `#include <stdio.h>
+
+void count(int n) {
+    if (n == 0) {
+        printf("Пуск!\\n");
+    } else {
+        printf("%d ", n);
+        count(n - 1);
+    }
+}
+
+int main() {
+    count(3);
+    return 0;
+}`,
+        o: ["3 2 1 Пуск!", "Пуск! 1 2 3", "1 2 3 Пуск!", "3 3 3 Пуск!"], 
+        c: 0 
+      },
+      { 
+        q: "Что выведет программа?", 
+        code: `#include <stdio.h>
+
+void funcB(int n) {
+    if (n > 0) {
+        funcB(n - 1);
+        printf("%d ", n);
+    }
+}
+
+int main() {
+    funcB(3);
+    return 0;
+}`,
+        o: ["3 2 1", "1 2 3", "3 3 3", "ничего"], 
+        c: 1 
+      }
+    ];
+
+    const QUESTIONS_PER_TEST = 15;
+    
+    // Функция перемешивания массива
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Выбираем 15 случайных вопросов
+    const selected = shuffle(allQuestions).slice(0, QUESTIONS_PER_TEST);
+    let current = 0;
+    const answers = new Array(QUESTIONS_PER_TEST).fill(null);
+
+    function updateScoreboard() {
+      let correct = 0;
+      let answered = 0;
+      for (let i = 0; i < QUESTIONS_PER_TEST; i++) {
+        if (answers[i] !== null) {
+          answered++;
+          if (answers[i] === selected[i].c) correct++;
+        }
+      }
+      document.getElementById('correctCount').textContent = correct;
+      document.getElementById('totalAnswered').textContent = answered;
+    }
+
+    function render() {
+      const q = selected[current];
+      const qt = document.getElementById('questionText');
+      const oc = document.getElementById('optionsContainer');
+      qt.innerHTML = '';
+      oc.innerHTML = '';
+
+      qt.textContent = q.q;
+      if (q.code !== undefined) {
+        const ce = document.createElement('code');
+        ce.textContent = q.code;
+        qt.appendChild(document.createElement('br'));
+        qt.appendChild(ce);
+      }
+
+      q.o.forEach((opt, idx) => {
+        const label = document.createElement('label');
+        const radio = document.createElement('input');
+        const icon = document.createElement('span');
+        icon.className = 'feedback-icon';
+        icon.style.display = 'none';
+
+        radio.type = 'radio';
+        radio.name = 'ans';
+        radio.value = idx;
+
+        label.radio = radio;
+        label.icon = icon;
+        label.idx = idx;
+
+        radio.onchange = function() {
+          answers[current] = idx;
+          oc.querySelectorAll('label').forEach(lbl => {
+            lbl.classList.remove('correct-answer', 'incorrect-answer');
+            lbl.icon.textContent = '';
+            lbl.icon.style.display = 'none';
+          });
+          if (idx === q.c) {
+            label.classList.add('correct-answer');
+            label.icon.textContent = '✅';
+          } else {
+            label.classList.add('incorrect-answer');
+            label.icon.textContent = '❌';
+          }
+          label.icon.style.display = 'block';
+          updateScoreboard();
+        };
+
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(opt));
+        label.appendChild(icon);
+        oc.appendChild(label);
+
+        if (answers[current] === idx) {
+          radio.checked = true;
+          radio.dispatchEvent(new Event('change'));
+        }
+      });
+
+      document.getElementById('prevBtn').disabled = current === 0;
+      const nextBtn = document.getElementById('nextBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      if (current === QUESTIONS_PER_TEST - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'block';
+      } else {
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+      }
+    }
+
+    function nextQuestion() { if (current < QUESTIONS_PER_TEST - 1) { current++; render(); } }
+    function prevQuestion() { if (current > 0) { current--; render(); } }
+
+    function submitQuiz() {
+      let score = 0;
+      for (let i = 0; i < QUESTIONS_PER_TEST; i++) {
+        if (answers[i] === selected[i].c) score++;
+      }
+
+      const pct = Math.round((score / QUESTIONS_PER_TEST) * 100);
+      let msg = `Ваш результат: <strong>${score} из ${QUESTIONS_PER_TEST}</strong> (${pct}%)<br>`;
+
+      if (score === QUESTIONS_PER_TEST) msg += "🌟 Идеально! Вы мастер рекурсии!";
+      else if (score >= QUESTIONS_PER_TEST * 0.8) msg += "👍 Отлично! Рекурсия вам даётся легко.";
+      else if (score >= QUESTIONS_PER_TEST * 0.6) msg += "✅ Хорошо! Но есть нюансы...";
+      else if (score >= QUESTIONS_PER_TEST * 0.4) msg += "📚 Удовлетворительно. Повторите базовые случаи.";
+      else msg += "💡 Совет: начните с простых рекурсивных задач.";
+
+      document.getElementById('result').innerHTML = msg;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('quizContainer').style.display = 'none';
+      document.getElementById('submitBtn').style.display = 'none';
+    }
+
+    updateScoreboard();
+    render();
+  </script>
+
+</body>
+</html>

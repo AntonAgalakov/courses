@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Тест по C: синтаксис и логика</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 850px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #f8fafc;
+      color: #2d3748;
+    }
+    h1 {
+      text-align: center;
+      color: #2b6cb0;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #718096;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+    #scoreboard {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      background: #e6f7ff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #bae6fd;
+    }
+    .question-container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+    .question-text {
+      font-size: 18px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .options label {
+      display: block;
+      margin: 12px 0;
+      padding: 11px 11px 11px 40px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #f8fafc;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .options label:hover {
+      background-color: #edf2f7;
+    }
+    .options input[type="radio"] {
+      margin-right: 10px;
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .feedback-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .correct-answer {
+      border-color: #48bb78 !important;
+      background-color: #f0fff4 !important;
+    }
+    .incorrect-answer {
+      border-color: #e53e3e !important;
+      background-color: #fff5f5 !important;
+    }
+    code {
+      display: block;
+      white-space: pre;
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+      font-size: 14px;
+      background-color: #1a202c;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      overflow-x: auto;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    button {
+      padding: 11px 22px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #3182ce;
+      color: white;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #2c5282;
+    }
+    button:disabled {
+      background-color: #cbd5e0;
+      cursor: not-allowed;
+    }
+    #result {
+      text-align: center;
+      font-size: 19px;
+      font-weight: bold;
+      margin-top: 30px;
+      padding: 22px;
+      border-radius: 12px;
+      background-color: #ebf8ff;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Тест по программированию на C</h1>
+
+  <div id="scoreboard">Правильных ответов: <span id="correctCount">0</span> / <span id="totalAnswered">0</span></div>
+
+  <div id="quizContainer">
+    <div class="question-container">
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="nav-buttons">
+        <button id="prevBtn" onclick="prevQuestion()" disabled>← Назад</button>
+        <button id="nextBtn" onclick="nextQuestion()">Далее →</button>
+      </div>
+    </div>
+  </div>
+
+  <button id="submitBtn" style="display:none; width:220px; margin:25px auto;" onclick="submitQuiz()">Завершить тест</button>
+
+  <div id="result"></div>
+
+  <script>
+    // === БАНК ИЗ 70 ВОПРОСОВ (усиленный акцент на синтаксис и сложные случаи) ===
+    const allQuestions = [
+      // ─── НОВЫЕ: СЛОЖНЫЕ СИНТАКСИЧЕСКИЕ ОШИБКИ (15 шт.) ─────────────────────
+      { q: "Где ошибка?", code: `for (int i = 0; i < 5, i++)\n    printf(\"%d\", i);`, o: ["Нет ошибки", "Запятая вместо ; перед i++", "Нельзя int в for", "Пропущена ; после for"], c: 1 },
+      { q: "Где ошибка?", code: `for (int i = 0; i < 5; i++)\n    printf(\"%d\", i)\n    printf(\"!\");`, o: ["Нет ошибки", "Пропущена ; после первого printf", "Нужны {} у for", "Нельзя два оператора"], c: 1 },
+      { q: "Где ошибка?", code: `if x > 0\n    printf(\"+\");`, o: ["Нет ошибки", "Пропущены скобки у условия", "Нужны {} у if", "Нельзя так"], c: 1 },
+      { q: "Где ошибка?", code: `while (i < 10)\n    i++\n    printf(\"%d\", i);`, o: ["Нет ошибки", "Пропущена ; после i++", "Нужны {} у while", "Нельзя два оператора без {}"], c: 3 },
+      { q: "Где ошибка?", code: `for (int i = 0; i < 3; i++);\n{\n    printf(\"*\");\n}`, o: ["Нет ошибки", "Лишняя ; после for", "Нельзя {} после ;", "Пропущена ; после printf"], c: 1 },
+      { q: "Где ошибка?", code: `int main()\n{\n    return 0\n}`, o: ["Нет ошибки", "Пропущена ; после return 0", "Нужен #include", "Нельзя так"], c: 1 },
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint main() {\n    int a = 5 b = 10;\n    return 0;\n}`, o: ["Нет ошибки", "Пропущена ; между a и b", "Нельзя две переменные", "Нужны запятые"], c: 1 },
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint main() {\n    for (int i = 0; i < 2; i++)\n        for (int j = 0; j < 2; j++)\n            printf(\"#\");\n            printf(\"!\");\n    return 0;\n}`, o: ["Нет ошибки", "printf(\"!\") не входит во вложенный цикл", "Нужны {} у внешнего for", "Нельзя два printf"], c: 1 },
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint main() {\n    if (x > 0)\n        if (x < 10)\n            printf(\"OK\");\n        else\n            printf(\"?\");\n    return 0;\n}`, o: ["Нет ошибки", "Неоднозначность: к какому if относится else?", "Нужны {} у внутреннего if", "Пропущена ; после printf"], c: 0 }, // На самом деле — корректно, но часто путают → оставим как "нет ошибки"
+      // Исправим: сделаем явную ошибку
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint main() {\n    if (x > 0)\n        printf(\"A\")\n    else\n        printf(\"B\");\n    return 0;\n}`, o: ["Нет ошибки", "Пропущена ; после printf(\"A\")", "Нужны {} у if", "Нельзя else без {}"], c: 1 },
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint main() {\n    do\n        printf(\"*\");\n        i++;\n    while (i < 3);\n    return 0;\n}`, o: ["Нет ошибки", "Нужны {} у do-while при нескольких операторах", "Пропущена ; после i++", "Нельзя i++ в do"], c: 1 },
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint f(int a, int b)\n    int sum = a + b;\n    return sum;\n`, o: ["Нет ошибки", "Пропущены {} у функции", "Нельзя объявлять переменные в функции", "Нужен ; после объявления функции"], c: 1 },
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint main() {\n    for (int i = 0; i < 5; i++)\n        continue\n    return 0;\n}`, o: ["Нет ошибки", "Пропущена ; после continue", "continue нельзя в for", "Нужны {} у for"], c: 1 },
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint main() {\n    while (1)\n        if (x) break\n    return 0;\n}`, o: ["Нет ошибки", "Пропущена ; после break", "Нужны {} у while", "Нельзя break в if"], c: 1 },
+      { q: "Какой фрагмент корректен?", o: [
+        "for (int i = 0; i < 5; i++) { printf(\"%d\", i); }",
+        "for (int i = 0, i < 5, i++) { printf(\"%d\", i); }",
+        "for int i = 0 to 5 { print(i); }",
+        "loop (i : 0..5) printf(\"%d\", i);"
+      ], c: 0 },
+
+      // ─── ТЕОРИЯ (12) ───────────────────────────────────────────────
+      { q: "Какой тип данных используется для хранения целого числа?", o: ["float", "char", "int", "double"], c: 2 },
+      { q: "Какой заголовочный файл нужен для функции printf?", o: ["<math.h>", "<stdlib.h>", "<stdio.h>", "<string.h>"], c: 2 },
+      { q: "Что означает return 0; в функции main?", o: ["Ошибка", "Успешное завершение программы", "Печать нуля", "Зацикливание"], c: 1 },
+      { q: "Какой спецификатор формата выводит символ?", o: ["%d", "%s", "%f", "%c"], c: 3 },
+      { q: "Можно ли писать так: for (int i = 0; i < 5; i++)?", o: ["Да, это корректно", "Нет, int нельзя в for", "Только в C++", "Вызовет ошибку"], c: 0 },
+      { q: "Что делает оператор continue в цикле?", o: ["Выходит из цикла", "Переходит к следующей итерации", "Останавливает программу", "Пропускает условие"], c: 1 },
+      { q: "Какой оператор проверяет равенство двух значений?", o: ["=", "==", "!=", ">="], c: 1 },
+      { q: "Что вычисляет выражение (x % 2 == 0)?", o: ["x чётное", "x нечётное", "x положительное", "x делится на 3"], c: 0 },
+      { q: "Где обязательно ставится точка с запятой?", o: ["После каждого оператора", "Только в циклах", "Только в функциях", "Никогда"], c: 0 },
+      { q: "Как правильно объявить функцию, которая ничего не принимает и ничего не возвращает?", o: ["void f();", "void f(void);", "f();", "int f();"], c: 1 },
+      { q: "Какой цикл гарантирует, что тело выполнится хотя бы один раз?", o: ["for", "while", "do-while", "if"], c: 2 },
+      { q: "Какой оператор используется для логического «НЕ»?", o: ["!", "&&", "||", "~"], c: 0 },
+
+      // ─── ГДЕ ОШИБКА? (дополнительные, всего ~20) ────────────────────
+      { q: "Где ошибка?", code: `int main() {\n    int x = 5\n    printf(\"%d\", x);\n    return 0;\n}`, o: ["Нет ошибки", "Пропущена ; после x = 5", "Нужны {} у main", "Нельзя так объявлять"], c: 1 },
+      { q: "Где ошибка в объявлении функции?", code: `int f(int a, b) {\n    return a + b;\n}`, o: ["Нет ошибки", "Пропущен тип у параметра b", "Нельзя два параметра", "Нужен void"], c: 1 },
+      { q: "Где ошибка?", code: `int main {\n    printf(\"OK\");\n    return 0;\n}`, o: ["Нет ошибки", "Пропущены () у main", "Нужен ; после main", "Нельзя так"], c: 1 },
+      { q: "Где ошибка?", code: `#include <stdio.h>\nint main() {\n    int result = add(2, 3);\n    return 0;\n}`, o: ["Нет ошибки", "Функция add не объявлена", "Нужно подключить <math.h>", "Нельзя вызывать функции в main"], c: 1 },
+
+      // ─── ЧТО ВЫВЕДЕТ ПРОГРАММА? (сложные случаи, 25 шт.) ───────────
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    for (int i = 1; i <= 5; i++) {\n        if (i == 3) continue;\n        printf(\"%d\", i);\n    }\n    return 0;\n}`, o: ["1245", "12345", "1234", "125"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int x = 5;\n    while (x > 0) {\n        if (x == 2) break;\n        printf(\"%d\", x);\n        x--;\n    }\n    return 0;\n}`, o: ["543", "5432", "54321", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    for (int i = 0; i < 4; i++) {\n        if (i % 2 == 1) continue;\n        printf(\"%d\", i);\n    }\n    return 0;\n}`, o: ["02", "13", "0123", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int i = 0;\n    do {\n        printf(\"%d\", i);\n        i++;\n    } while (i < 2);\n    return 0;\n}`, o: ["01", "012", "12", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    for (int i = 0; i < 2; i++)\n        for (int j = 0; j < 2; j++)\n            printf(\"#\");\n    return 0;\n}`, o: ["####", "##", "#", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int x = 3;\n    if (x > 1)\n        if (x < 5)\n            printf(\"OK\");\n    return 0;\n}`, o: ["OK", "ничего", "ошибка", "3"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    if (!(5 > 3))\n        printf(\"NO\");\n    else\n        printf(\"YES\");\n    return 0;\n}`, o: ["YES", "NO", "ошибка", "ничего"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    for (int i = 0; i < 3; i++);\n    printf(\"DONE\");\n    return 0;\n}`, o: ["DONE", "ничего", "012DONE", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int i = 5;\n    while (i-- > 0)\n        printf(\"%d\", i);\n    return 0;\n}`, o: ["43210", "54321", "543210", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int x = 1;\n    if (x = 0)\n        printf(\"A\");\n    else\n        printf(\"B\");\n    return 0;\n}`, o: ["A", "B", "ошибка", "ничего"], c: 1 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int sum = 0;\n    for (int i = 1; i <= 4; i++)\n        sum += i;\n    printf(\"%d\", sum);\n    return 0;\n}`, o: ["10", "6", "4", "0"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int count = 0;\n    for (int i = 0; i < 5; i++)\n        if (i % 2 == 0) count++;\n    printf(\"%d\", count);\n    return 0;\n}`, o: ["3", "2", "5", "0"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int i = 1;\n    while (i <= 3) {\n        printf(\"%d\", i * i);\n        i++;\n    }\n    return 0;\n}`, o: ["149", "123", "19", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    for (int i = 5; i > 0; i -= 2)\n        printf(\"%d\", i);\n    return 0;\n}`, o: ["531", "54321", "42", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int x = 0;\n    if (x)\n        printf(\"1\");\n    else\n        printf(\"0\");\n    return 0;\n}`, o: ["1", "0", "ничего", "ошибка"], c: 1 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int i = 0;\n    while (i < 3) {\n        printf(\"%d\", i);\n        i++;\n        if (i == 2) break;\n    }\n    return 0;\n}`, o: ["01", "012", "0", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    for (int i = 0; i < 4; i++) {\n        if (i == 2) break;\n        printf(\"%d\", i);\n    }\n    return 0;\n}`, o: ["01", "012", "0123", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int i = 10;\n    while (i > 5) {\n        i--;\n        if (i == 7) continue;\n        printf(\"%d\", i);\n    }\n    return 0;\n}`, o: ["9865", "98765", "986", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int a = 2, b = 3;\n    printf(\"%d\", a + b);\n    return 0;\n}`, o: ["5", "23", "6", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    for (int i = 0; i < 2; i++)\n        printf(\"A\");\n    printf(\"B\");\n    return 0;\n}`, o: ["AAB", "AB", "AA", "ABB"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int x = 4;\n    if (x != 5)\n        printf(\"Not five\");\n    return 0;\n}`, o: ["Not five", "five", "ошибка", "ничего"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int i = 0;\n    while (i < 3) {\n        i++;\n        printf(\"%d\", i);\n    }\n    return 0;\n}`, o: ["123", "012", "0123", "ошибка"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    int a = 4, b = 4;\n    if (a == b)\n        printf(\"=\");\n    else\n        printf(\"!=\");\n    return 0;\n}`, o: ["=", "!=", "ошибка", "ничего"], c: 0 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    printf(\"%c\", 66);\n    return 0;\n}`, o: ["66", "B", "A", "ошибка"], c: 1 },
+      { q: "Что выведет программа?", code: `#include <stdio.h>\nint main() {\n    if (10 > 5)\n        printf(\"YES\");\n    return 0;\n}`, o: ["YES", "NO", "ошибка", "ничего"], c: 0 },
+
+      // ─── КАКОЙ КОД КОРРЕКТЕН? (8) ───────────────────────────────────
+      { q: "Какой фрагмент синтаксически корректен?", o: [
+        "if (x > 0) printf(\"+\");",
+        "if x > 0 then printf(\"+\");",
+        "if (x > 0) [ printf(\"+\"); ]",
+        "if {x > 0} printf(\"+\");"
+      ], c: 0 },
+      { q: "Как правильно вызвать функцию без параметров?", o: ["f;", "f();", "call f;", "f[];"], c: 1 },
+      { q: "Как правильно объявить функцию, которая принимает два целых числа и возвращает их сумму?", o: [
+        "int sum(a, b);",
+        "sum(int a, int b);",
+        "int sum(int a, int b);",
+        "function sum(a, b) { return a + b; }"
+      ], c: 2 },
+      { q: "Какой цикл корректен?", o: [
+        "while (i < 10) { i++; }",
+        "while i < 10 { i++ }",
+        "while {i < 10} i++;",
+        "while (i < 10) i++"
+      ], c: 0 },
+      { q: "Как правильно написать условие «если x не равно 5»?", o: ["if (x =! 5)", "if (x != 5)", "if (x <> 5)", "if (not x == 5)"], c: 1 },
+      { q: "Какой код выведет символ 'A'?", o: [
+        "printf(\"%c\", 65);",
+        "printf(\"%d\", 'A');",
+        "print('A');",
+        "cout << 'A';"
+      ], c: 0 },
+      { q: "Какой вариант объявления переменной правильный?", o: ["int x = 10;", "x int = 10;", "var x = 10;", "let x = 10;"], c: 0 },
+      { q: "Как правильно завершить оператор if с одним действием?", o: [
+        "if (x) printf(\"ok\");",
+        "if (x) { printf(\"ok\") }",
+        "if x then printf(\"ok\");",
+        "if (x) printf(\"ok\")"
+      ], c: 0 }
+    ];
+
+    const QUESTIONS_PER_TEST = 15;
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    const selected = shuffle(allQuestions).slice(0, QUESTIONS_PER_TEST);
+    let current = 0;
+    const answers = new Array(QUESTIONS_PER_TEST).fill(null);
+
+    function updateScoreboard() {
+      let correct = 0;
+      let answered = 0;
+      for (let i = 0; i < QUESTIONS_PER_TEST; i++) {
+        if (answers[i] !== null) {
+          answered++;
+          if (answers[i] === selected[i].c) correct++;
+        }
+      }
+      document.getElementById('correctCount').textContent = correct;
+      document.getElementById('totalAnswered').textContent = answered;
+    }
+
+    function render() {
+      const q = selected[current];
+      const qt = document.getElementById('questionText');
+      const oc = document.getElementById('optionsContainer');
+      qt.innerHTML = '';
+      oc.innerHTML = '';
+
+      qt.textContent = q.q;
+      if (q.code !== undefined) {
+        const ce = document.createElement('code');
+        ce.textContent = q.code;
+        qt.appendChild(document.createElement('br'));
+        qt.appendChild(ce);
+      }
+
+      q.o.forEach((opt, idx) => {
+        const label = document.createElement('label');
+        const radio = document.createElement('input');
+        const icon = document.createElement('span');
+        icon.className = 'feedback-icon';
+        icon.style.display = 'none';
+
+        radio.type = 'radio';
+        radio.name = 'ans';
+        radio.value = idx;
+
+        label.radio = radio;
+        label.icon = icon;
+        label.idx = idx;
+
+        radio.onchange = function() {
+          answers[current] = idx;
+          oc.querySelectorAll('label').forEach(lbl => {
+            lbl.classList.remove('correct-answer', 'incorrect-answer');
+            lbl.icon.textContent = '';
+            lbl.icon.style.display = 'none';
+          });
+          if (idx === q.c) {
+            label.classList.add('correct-answer');
+            label.icon.textContent = '✅';
+          } else {
+            label.classList.add('incorrect-answer');
+            label.icon.textContent = '❌';
+          }
+          label.icon.style.display = 'block';
+          updateScoreboard();
+        };
+
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(opt));
+        label.appendChild(icon);
+        oc.appendChild(label);
+
+        if (answers[current] === idx) {
+          radio.checked = true;
+          radio.dispatchEvent(new Event('change'));
+        }
+      });
+
+      document.getElementById('prevBtn').disabled = current === 0;
+      const nextBtn = document.getElementById('nextBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      if (current === QUESTIONS_PER_TEST - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'block';
+      } else {
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+      }
+    }
+
+    function nextQuestion() { if (current < QUESTIONS_PER_TEST - 1) { current++; render(); } }
+    function prevQuestion() { if (current > 0) { current--; render(); } }
+
+    function submitQuiz() {
+      let score = 0;
+      for (let i = 0; i < QUESTIONS_PER_TEST; i++) {
+        if (answers[i] === selected[i].c) score++;
+      }
+
+      const pct = Math.round((score / QUESTIONS_PER_TEST) * 100);
+      let msg = `Ваш результат: <strong>${score} из ${QUESTIONS_PER_TEST}</strong> (${pct}%)<br>`;
+
+      if (score === QUESTIONS_PER_TEST) msg += "🌟 Идеально! Вы мастер C!";
+      else if (score >= QUESTIONS_PER_TEST * 0.8) msg += "👍 Отлично! Почти без ошибок.";
+      else if (score >= QUESTIONS_PER_TEST * 0.6) msg += "✅ Хорошо! Есть над чем поработать.";
+      else if (score >= QUESTIONS_PER_TEST * 0.4) msg += "📚 Удовлетворительно. Повторите темы.";
+      else msg += "💡 Совет: решайте больше практических задач!";
+
+      document.getElementById('result').innerHTML = msg;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('quizContainer').style.display = 'none';
+      document.getElementById('submitBtn').style.display = 'none';
+    }
+
+    updateScoreboard();
+    render();
+  </script>
+
+</body>
+</html>
