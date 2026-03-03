@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ag Edu Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo" onclick="goHome()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+            Ag Edu
+        </div>
+        <div id="header-right"></div>
+    </header>
+
+    <!-- МОДАЛЬНОЕ ОКНО ВХОДА (ПАРОЛЬ) -->
+    <div id="loginModal" class="modal" style="display: flex;">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="text-align:center; margin-top:0">Вход в платформу</h2>
+            <p style="text-align:center; margin-bottom:20px; color:var(--text-secondary)">Введите пароль для доступа</p>
+            <input type="password" id="passwordInput" placeholder="Пароль" 
+                   style="width:100%; padding:14px; border:2px solid var(--border); border-radius:8px; margin-bottom:20px; font-size:1rem;">
+            <div style="display:flex; gap:10px;">
+                <button id="loginBtn" class="btn-finish" style="flex:1;">Войти</button>
+            </div>
+            <div id="loginError" style="color:red; text-align:center; margin-top:15px; display:none;">Неверный пароль</div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD VIEW (скрыт до входа) -->
+    <div id="dashboard-view" style="display: none;">
+        <div class="dashboard-header">
+            <h1>Доступные уроки</h1>
+        </div>
+        <div class="courses-grid" id="coursesGrid"></div>
+    </div>
+
+    <!-- EXAM VIEW -->
+    <div id="exam-view" style="display: none;">
+        <div class="exam-header">
+            <button class="back-btn" onclick="goHome()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Назад к списку
+            </button>
+            <div class="timer-box" id="timer">00:00:00</div>
+            <button class="btn-finish" onclick="finishExam()">Завершить тест</button>
+        </div>
+
+        <div class="workspace">
+            <aside class="sidebar">
+                <h3 style="font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary); margin-bottom:15px">Задания</h3>
+                <div class="task-grid" id="taskGrid"></div>
+            </aside>
+
+            <main class="main-content">
+                <div class="task-card">
+                    <div class="task-header">
+                        <h2 class="task-title" id="taskTitle">Загрузка...</h2>
+                        <span class="task-number" id="taskNumber"></span>
+                    </div>
+                    
+                    <div class="task-text" id="taskText"></div>
+                    
+                    <!-- Контейнер для картинки -->
+                    <div id="taskImageContainer" class="task-image-container" style="display: none;">
+                        <img id="taskImage" class="task-image" src="" alt="Задание">
+                        <div id="taskImageCaption" class="task-image-caption"></div>
+                    </div>
+                    
+                    <div class="answer-area">
+                        <label class="answer-label">Ваш ответ</label>
+                        <input type="text" class="answer-input" id="userAnswer" placeholder="Введите ответ..." autocomplete="off">
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО РЕЗУЛЬТАТОВ -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2 style="text-align:center; margin-top:0">Результаты</h2>
+            <div style="text-align:center; margin-bottom:20px; font-weight:bold; font-size:1.2rem" id="totalScore"></div>
+            <div id="resultsList"></div>
+            <button class="close-btn" onclick="goHome()">Вернуться на главную</button>
+        </div>
+    </div>
+
+    <!-- СКРИПТЫ -->
+    <script src="main.js"></script>
+    <script src="data_3.js"></script>
+    <!-- <script src="data_python.js"></script>
+    <script src="data_russian.js"></script> -->
+</body>
+</html>
