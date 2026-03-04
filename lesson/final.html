@@ -223,10 +223,58 @@
             color: #5f6368;
             font-size: 0.9rem;
         }
+
+        /* === Стили для таймера === */
+.timer-container {
+    text-align: center;
+    margin: 15px 0 25px;
+    padding: 12px 20px;
+    background: #fef7e0;
+    border: 2px solid #f5c542;
+    border-radius: 10px;
+    display: none;
+}
+
+.timer-container.active {
+    display: block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 197, 66, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(245, 197, 66, 0); }
+}
+
+.timer-label {
+    font-size: 0.9rem;
+    color: #5f6368;
+    margin-bottom: 5px;
+}
+
+.timer-display {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #d93025;
+    font-family: monospace;
+    letter-spacing: 2px;
+}
+
+.timer-warning {
+    font-size: 0.85rem;
+    color: #d93025;
+    margin-top: 5px;
+    font-weight: 500;
+}
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Таймер обратного отсчёта до 19:25 -->
+<div id="timerContainer" class="timer-container">
+    <div class="timer-label">⏱ До окончания приёма работ:</div>
+    <div id="timerDisplay" class="timer-display">--:--:--</div>
+    <div id="timerWarning" class="timer-warning" style="display: none;">⚠ Осталось менее 30 минут!</div>
+</div>
         <h1 class="main-title">Итоговое тестирование по программированию на Python 2026</h1>
 
         <div id="welcomeBlock" class="welcome">
@@ -251,6 +299,70 @@
     </div>
 
     <script>
+
+// === НАСТРОЙКИ ТАЙМЕРА ===
+// Укажите дедлайн в ВАШЕМ локальном времени
+// Формат: new Date(год, месяц-1, день, часы, минуты, секунды)
+const DEADLINE_LOCAL = new Date(2026, 2, 4, 19, 30, 0); // 4 марта 2026, 19:25
+const DEADLINE_UTC = DEADLINE_LOCAL.getTime();
+let timeUpShown = false; // Флаг, чтобы показать окно только 1 раз
+
+function updateTimer() {
+    const timerContainer = document.getElementById('timerContainer');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerWarning = document.getElementById('timerWarning');
+    
+    const now = Date.now();
+    const diff = DEADLINE_UTC - now;
+    
+    // === ВРЕМЯ ВЫШЛО ===
+    if (diff <= 0 && !timeUpShown) {
+        timeUpShown = true;
+        
+        // 1. Останавливаем таймер
+        clearInterval(timerInterval);
+        
+        // 2. Обновляем вид таймера
+        timerDisplay.textContent = '⏰ Время вышло!';
+        timerDisplay.style.color = '#d93025';
+        timerWarning.style.display = 'none';
+        timerContainer.classList.add('active');
+        
+        // 3. Показываем модальное окно
+        document.getElementById('timeUpModal').style.display = 'flex';
+        
+        // 4. Блокируем навигацию (кнопки)
+        document.getElementById('prevBtn').disabled = true;
+        document.getElementById('nextBtn').disabled = true;
+        
+        // 5. Визуально затемняем основной контент
+        document.querySelector('.container').style.opacity = '0.5';
+        document.querySelector('.container').style.pointerEvents = 'none';
+        
+        return;
+    }
+    
+    // === ТАЙМЕР ИДЁТ ===
+    if (diff < 24 * 60 * 60 * 1000) {
+        timerContainer.classList.add('active');
+    }
+    
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    
+    timerDisplay.textContent = 
+        `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    
+    if (diff < 30 * 60 * 1000) {
+        timerWarning.style.display = 'block';
+    }
+}
+
+// Запускаем таймер и сохраняем ID интервала
+updateTimer();
+const timerInterval = setInterval(updateTimer, 1000);
+
         const tasks = [
             {
                 title: 'A. Зона доставки',
@@ -473,5 +585,21 @@
         renderTask(0);
         updateNavigation();
     </script>
+
+    <!-- Модальное окно "Время вышло" -->
+<div id="timeUpModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:white;padding:40px;border-radius:12px;text-align:center;max-width:450px;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+        <div style="font-size:3rem;margin-bottom:10px;">⏰</div>
+        <h2 style="color:#d93025;margin-bottom:15px;font-size:1.8rem;">Время приёма работ окончено</h2>
+        <p style="color:#5f6368;margin-bottom:25px;line-height:1.5;">
+            Отправка решений больше не принимается.<br>
+            Спасибо за участие в тестировании!
+        </p>
+        <button onclick="document.getElementById('timeUpModal').style.display='none'" 
+                style="background:#1a73e8;color:white;border:none;padding:12px 30px;border-radius:8px;font-size:1rem;cursor:pointer;">
+            Закрыть
+        </button>
+    </div>
+</div>
 </body>
 </html>
