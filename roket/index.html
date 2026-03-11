@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Скачать Space Mission</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0B0B2B 0%, #1B1B4B 50%, #2B2B6B 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Звезды */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Планеты */
+        .planet {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(2px);
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .planet1 {
+            top: 10%;
+            right: 5%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #8b0000);
+            animation: float 20s infinite linear;
+        }
+
+        .planet2 {
+            bottom: 10%;
+            left: 5%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 70% 30%, #4ecdc4, #1a5f5a);
+            animation: float 25s infinite linear reverse;
+        }
+
+        @keyframes float {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .download-btn {
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            color: #1b1b3b;
+            border: none;
+            padding: 25px 60px;
+            font-size: 32px;
+            font-weight: bold;
+            border-radius: 60px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 20px 50px rgba(255, 215, 0, 0.5);
+        }
+
+        .download-btn:active {
+            transform: scale(0.95);
+        }
+
+        .alert {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(75, 181, 67, 0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 2;
+            display: none;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.error {
+            background: rgba(220, 53, 69, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="planet planet1"></div>
+    <div class="planet planet2"></div>
+
+    <button class="download-btn" onclick="downloadGame()">
+        <span>🚀</span>
+        Скачать задания
+        <span>🐍</span>
+    </button>
+
+    <div id="alert" class="alert">
+        ✅ Скачивание началось!
+    </div>
+
+    <script>
+        // Создание звездного неба
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        function downloadGame() {
+            // Просто создаем ссылку на файл space_mission.py
+            const link = document.createElement('a');
+            link.href = 'space_mission.py';
+            link.download = 'space_mission.py';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Показываем уведомление
+            const alert = document.getElementById('alert');
+            alert.classList.add('show');
+            
+            // Проверяем, не было ли ошибки (файл не найден)
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 2000);
+        }
+
+        // Обработка ошибки, если файл не найден
+        window.addEventListener('error', function(e) {
+            if (e.target.tagName === 'A' && e.target.href.endsWith('space_mission.py')) {
+                const alert = document.getElementById('alert');
+                alert.textContent = '❌ Файл space_mission.py не найден!';
+                alert.classList.add('show', 'error');
+                setTimeout(() => {
+                    alert.classList.remove('show', 'error');
+                    alert.textContent = '✅ Скачивание началось!';
+                }, 3000);
+            }
+        }, true);
+    </script>
+</body>
+</html>
