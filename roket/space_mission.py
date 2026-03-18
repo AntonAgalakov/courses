@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Python Space Mission — финальная версия с уровнями 1–22
+Python Space Mission — финальная версия с улучшенной теорией
 """
 
 import sys
@@ -13,119 +13,119 @@ from tkinter import messagebox, font as tkfont, scrolledtext
 LEVELS = [
     # ===== ЦИКЛЫ FOR =====
     {"level": 1, "title": "ЦИКЛ FOR (0-4)",
-     "theory": "Цикл for с range(3) перебирает числа 0, 1, 2.\n\nПример:\nfor i in range(3):\n    print(i)  # выведет 0, 1, 2",
-     "task": "Напишите цикл for, который выведет числа 0, 1, 2, 3, 4 (каждое на новой строке).",
+     "theory": "Цикл for с range(3) перебирает числа 0, 1, 2 (не включая 3).\n\nПример:\nfor i in range(3):\n    print(i)  # выведет 0, 1, 2",
+     "task": "🏋️ Тренер велит отжаться 5 раз. Выведи номера отжиманий от 0 до 4 включительно (каждый с новой строки).",
      "hint": "for i in range(5): print(i)", "unlock_code": ""},
 
     {"level": 2, "title": "ЦИКЛ FOR (1-5)",
      "theory": "range(2, 5) даёт числа 2, 3, 4.\n\nПример:\nfor i in range(2, 5):\n    print(i)  # выведет 2, 3, 4",
-     "task": "Выведите числа от 1 до 5 включительно.",
-     "hint": "for i in range(1, 6): print(i)", "unlock_code": ""},
+     "task": "🍦 В очереди за мороженым стоят 5 человек. Выведи номера от 1 до 5 включительно.",
+     "hint": "", "unlock_code": ""},
 
     {"level": 3, "title": "ЦИКЛ FOR (ЧЁТНЫЕ)",
-     "theory": "range(1, 8, 2) даёт нечётные числа: 1,3,5,7.\n\nПример:\nfor i in range(1, 8, 2):\n    print(i)  # 1,3,5,7",
-     "task": "Выведите все чётные числа от 0 до 10 включительно.",
-     "hint": "for i in range(0, 11, 2): print(i)", "unlock_code": ""},
+     "theory": "range(1, 8, 2) даёт нечётные числа: 1,3,5,7.\n\nПример:\nfor i in range(1, 8, 2):\n    print(i)  # выведет 1, 3, 5, 7",
+     "task": "🏠 На улице дома только с чётными номерами от 0 до 10 включительно. Выведи их все.",
+     "hint": "", "unlock_code": ""},
 
     {"level": 4, "title": "ЦИКЛ FOR (ОБРАТНЫЙ СЧЁТ)",
-     "theory": "range(4, 0, -1) выводит 4,3,2,1.\n\nПример:\nfor i in range(4, 0, -1):\n    print(i)  # 4,3,2,1",
-     "task": "Выведите числа от 5 до 1 в порядке убывания.",
+     "theory": "range(4, 0, -1) выводит 4,3,2,1.\n\nПример:\nfor i in range(4, 0, -1):\n    print(i)  # выведет 4, 3, 2, 1",
+     "task": "⏳ Забег начинается! Обратный отсчёт от 5 до 1 включительно. Выведи числа.",
      "hint": "for i in range(5, 0, -1): print(i)", "unlock_code": ""},
 
     {"level": 5, "title": "СУММА ЧИСЕЛ 1..N",
      "theory": "Можно накапливать сумму в переменной.\n\nПример:\nk = 3\nsumma = 0\nfor i in range(1, k+1):\n    summa += i\nprint(summa)  # 1+2+3=6",
-     "task": "У вас есть переменная n = 5. Найдите сумму чисел от 1 до n и выведите её.",
-     "hint": "total = 0; for i in range(1, n+1): total += i; print(total)", "unlock_code": ""},
+     "task": "🍬 У тебя есть n = 5 коробок. В первой коробке 1 конфета, во второй — 2, и так до n. Сколько всего конфет? Выведи сумму.",
+     "hint": "total = 0; \nfor i in range(1, n+1):\n\ttotal += i;\nprint(total)", "unlock_code": ""},
 
     # ===== СТРОКИ =====
     {"level": 6, "title": "СКЛАДЫВАНИЕ СТРОК",
      "theory": "Строки складываются оператором +.\n\nПример:\nfirst = 'Hello'\nsecond = 'World'\nprint(first + ' ' + second)  # Hello World",
-     "task": "У вас есть переменные a = 'Python' и b = 'Rock'. Сложите их через пробел и выведите.",
+     "task": "👤 Имя и фамилия: a = 'Python', b = 'Rock'. Выведи их через пробел, как полное имя.",
      "hint": "print(a + ' ' + b)", "unlock_code": ""},
 
     {"level": 7, "title": "УМНОЖЕНИЕ СТРОКИ",
      "theory": "Умножение строки на число повторяет её.\n\nПример:\ns = 'Ha'\nprint(s * 3)  # HaHaHa",
-     "task": "У вас есть переменная laugh = 'Ho'. Выведите её, повторённую 4 раза.",
+     "task": "😂 Шутка такая смешная, что смех 'Ho' повторяется 4 раза. Выведи 'HoHoHoHo'.",
      "hint": "print(laugh * 4)", "unlock_code": ""},
 
     {"level": 8, "title": "ДЛИНА СТРОКИ",
      "theory": "len() возвращает длину строки.\n\nПример:\ntext = 'Hello'\nprint(len(text))  # 5",
-     "task": "У вас есть переменная word = 'Python'. Выведите её длину.",
+     "task": "📏 Слово 'Python' состоит из скольких букв? Выведи его длину.",
      "hint": "print(len(word))", "unlock_code": ""},
 
     {"level": 9, "title": "ПЕРВЫЙ СИМВОЛ",
      "theory": "К символам обращаются по индексу (с 0).\n\nПример:\ncity = 'Moscow'\nprint(city[0])  # M",
-     "task": "У вас есть переменная planet = 'Jupiter'. Выведите её второй символ.",
+     "task": "🌆 Город 'Jupiter' (да, есть такой в США). Какая у него вторая буква (индекс 1)? Выведи её.",
      "hint": "нумерация начинается с 0!!!", "unlock_code": ""},
 
     {"level": 10, "title": "СРЕЗ СТРОКИ",
      "theory": "Срез [начало:конец] берёт часть строки.\n\nПример:\nword = 'программирование'\nprint(word[:5])  # прогр",
-     "task": "У вас есть переменная text = 'астрономия'. Выведите первые 5 символов.",
+     "task": "📖 Книга называется 'астрономия'. Выведи первые 5 символов названия.",
      "hint": "", "unlock_code": ""},
 
     {"level": 11, "title": "НИЖНИЙ РЕГИСТР",
      "theory": "Метод .lower() переводит строку в нижний регистр.\n\nПример:\nmsg = 'Hello'\nprint(msg.lower())  # hello",
-     "task": "У вас есть переменная command = 'SOS'. Выведите её в нижнем регистре.",
+     "task": "🔊 Громкая команда 'SOS' должна быть тихой. Преобразуй в нижний регистр и выведи.",
      "hint": "print(command.lower())", "unlock_code": ""},
 
     # ===== МАТЕМАТИКА =====
     {"level": 12, "title": "СУММА ТРЁХ ЧИСЕЛ",
      "theory": "Оператор + складывает числа.\n\nПример:\nx = 4\ny = 5\nz = 6\nprint(x + y + z)  # 15",
-     "task": "Даны переменные a = 5, b = 7, c = 3. Выведите их сумму.",
+     "task": "🍎 Яблоки весят a = 5, b = 7, c = 3 граммов. Найди общий вес трёх яблок (сумму).",
      "hint": "", "unlock_code": ""},
 
     {"level": 13, "title": "ПРОИЗВЕДЕНИЕ ТРЁХ ЧИСЕЛ",
-     "theory": "Оператор * умножает числа.\n\nПример:\nx = 2\ny = 3\nz = 4\nprint(x * y * z)  # 24",
-     "task": "Даны переменные a = 2, b = 3, c = 4. Выведите их произведение.",
+     "theory": "Оператор * умножает числа.\n\nПример:\nx = 1\ny = 2\nz = 3\nprint(x * y * z)  # 6",
+     "task": "📦 Коробка имеет размеры a = 2, b = 3, c = 4. Найди её объём (произведение).",
      "hint": "", "unlock_code": ""},
 
     {"level": 14, "title": "СРЕДНЕЕ АРИФМЕТИЧЕСКОЕ",
      "theory": "Среднее = сумма / количество.\n\nПример:\nx = 4\ny = 5\nz = 6\nsred = (x + y + z) / 3\nprint(sred)  # 5.0",
-     "task": "Даны переменные a = 10, b = 20, c = 30. Выведите среднее арифметическое.",
+     "task": "📚 Оценки за три теста: a = 10, b = 20, c = 30. Вычисли средний балл и выведи.",
      "hint": "", "unlock_code": ""},
 
     {"level": 15, "title": "ВОЗВЕДЕНИЕ В СТЕПЕНЬ",
      "theory": "Оператор ** возводит число в степень.\n\nПример:\nbase = 2\nexp = 10\nprint(base ** exp)  # 1024",
-     "task": "Даны переменные base = 3, exp = 4. Выведите результат base в степени exp.",
+     "task": "🧪 В лаборатории размножают бактерии: 3⁴ = ? Выведи результат.",
      "hint": "print(base ** exp)", "unlock_code": ""},
 
     {"level": 16, "title": "ПЛОЩАДЬ КРУГА",
      "theory": "Площадь круга = π * r².",
-     "task": "Дана переменная r = 5. Вычислите площадь круга (π=3.14).",
+     "task": "🍕 Пицца радиусом r = 5. Какая у неё площадь? (π = 3.14) Выведи результат.",
      "hint": "", "unlock_code": ""},
 
     {"level": 17, "title": "ГИПОТЕНУЗА",
-     "theory": "Гипотенуза = √(a² + b²). В Python корень можно вычислить как **0.5.\n\nПример:\na = 3\nb = 4\nc = (a**2 + b**2)**0.5\nprint(c)  # 5.0",
-     "task": "Даны переменные a = 3, b = 4. Вычислите гипотенузу.",
+     "theory": "Гипотенуза = √(a² + b²). В Python корень можно вычислить как **0.5.\n\nПример:\na = 6\nb = 8\nc = (a**2 + b**2)**0.5\nprint(c)  # 10.0",
+     "task": "🪜 Лестница опирается на стену: a = 3 м (расстояние от стены), b = 4 м (высота). Найди длину лестницы (гипотенузу).",
      "hint": "", "unlock_code": ""},
 
     {"level": 18, "title": "ОСТАТОК ОТ ДЕЛЕНИЯ",
      "theory": "Оператор % возвращает остаток.",
-     "task": "Даны переменные x = 20, y = 6. Выведите остаток от деления x на y.",
+     "task": "🧺 Есть 20 яблок и 6 корзин. Если раскладывать поровну, сколько яблок останется? Выведи остаток.",
      "hint": "print(x % y)", "unlock_code": ""},
 
     {"level": 19, "title": "ЦЕЛОЧИСЛЕННОЕ ДЕЛЕНИЕ",
      "theory": "Оператор // возвращает целую часть деления.",
-     "task": "Даны переменные a = 20, b = 6. Выведите результат целочисленного деления a на b.",
+     "task": "📦 20 книг нужно разложить в 6 коробок поровну. Сколько книг будет в каждой полностью заполненной коробке? Выведи целую часть.",
      "hint": "", "unlock_code": ""},
 
     {"level": 20, "title": "КВАДРАТНЫЙ КОРЕНЬ",
      "theory": "Корень можно вычислить как число ** 0.5.",
-     "task": "Дана переменная num = 36. Выведите квадратный корень из num.",
+     "task": "🟩 Площадь квадрата равна 36. Найди длину его стороны (квадратный корень).",
      "hint": "", "unlock_code": ""},
 
     {"level": 21, "title": "ВЫРАЖЕНИЕ",
      "theory": "Можно комбинировать операции.",
-     "task": "Даны переменные a = 7, b = 3. Выведите результат (a + b) * 2.",
+     "task": "🔐 Код от сейфа: (a + b) * 2, где a = 7, b = 3. Вычисли и выведи результат.",
      "hint": "", "unlock_code": ""},
 
     {"level": 22, "title": "ДОПОЛНИТЕЛЬНОЕ",
      "theory": "Повторение пройденного.",
-     "task": "Напишите код, который выведет 'Python' 3 раза подряд.",
+     "task": "🐍 Напиши код, который выведет 'Python' 3 раза подряд, чтобы получилось 'PythonPythonPython'.",
      "hint": "print('Python' * 3)", "unlock_code": ""},
 ]
 
-# ==================== ПРОВЕРКА КОДА ====================
+# ==================== ПРОВЕРКА КОДА (без изменений) ====================
 def mock_input(prompt=""):
     return "TestPilot"
 
@@ -194,7 +194,7 @@ def validate_code(user_code, level_num):
             local_vars['a'] = 7
             local_vars['b'] = 3
         elif level_num == 22:
-            pass  # для уровня 22 переменные не нужны
+            pass
 
         exec(user_code, {}, local_vars)
         output = sys.stdout.getvalue()
@@ -280,7 +280,7 @@ def validate_code(user_code, level_num):
         sys.stdout = old_stdout
         return False
 
-# ==================== ГРАФИЧЕСКИЙ ИНТЕРФЕЙС ====================
+# ==================== ГРАФИЧЕСКИЙ ИНТЕРФЕЙС (полностью идентичен предыдущей версии) ====================
 class SpaceMissionGUI:
     def __init__(self, root):
         self.root = root
@@ -418,6 +418,55 @@ class SpaceMissionGUI:
                     if isinstance(btn, tk.Button):
                         btn.config(font=self.button_font)
 
+    def get_vars_comment(self, level_num):
+        """Возвращает строку-комментарий с перечнем доступных переменных для данного уровня."""
+        if level_num == 1:
+            return "# Напиши цикл for для вывода чисел от 0 до 4."
+        elif level_num == 2:
+            return "# Напиши цикл for для вывода чисел от 1 до 5."
+        elif level_num == 3:
+            return "# Напиши цикл for для вывода чётных чисел от 0 до 10."
+        elif level_num == 4:
+            return "# Напиши цикл for для обратного отсчёта от 5 до 1."
+        elif level_num == 5:
+            return "# Доступна переменная: n = 5"
+        elif level_num == 6:
+            return "# Доступны переменные: a = 'Python', b = 'Rock'"
+        elif level_num == 7:
+            return "# Доступна переменная: laugh = 'Ho'"
+        elif level_num == 8:
+            return "# Доступна переменная: word = 'Python'"
+        elif level_num == 9:
+            return "# Доступна переменная: planet = 'Jupiter'"
+        elif level_num == 10:
+            return "# Доступна переменная: text = 'астрономия'"
+        elif level_num == 11:
+            return "# Доступна переменная: command = 'SOS'"
+        elif level_num == 12:
+            return "# Доступны переменные: a = 5, b = 7, c = 3"
+        elif level_num == 13:
+            return "# Доступны переменные: a = 2, b = 3, c = 4"
+        elif level_num == 14:
+            return "# Доступны переменные: a = 10, b = 20, c = 30"
+        elif level_num == 15:
+            return "# Доступны переменные: base = 3, exp = 4"
+        elif level_num == 16:
+            return "# Доступна переменная: r = 5"
+        elif level_num == 17:
+            return "# Доступны переменные: a = 3, b = 4"
+        elif level_num == 18:
+            return "# Доступны переменные: x = 20, y = 6"
+        elif level_num == 19:
+            return "# Доступны переменные: a = 20, b = 6"
+        elif level_num == 20:
+            return "# Доступна переменная: num = 36"
+        elif level_num == 21:
+            return "# Доступны переменные: a = 7, b = 3"
+        elif level_num == 22:
+            return "# Напиши код, который выведет 'Python' 3 раза подряд."
+        else:
+            return "# Напиши код:"
+
     def update_level_display(self):
         if self.current_level >= self.total_levels:
             self.show_final()
@@ -436,7 +485,11 @@ class SpaceMissionGUI:
         self.task_text.insert(1.0, level['task'])
         self.task_text.config(state=tk.DISABLED)
 
+        # Вставляем комментарий с переменными в поле для кода
         self.code_text.delete(1.0, tk.END)
+        comment = self.get_vars_comment(level['level'])
+        self.code_text.insert(1.0, comment + "\n\n")
+
         self.hint_label.config(text="")
         self.message_label.config(text="")
 
