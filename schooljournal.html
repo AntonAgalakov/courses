@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Журнал оценок — один предмет (ч/б печать)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 1.5rem;
+            color: #1a2c3e;
+        }
+
+        .journal-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        /* шапка */
+        .journal-header {
+            background: linear-gradient(135deg, #1e4668, #0f2c44);
+            padding: 1.5rem 2rem;
+            color: white;
+        }
+
+        .journal-header h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .subject-editor {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.15);
+            padding: 0.4rem 1rem;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+        }
+        .subject-name {
+            font-size: 1.3rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 1px dashed rgba(255,255,255,0.6);
+        }
+        .subject-name:hover {
+            border-bottom-color: white;
+        }
+        .edit-subject-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .edit-subject-btn:hover {
+            opacity: 1;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.3rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+        }
+
+        /* панель инструментов */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 1.2rem 2rem;
+            background: #f8fafd;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            border: none;
+            background: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-primary {
+            background: #1e4668;
+            border-color: #1e4668;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .btn-primary:hover {
+            background: #0f3552;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: white;
+            border-color: #b9cadb;
+            color: #1e4668;
+        }
+        .btn-outline:hover {
+            background: #eef2ff;
+            border-color: #1e4668;
+        }
+
+        .btn-warning {
+            background: #fff3e3;
+            border-color: #ffcd94;
+            color: #b45309;
+        }
+        .btn-warning:hover {
+            background: #ffe4c4;
+        }
+
+        .btn-print {
+            background: #e9f0f5;
+            border-color: #a0c0d4;
+            color: #0f2c44;
+        }
+        .btn-print:hover {
+            background: #d4e2ed;
+        }
+
+        /* таблица на экране (цветная, для удобства) */
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 0 0 1rem 0;
+        }
+
+        .grade-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1rem;
+            min-width: 400px;
+        }
+
+        .grade-table th,
+        .grade-table td {
+            border: 1px solid #e2edf2;
+            padding: 14px 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .grade-table th {
+            background-color: #f1f6fa;
+            font-weight: 600;
+            color: #1e3a5f;
+            font-size: 0.9rem;
+        }
+
+        .student-name-cell {
+            background: #fefce8;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .grade-cell {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: 0.05s linear;
+            user-select: none;
+        }
+
+        .grade-cell.pass {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+        .grade-cell.fail {
+            background-color: #ffe4e2;
+            color: #b91c1c;
+        }
+
+        .grade-cell:hover {
+            filter: brightness(0.96);
+        }
+
+        .delete-student-btn {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+            transition: all 0.2s;
+            color: #7f8c8d;
+            margin-left: 8px;
+        }
+        .delete-student-btn:hover {
+            background: #fee2e2;
+            color: #c0392b;
+        }
+
+        .footer-stats {
+            background: #f9fbfd;
+            padding: 1rem 2rem;
+            border-top: 1px solid #e2edf2;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-weight: 500;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 24px;
+            padding: 0.5rem 1.2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-pass {
+            color: #15803d;
+            font-weight: 800;
+        }
+        .summary-fail {
+            color: #b91c1c;
+            font-weight: 800;
+        }
+
+        /* ========= СТИЛИ ДЛЯ ПЕЧАТИ — ЧЁРНО-БЕЛАЯ ПРОСТАЯ ТАБЛИЦА ========= */
+        @media print {
+            /* Сброс всех цветов, фонов, теней */
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .journal-container {
+                max-width: 100%;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                background: white;
+            }
+            /* Скрыть все кнопки, панели, элементы управления */
+            .toolbar, .btn, .delete-student-btn, .edit-subject-btn, .badge, .footer-stats {
+                display: none !important;
+            }
+            /* Шапка — строго чёрно-белая, без градиента */
+            .journal-header {
+                background: #ffffff !important;
+                color: black !important;
+                padding: 1rem 1rem 0.5rem 1rem !important;
+                border-bottom: 2px solid #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .journal-header h1 {
+                color: black !important;
+                font-size: 1.6rem;
+            }
+            .subject-editor {
+                background: none !important;
+                padding-left: 0 !important;
+                color: black !important;
+            }
+            .subject-name {
+                color: black !important;
+                border-bottom: none !important;
+                font-weight: bold;
+            }
+            /* Таблица: чёрно-белая, чёткие границы */
+            .grade-table {
+                border-collapse: collapse;
+                width: 100%;
+                font-size: 12pt;
+            }
+            .grade-table th,
+            .grade-table td {
+                border: 1px solid black !important;
+                padding: 8px 6px;
+                background: white !important;
+                color: black !important;
+            }
+            /* Заголовки таблицы — серый фон (допустим только светло-серый, но можно и белый) */
+            .grade-table th {
+                background-color: #f0f0f0 !important;
+                font-weight: bold;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            /* Ячейки студентов — без фона */
+            .student-name-cell {
+                background: white !important;
+                font-weight: bold;
+            }
+            /* Ячейки с оценками: убираем цветной фон pass/fail, делаем обычный текст */
+            .grade-cell {
+                background: white !important;
+                color: black !important;
+                font-weight: normal;
+            }
+            .grade-cell.pass, .grade-cell.fail {
+                background: white !important;
+                color: black !important;
+            }
+            /* Убираем иконки, оставляем только текст */
+            .grade-cell::before {
+                display: none;
+            }
+            /* Дополнительно: чтобы символы ✓ и ✗ остались, но без цвета */
+            .grade-cell {
+                font-weight: 500;
+            }
+            /* Подвал статистики скрыт, но если нужна простая строка итогов — добавим в таблицу */
+            /* Скрываем нижнюю панель статистики, т.к. она уже есть в подвале таблицы (tfoot) */
+            /* Оставляем tfoot видимым, но делаем его чёрно-белым */
+            #tableFoot tr {
+                background: white !important;
+            }
+            #tableFoot td, #tableFoot th {
+                background: white !important;
+                border-top: 2px solid black;
+                font-weight: normal;
+            }
+            /* Убираем лишние отступы */
+            .table-wrapper {
+                overflow: visible;
+                padding: 0;
+            }
+            /* Убираем тени, лишние рамки */
+            .grade-table {
+                border: 1px solid black;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="journal-container">
+    <div class="journal-header">
+        <h1>
+            📋 Журнал итоговых оценок
+            <span class="badge">зачёт / незачёт</span>
+        </h1>
+        <div class="subject-editor" style="margin-top: 12px;">
+            <span style="font-size: 0.9rem;">📖 Предмет:</span>
+            <span class="subject-name" id="subjectNameDisplay">Мой предмет</span>
+            <button class="edit-subject-btn" id="editSubjectBtn" title="Изменить название предмета">✎</button>
+        </div>
+        <!-- <p style="opacity:0.85; margin-top: 12px; font-size: 0.85rem;">Клик по ячейке с оценкой — переключить «зачёт» / «незачёт». Данные сохраняются автоматически.</p> -->
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-primary" id="addStudentBtn">👨‍🎓 + Добавить студента</button>
+        <button class="btn btn-outline" id="setAllPassBtn">✅ Всем зачёт</button>
+        <button class="btn btn-outline" id="setAllFailBtn">❌ Всем незачёт</button>
+        <button class="btn btn-warning" id="resetDefaultBtn">🔄 Сброс к примеру</button>
+        <button class="btn btn-print" id="printBtn">🖨️ Распечатать</button>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="grade-table" id="journalTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot id="tableFoot"></tfoot>
+        </table>
+    </div>
+
+    <div class="footer-stats" id="statsPanel"></div>
+</div>
+
+<script>
+    // ---------- ДАННЫЕ: только один предмет ----------
+    let subjectName = "Мой предмет";      // название предмета
+    let students = [];                   // массив имён студентов
+    let marks = [];                      // массив оценок: "зачёт" / "незачёт"
+
+    const STORAGE_KEY = "singleSubjectJournal";
+
+    // ---------- СОХРАНЕНИЕ И ЗАГРУЗКА ----------
+    function saveToLocalStorage() {
+        const data = {
+            subjectName: subjectName,
+            students: students,
+            marks: marks
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        try {
+            const data = JSON.parse(raw);
+            if (data.subjectName && Array.isArray(data.students) && Array.isArray(data.marks)) {
+                subjectName = data.subjectName;
+                students = data.students;
+                marks = data.marks;
+                if (students.length !== marks.length) return false;
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    // Демо-данные
+    function initDefaultData() {
+        subjectName = "Мой предмет";
+        students = ["Анна Иванова", "Борис Петров", "Виктория Смирнова", "Глеб Козлов"];
+        marks = ["зачёт", "незачёт", "зачёт", "незачёт"];
+    }
+
+    // Отрисовка таблицы и статистики
+    function renderJournal() {
+        // Обновляем название предмета в шапке
+        document.getElementById("subjectNameDisplay").innerText = subjectName;
+
+        if (!students.length) {
+            renderEmptyState();
+            return;
+        }
+
+        // Заголовок
+        const thead = document.getElementById("tableHead");
+        thead.innerHTML = `<tr>
+            <th>Ученик</th>
+            <th>Оценка</th>
+            <th style="width: 50px;">Удалить</th>
+        </tr>`;
+
+        // Тело
+        let tbodyHtml = "";
+        for (let i = 0; i < students.length; i++) {
+            const mark = marks[i];
+            const cellClass = (mark === "зачёт") ? "pass" : "fail";
+            const markText = (mark === "зачёт") ? "✓ зачёт" : "✗ незачёт";
+            tbodyHtml += `
+                <tr>
+                    <td class="student-name-cell">${escapeHtml(students[i])}</td>
+                    <td class="grade-cell ${cellClass}" data-student-index="${i}">${markText}</td>
+                    <td><button class="delete-student-btn" data-student-index="${i}" title="Удалить студента">🗑️</button></td>
+                </tr>
+            `;
+        }
+        document.getElementById("tableBody").innerHTML = tbodyHtml;
+
+        // Подвал: статистика по предмету
+        const passCount = marks.filter(m => m === "зачёт").length;
+        const failCount = students.length - passCount;
+        const total = students.length;
+        const passPercent = total ? Math.round((passCount / total) * 100) : 0;
+
+        document.getElementById("tableFoot").innerHTML = `
+            <tr style="background:#f1f6fa; font-weight:600;">
+                <td>📊 ИТОГО</td>
+                <td colspan="2">
+                    ✅ Зачётов: ${passCount} &nbsp;|&nbsp; 
+                    ❌ Незачётов: ${failCount} &nbsp;|&nbsp;
+                    📈 Успеваемость: ${passPercent}%
+                </td>
+            </tr>
+        `;
+
+        // Нижняя панель статистики (на экране)
+        const statsDiv = document.getElementById("statsPanel");
+        statsDiv.innerHTML = `
+            <div class="stat-card">👨‍🎓 Студентов: <strong>${students.length}</strong></div>
+            <div class="stat-card">✅ Зачётов: <span class="summary-pass">${passCount}</span></div>
+            <div class="stat-card">❌ Незачётов: <span class="summary-fail">${failCount}</span></div>
+            <div class="stat-card">📈 Успеваемость: <strong>${passPercent}%</strong></div>
+        `;
+    }
+
+    function renderEmptyState() {
+        const thead = document.getElementById("tableHead");
+        const tbody = document.getElementById("tableBody");
+        const tfoot = document.getElementById("tableFoot");
+        thead.innerHTML = `<tr><th>Студент</th><th>${escapeHtml(subjectName)}</th><th></th></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 40px;">Нет студентов. Нажмите «+ Добавить студента»</td></tr>`;
+        tfoot.innerHTML = ``;
+        const statsDiv = document.getElementById("statsPanel");
+        statsDiv.innerHTML = `<div class="stat-card">👨‍🎓 Студентов: 0</div><div class="stat-card">✅ Зачётов: 0</div><div class="stat-card">❌ Незачётов: 0</div><div class="stat-card">📈 Успеваемость: 0%</div>`;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function syncAndRender() {
+        saveToLocalStorage();
+        renderJournal();
+    }
+
+    // Действия
+    function addStudent() {
+        let newName = prompt("Введите имя студента:", "Новый студент");
+        if (!newName || newName.trim() === "") {
+            alert("Имя не может быть пустым.");
+            return;
+        }
+        newName = newName.trim();
+        if (students.some(s => s.toLowerCase() === newName.toLowerCase())) {
+            if (!confirm("Студент с таким именем уже есть. Всё равно добавить?")) return;
+        }
+        students.push(newName);
+        marks.push("зачёт");
+        syncAndRender();
+    }
+
+    function deleteStudentByIndex(index) {
+        if (index < 0 || index >= students.length) return;
+        if (confirm(`Удалить студента "${students[index]}"?`)) {
+            students.splice(index, 1);
+            marks.splice(index, 1);
+            syncAndRender();
+        }
+    }
+
+    function toggleMark(index) {
+        if (index < 0 || index >= marks.length) return;
+        marks[index] = (marks[index] === "зачёт") ? "незачёт" : "зачёт";
+        syncAndRender();
+    }
+
+    function setAllMarksTo(value) {
+        if (!students.length) {
+            alert("Нет студентов, некому ставить оценки.");
+            return;
+        }
+        for (let i = 0; i < marks.length; i++) marks[i] = value;
+        syncAndRender();
+    }
+
+    function resetToDefault() {
+        if (confirm("Сбросить все данные к примеру (Анна, Борис, ...)? Текущий журнал будет потерян.")) {
+            initDefaultData();
+            syncAndRender();
+        }
+    }
+
+    function changeSubjectName() {
+        let newName = prompt("Введите название предмета:", subjectName);
+        if (newName && newName.trim() !== "") {
+            subjectName = newName.trim();
+            syncAndRender();
+        }
+    }
+
+    function printJournal() {
+        window.print();
+    }
+
+    // Обработчики событий
+    function setupEventListeners() {
+        const tableBody = document.getElementById("tableBody");
+        if (tableBody) {
+            tableBody.addEventListener("click", (e) => {
+                const gradeCell = e.target.closest(".grade-cell");
+                if (gradeCell && gradeCell.dataset.studentIndex !== undefined) {
+                    const idx = parseInt(gradeCell.dataset.studentIndex);
+                    if (!isNaN(idx)) toggleMark(idx);
+                    return;
+                }
+                const delBtn = e.target.closest(".delete-student-btn");
+                if (delBtn && delBtn.dataset.studentIndex !== undefined) {
+                    const idx = parseInt(delBtn.dataset.studentIndex);
+                    if (!isNaN(idx)) deleteStudentByIndex(idx);
+                }
+            });
+        }
+
+        document.getElementById("addStudentBtn").addEventListener("click", addStudent);
+        document.getElementById("setAllPassBtn").addEventListener("click", () => setAllMarksTo("зачёт"));
+        document.getElementById("setAllFailBtn").addEventListener("click", () => setAllMarksTo("незачёт"));
+        document.getElementById("resetDefaultBtn").addEventListener("click", resetToDefault);
+        document.getElementById("printBtn").addEventListener("click", printJournal);
+        document.getElementById("editSubjectBtn").addEventListener("click", changeSubjectName);
+        const subjectSpan = document.getElementById("subjectNameDisplay");
+        if (subjectSpan) subjectSpan.addEventListener("dblclick", changeSubjectName);
+    }
+
+    // Инициализация
+    function init() {
+        const loaded = loadFromLocalStorage();
+        if (!loaded) initDefaultData();
+        if (students.length !== marks.length) initDefaultData();
+        renderJournal();
+        setupEventListeners();
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
