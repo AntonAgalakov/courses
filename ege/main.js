@@ -118,17 +118,68 @@ function renderTaskGrid() {
     });
 }
 
+// function loadTask(index) {
+//     const task = currentCourse.tasks[index];
+//     document.getElementById('taskTitle').textContent = "Задание";
+//     document.getElementById('taskNumber').textContent = `№${task.id}`;
+//     document.getElementById('taskText').textContent = task.text;
+    
+//     // Отображение картинки
+//     const taskImageContainer = document.getElementById('taskImageContainer');
+//     const taskImage = document.getElementById('taskImage');
+//     const taskImageCaption = document.getElementById('taskImageCaption');
+    
+//     if (task.image) {
+//         taskImage.src = task.image;
+//         taskImageContainer.style.display = 'block';
+        
+//         if (task.imageCaption) {
+//             taskImageCaption.textContent = task.imageCaption;
+//             taskImageCaption.style.display = 'block';
+//         } else {
+//             taskImageCaption.style.display = 'none';
+//         }
+//     } else {
+//         taskImageContainer.style.display = 'none';
+//         taskImage.src = '';
+//     }
+    
+//     document.getElementById('userAnswer').value = userAnswers[index] || "";
+    
+//     const oldFeedback = document.getElementById('answerFeedback');
+//     if (oldFeedback) oldFeedback.remove();
+
+//     if (feedbackTimeout) clearTimeout(feedbackTimeout);
+
+//     if (currentCourse.trainingMode && userAnswers[index].trim() !== "") {
+//         showImmediateFeedback(index, false);
+//     }
+    
+//     document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('active'));
+//     const activeBtn = document.getElementById(`btn-${index}`);
+//     activeBtn.classList.add('active');
+//     activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+//     currentTaskIndex = index;
+//     document.getElementById('userAnswer').focus();
+// }
+
 function loadTask(index) {
     const task = currentCourse.tasks[index];
+    
+    // 1. Обновляем заголовки
     document.getElementById('taskTitle').textContent = "Задание";
     document.getElementById('taskNumber').textContent = `№${task.id}`;
-    document.getElementById('taskText').textContent = task.text;
     
-    // Отображение картинки
+    // 2. ВАЖНОЕ ИЗМЕНЕНИЕ: Используем innerHTML вместо textContent для рендеринга таблицы
+    const taskTextElement = document.getElementById('taskText');
+    taskTextElement.innerHTML = task.text; 
+
+    // Отображение картинки (если есть)
     const taskImageContainer = document.getElementById('taskImageContainer');
     const taskImage = document.getElementById('taskImage');
     const taskImageCaption = document.getElementById('taskImageCaption');
-    
+
     if (task.image) {
         taskImage.src = task.image;
         taskImageContainer.style.display = 'block';
@@ -143,18 +194,22 @@ function loadTask(index) {
         taskImageContainer.style.display = 'none';
         taskImage.src = '';
     }
-    
+
+    // Поле ввода ответа
     document.getElementById('userAnswer').value = userAnswers[index] || "";
-    
+
+    // Удаление старого фидбека
     const oldFeedback = document.getElementById('answerFeedback');
     if (oldFeedback) oldFeedback.remove();
 
     if (feedbackTimeout) clearTimeout(feedbackTimeout);
 
+    // Логика тренировки (мгновенная проверка)
     if (currentCourse.trainingMode && userAnswers[index].trim() !== "") {
         showImmediateFeedback(index, false);
     }
-    
+
+    // Подсветка активной кнопки
     document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('active'));
     const activeBtn = document.getElementById(`btn-${index}`);
     activeBtn.classList.add('active');
