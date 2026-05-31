@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>День 1 | Введение в Python</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="toast-container" id="toast-container"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <header>
+    <div class="container header-inner">
+      <a href="../index.html" class="logo" style="text-decoration:none; font-size:1.2rem;">← На главную</a>
+      <div class="user-stats">
+        <span class="badge">🔥 <span class="streak-val">1</span></span>
+        <span class="badge">⭐ <span class="xp-val">0</span> XP</span>
+        <button class="theme-toggle">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="glass lesson-header">
+      <h1>🐣 День 1: Введение в Python</h1>
+      <p>Переменные, типы данных, вывод информации, условный оператор, циклы</p>
+    </div>
+
+    <section class="glass section">
+      <h2>Теория</h2>
+      <div class="theory-content">
+        <p><strong>Python</strong> — язык с простым синтаксисом. Переменные создаются автоматически при присваивании:</p>
+        <div class="code-block">
+          name = "Артём"<br>
+          age = 12<br>
+          print("Привет, меня зовут", name)<br>
+          print("Мне", age, "лет")
+        </div>
+        <p><strong>Основные типы данных:</strong></p>
+        <ul>
+          <li><code>str</code> — строка (текст в кавычках)</li>
+          <li><code>int</code> — целое число</li>
+          <li><code>float</code> — дробное число</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="glass section">
+      <h2>Условный оператор: if, elif, else</h2>
+      
+      <div class="theory-content">
+        <p><strong>Условный оператор</strong> позволяет программе принимать решения. В Python он записывается с помощью ключевых слов <code>if</code>, <code>elif</code> (else if) и <code>else</code>.</p>
+        
+        <div class="code-block">
+<span style="color:#ff79c6">if</span> x > 0:
+    <span style="color:#f92672">print</span>(<span style="color:#f1fa8c">"Положительное"</span>)
+<span style="color:#ff79c6">elif</span> x == 0:
+    <span style="color:#f92672">print</span>(<span style="color:#f1fa8c">"Ноль"</span>)
+<span style="color:#ff79c6">else</span>:
+    <span style="color:#f92672">print</span>(<span style="color:#f1fa8c">"Отрицательное"</span>)
+        </div>
+
+        <h3 style="margin: 20px 0 12px;">Логические операторы</h3>
+        <p>Позволяют комбинировать несколько условий:</p>
+        <ul>
+          <li><code>and</code> — <strong>оба</strong> условия истинны</li>
+          <li><code>or</code> — <strong>хотя бы одно</strong> условие истинно</li>
+          <li><code>not</code> — <strong>отрицание</strong> условия</li>
+        </ul>
+        <div class="code-block">
+<span style="color:#ff79c6">if</span> age >= 18 <span style="color:#ff79c6">and</span> has_passport:
+    <span style="color:#f92672">print</span>(<span style="color:#f1fa8c">"Доступ разрешён"</span>)
+        </div>
+
+        <div class="glass" style="padding: 16px; margin: 16px 0; border-left: 4px solid var(--warning);">
+          <strong>Важно!</strong> После <code>if</code>, <code>elif</code> и <code>else</code> обязательно ставится двоеточие <code>:</code>, а тело условия записывается с отступом (обычно 4 пробела).<br><br>
+          Python не использует фигурные скобки — <strong>отступы определяют структуру кода!</strong>
+        </div>
+
+        <h3 style="margin: 20px 0 12px;">Интересный факт</h3>
+        <p>Условный оператор существует почти во всех языках программирования, но в Python его синтаксис считается одним из самых читаемых и элегантных. Это делает код похожим на обычный английский текст!</p>
+
+        <h3 style="margin: 20px 0 12px;">Советы по решению задач</h3>
+        <ul>
+          <li>Всегда проверяйте <strong>граничные значения</strong> (например, 0, отрицательные числа).</li>
+          <li>Используйте <code>elif</code>, а не вложенные <code>if</code>, если условия взаимоисключающие.</li>
+          <li>Для сравнения строк учитывайте регистр: <code>"Ананас" != "ананас"</code>.</li>
+        </ul>
+
+        <h3 style="margin: 20px 0 12px;">Пример: Проверка возраста</h3>
+        <div class="code-block">
+age = int(input(<span style="color:#f1fa8c">"Сколько вам лет? "</span>))
+<span style="color:#ff79c6">if</span> age < 12:
+    <span style="color:#f92672">print</span>(<span style="color:#f1fa8c">"Вам нельзя на этот фильм!"</span>)
+<span style="color:#ff79c6">else</span>:
+    <span style="color:#f92672">print</span>(<span style="color:#f1fa8c">"Добро пожаловать!"</span>)
+        </div>
+      </div>
+    </section>
+
+        <section class="glass section">
+      <h2>Цикл while</h2>
+      
+      <div class="theory-content">
+        <p>Цикл <code>while</code> выполняет блок кода <strong>пока условие истинно</strong>. Как только условие становится ложным — цикл останавливается.</p>
+        
+        <div class="code-block" style="white-space: pre-wrap; font-family: var(--font-code);">
+count = 0
+while count < 3:
+    print("Привет!")
+    count = count + 1
+        </div>
+        
+        <p>Выведет «Привет!» три раза. <strong>Обратите внимание:</strong> переменная <code>count</code> обязательно должна изменяться внутри цикла!</p>
+        
+        <div class="glass" style="padding: 16px; margin: 16px 0; border-left: 4px solid var(--error); background: rgba(239, 68, 68, 0.1);">
+          <strong>⚠️ Осторожно!</strong> Если забыть изменить переменную в теле цикла, получится <em>бесконечный цикл</em> — программа зависнет!<br><br>
+          <code>while True:<br>&nbsp;&nbsp;&nbsp;&nbsp;print("Помогите!")  # Никогда не остановится</code>
+        </div>
+
+        <h3 style="margin: 20px 0 12px;">🐍 Интересный факт</h3>
+        <p>Цикл <code>while</code> — одна из самых древних управляющих конструкций в программировании. Он позволяет реализовать любую логику повторения, даже если заранее неизвестно, сколько раз нужно повторить действие.</p>
+
+        <h3 style="margin: 20px 0 12px;">💡 Советы по циклу while</h3>
+        <ul>
+          <li>Всегда проверяйте, что условие цикла рано или поздно станет <code>False</code>.</li>
+          <li>Используйте <code>break</code>, чтобы досрочно выйти из цикла (например, при вводе «стоп»).</li>
+          <li>Используйте <code>continue</code>, чтобы пропустить остаток текущей итерации и перейти к проверке условия.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ========== КАРУСЕЛЬ ЗАДАНИЙ ========== -->
+    <section class="glass section tasks-carousel-wrapper">
+      
+      <div class="carousel-header">
+        <h2>Практические задания</h2>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev-btn" id="prevTask" disabled>← Назад</button>
+          <span class="carousel-counter"><span id="currentTask">1</span>/<span id="totalTasks">11</span></span>
+          <button class="carousel-btn next-btn" id="nextTask">Вперёд →</button>
+        </div>
+      </div>
+
+      <div class="task-progress-bar">
+        <div class="task-progress-fill" id="taskProgress"></div>
+      </div>
+
+      <div class="tasks-carousel" id="tasksCarousel">
+
+        <!-- Задание 1 -->
+        <section class="glass section task-card active" data-task-index="0">
+          <h2>Задание 1: Система ранжирования киберспортсменов</h2>
+          
+          <div class="task-legend">
+            <h3>Легенда задачи</h3>
+            <p>Ты — <strong>junior-аналитик</strong> профессиональной киберспортивной команды. Перед важным турниром тренер проводит серию тренировочных матчей и собирает статистику игроков с помощью специальных игровых датчиков.</p>
+            <p>Иногда датчики сбоят и выдают некорректные значения (например, отрицательные числа или баллы >100). Твоя задача — написать логический блок программы, который автоматически отфильтрует сбои оборудования и присвоит игроку честный ранг на основе набранных очков.</p>
+          </div>
+
+          <p>Напиши программу, которая проверяет очки и определяет статус:</p>
+          <ul>
+            <li>Если число <code>score</code> вне диапазона <code>0 – 100</code> → <span style="color:var(--error)">🔴 Датчик сбоит. Игра не засчитывается.</span></li>
+            <li><code>90 – 100</code> очков → <span style="color:var(--primary)">🥇 Ранг: LEGEND</span></li>
+            <li><code>75 – 89</code> очков → <span style="color:#f59e0b">🥈 Ранг: PRO</span></li>
+            <li><code>50 – 74</code> очков → <span style="color:#34d399">🥉 Ранг: AMATEUR</span></li>
+            <li><code>0 – 49</code> очков → <span style="color:var(--text-muted)">📍 Ранг: BEGINNER</span></li>
+          </ul>
+          <p><strong>Итог:</strong> В конце сессии программа выводит финальный отчёт: сколько всего матчей было успешно обработано без сбоя датчиков.</p>
+        </section>
+
+        <!-- Задание 2 -->
+        <section class="glass section task-card" data-task-index="1">
+          <h2>Задание 2: Распределяющая Шляпа</h2>
+          <p class="theory-content" style="margin-bottom:14px;">Шляпа анализирует два аспекта: <strong>главное качество</strong> и <strong>вдохновение</strong>. Она ищет совпадения, исключает противоречия и принимает решение по комбинации ответов.</p>
+
+          <div class="task-instructions">
+            <h3>Правила распределения</h3>
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>Факультет</th>
+                  <th>Условие (логика)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Гриффиндор</td>
+                  <td><code>(качество == "храбрость" or вдохновение == "подвиги") and вдохновение != "тайны"</code></td>
+                </tr>
+                <tr>
+                  <td>Слизерин</td>
+                  <td><code>(качество == "хитрость" or качество == "амбиции") and (вдохновение == "победа" or вдохновение == "тайны")</code></td>
+                </tr>
+                <tr>
+                  <td>Когтевран</td>
+                  <td><code>(качество == "ум" or вдохновение == "знания") and качество != "амбиции"</code></td>
+                </tr>
+                <tr>
+                  <td>Пуффендуй</td>
+                  <td><code>качество == "честность" or качество == "доброта" or вдохновение == "помощь другим"</code></td>
+                </tr>
+                <tr>
+                  <td>Иначе</td>
+                  <td><code>"Шляпа в замешательстве... Попробуй ещё раз"</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="task-instructions" style="margin-top:16px;">
+            <h3>Твоя задача</h3>
+            <p>Напиши программу, которая:</p>
+            <ol style="margin-left:20px; margin-bottom:12px;">
+              <li>Спрашивает: <code>"Какое качество ты считаешь своим главным?"</code></li>
+              <li>Спрашивает: <code>"Что тебя вдохновляет больше всего?"</code></li>
+              <li>Определяет факультет по таблице выше (используй <code>if-elif-else</code>, <code>and</code>, <code>or</code>, <code>!=</code> и скобки)</li>
+              <li>Выводит результат</li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- Задание 3 -->
+        <section class="glass section task-card" data-task-index="2">
+          <h2>♟️ Задание 3: Телепортация на шахматной доске</h2>
+          <p class="theory-content" style="margin-bottom:14px;"><strong>Сюжет:</strong> В тактической стратегии конь хочет прыгнуть из клетки <code>A</code> в <code>B</code>, а король — из <code>B</code> в <code>C</code>. Компьютер должен проверить, возможны ли такие ходы за один шаг.</p>
+
+          <div class="task-instructions">
+            <h3>📐 Математические условия</h3>
+            <table class="rules-table">
+              <thead>
+                <tr><th>Фигура</th><th>Математическое условие</th><th>Результат при ошибке</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>♞ Конь (A→B)</td>
+                  <td>|x₁ − x₂| · |y₁ − y₂| = 2</td>
+                  <td>«Конь запутался в ногах»</td>
+                </tr>
+                <tr>
+                  <td>♚ Король (B→C)</td>
+                  <td>max(|x₂ − x₃|, |y₂ − y₃|) ≤ 1</td>
+                  <td>«Король слишком стар для таких шагов»</td>
+                </tr>
+                <tr>
+                  <td>Оба верны</td>
+                  <td>—</td>
+                  <td>«Комбо-телепортация успешна!»</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="task-instructions" style="margin-top:16px;">
+            <h3>Твоя задача</h3>
+            <p>Программа принимает 6 чисел от 1 до 8: <code>x1 y1</code> (старт коня), <code>x2 y2</code> (цель коня / старт короля), <code>x3 y3</code> (цель короля). Переведи формулы из таблицы в код на Python и выведи соответствующее сообщение.</p>
+          </div>
+        </section>
+
+        <!-- Задание 4 -->
+        <section class="glass section task-card" data-task-index="3">
+          <h2>⏳ Задание 4: Парадокс временной петли</h2>
+          
+          <div class="theory-content">
+            <p><strong>Сюжет:</strong> Машина времени работает по странному алгоритму ИИ. Она переносит человека в прошлое, только если введенный год является «Зеркально-високосным».</p>
+            
+            <p><strong>Математическая суть:</strong> Сложная булева логика, остатки от деления, палиндромы.</p>
+            
+            <h3 style="margin: 16px 0 10px;">Задача</h3>
+            <p>На вход подается четырехзначный год (например, <code>2024</code>). Программа должна проверить:</p>
+            <ul>
+              <li>Год должен быть <strong>високосным</strong>: делится на 4, но не делится на 100, <strong>ЛИБО</strong> делится на 400.</li>
+              <li>И при этом сумма первых двух цифр года должна быть равна сумме двух последних цифр (например, для 2024: <code>2+0 ≠ 2+4</code>, не подходит).</li>
+            </ul>
+            
+            <h3 style="margin: 16px 0 10px;">Вывод</h3>
+            <ul>
+              <li>Если оба условия сошлись → <code>«Портал открыт, добро пожаловать в прошлое!»</code></li>
+              <li>Если год просто високосный → <code>«Времени недостаточно для прыжка»</code></li>
+              <li>В остальных случаях → <code>«Машина времени превратилась в тыкву»</code></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Задание 5 -->
+        <section class="glass section task-card" data-task-index="4">
+          <h2>🎒 Задание 5: Бездонный рюкзак перед походом</h2>
+          
+          <div class="theory-content">
+            <p><strong>Сюжет:</strong> Вы собираетесь в поход и пытаетесь запихнуть вещи в рюкзак. Но его объём не бесконечен. Вы кидаете вещи одну за другой, пока рюкзак не начнёт трещать по швам.</p>
+            
+            <p><strong>Как работает <code>while</code>:</strong> Цикл работает, пока свободное место в рюкзаке больше нуля.</p>
+            
+            <h3 style="margin: 16px 0 10px;">Задача</h3>
+            <ul>
+              <li>Программа задаёт стартовую вместимость рюкзака (например, <code>20</code> кг).</li>
+              <li>В цикле спрашивает: <code>«Что вы хотите положить?»</code> и <code>«Сколько это весит?»</code>.</li>
+              <li>Вычитает вес из оставшейся вместимости.</li>
+              <li>Если вес вещи больше, чем осталось места → пишет <code>«Это уже не влезет! Попробуй что-то полегче»</code> и не уменьшает место.</li>
+              <li>Цикл завершается, когда:
+                <ul>
+                  <li>свободное место стало <code>0</code> кг (идеальная упаковка), <strong>ИЛИ</strong></li>
+                  <li>пользователь ввёл стоп-слово <code>"выход"</code>.</li>
+                </ul>
+              </li>
+            </ul>
+            
+            <h3 style="margin: 16px 0 10px;">Вывод</h3>
+            <p>Список вещей (если хранишь их в строке) или финальное сообщение: <code>«Рюкзак собран! Свободного места: Х кг»</code>.</p>
+          </div>
+        </section>
+
+        <!-- Задание 6 -->
+        <section class="glass section task-card" data-task-index="5">
+          <h2>⛏️ Задание 6: Побег из заброшенной шахты</h2>
+          
+          <div class="theory-content">
+            <p><strong>Сюжет:</strong> Персонаж бежит по тёмной шахте, за ним гонятся зомби. Нужно пробежать <code>100</code> метров до выхода. Каждую секунду выбирается режим бега.</p>
+            <p><strong>Как работает <code>while</code>:</strong> Цикл работает, пока дистанция <code>< 100</code> и здоровье <code>> 0</code>.</p>
+            
+            <h3 style="margin: 16px 0 10px;">⚙️ Числа и механика</h3>
+            <ul>
+              <li><strong>Старт:</strong> дистанция = <code>0</code> м, зомби сзади = <code>30</code> м, здоровье = <code>100</code>, выносливость = <code>50</code></li>
+              <li><strong>1. Спринт:</strong> +12 м вперёд, −25 выносливости, зомби приближаются на +8 м</li>
+              <li><strong>2. Шаг:</strong> +5 м вперёд, +15 выносливости (макс. 50), зомби приближаются на +15 м</li>
+              <li><strong>Атака зомби:</strong> если расстояние до зомби <code>≤ 0</code> → −20 здоровья, зомби отбрасываются на 5 м назад</li>
+              <li><strong>Победа:</strong> дистанция <code>≥ 100</code> м</li>
+              <li><strong>Поражение:</strong> здоровье <code>≤ 0</code></li>
+            </ul>
+            
+            <h3 style="margin: 16px 0 10px;">🎯 Твоя задача</h3>
+            <p>Напиши цикл <code>while</code>, который каждый ход запрашивает выбор (1 или 2), обновляет переменные по правилам выше, выводит текущее состояние и проверяет условия победы/поражения.</p>
+            
+            <h3 style="margin: 16px 0 10px;">📤 Пример вывода</h3>
+            <p><code>Вы на 45-м метре. До зомби: 12 м. HP: 80 | Выносливость: 30</code><br>
+            <code>Ура, вы выбрались на свет!</code> или <code>Зомби оказались быстрее... Игра окончена.</code></p>
+          </div>
+        </section>
+
+        <!-- Задание 7 -->
+        <section class="glass section task-card" data-task-index="6">
+          <h2>💳 Задание 7: Валидация банковской карты</h2>
+          
+          <div class="theory-content">
+            <p><strong>Сюжет:</strong> Вы — ведущий инженер кибербезопасности банка. При ручном вводе 16-значного номера карты пользователи часто допускают опечатки. Пересылать неверный номер на сервер долго и небезопасно. Ваша задача — написать локальный скрипт проверки.</p>
+            
+            <p><strong>Алгоритм Луна (Luhn):</strong> стандарт, используемый Visa, Mastercard и МИР по всему миру.</p>
+            
+            <h3 style="margin: 16px 0 10px;">📐 Правила проверки</h3>
+            <ol>
+              <li>Убедись, что длина = 16.</li>
+              <li>Пройди по цифрам <strong>справа налево</strong>.</li>
+              <li><strong>Чётные по позиции цифры:</strong> просто прибавь к общей сумме.</li>
+              <li><strong>Нечётные по позиции цифры:</strong> умножь на 2. Если результат > 9, вычти 9.</li>
+              <li>Сложи все полученные значения. Если итоговая сумма <strong>кратна 10</strong> → номер валиден.</li>
+            </ol>
+            
+            <p><strong>Пример валидного номера:</strong> <code>4276 4400 1336 1511</code></p>
+            
+            <h3 style="margin: 16px 0 10px;">Твоя задача</h3>
+            <p>Напиши программу, которая принимает номер карты, применяет алгоритм Луна и выводит «✅ Карта валидна» или «❌ Ошибка в номере карты».</p>
+          </div>
+        </section>
+
+        <!-- Задание 8 -->
+        <section class="glass section task-card" data-task-index="7">
+          <h2>🌌 Задание 8: Числа Армстронга и цифровые монстры</h2>
+          
+          <div class="theory-content">
+            <p><strong>Сюжет:</strong> В НАСА ищут аномальные числа для кодирования сигналов. Одно из таких явлений — <strong>числа Армстронга</strong> (числа, сумма цифр которых, возведённых в степень количества цифр, равна самому числу. Например, <code>153 = 1³ + 5³ + 3³</code>).</p>
+            <p><strong>Как устроена сложность:</strong> Работа с разрядами числа <em>без использования строк</em>. Сначала нужно в цикле посчитать количество цифр, а затем во втором цикле возвести каждую цифру в эту степень.</p>
+            
+            <h3 style="margin: 16px 0 10px;">📐 Алгоритм проверки</h3>
+            <ol>
+              <li>Пользователь вводит целое число. Сохрани его копию для финальной проверки.</li>
+              <li><strong>Первый цикл <code>while</code>:</strong> считай количество цифр, деля число на 10, пока оно не станет 0.</li>
+              <li><strong>Второй цикл <code>while</code>:</strong> извлекай каждую цифру (через остаток `% 10`), возводи её в степень (количество цифр) и прибавляй к сумме.</li>
+              <li><strong>Проверка <code>if</code>:</strong> если итоговая сумма равна исходному числу → это число Армстронга.</li>
+            </ol>
+            
+            <h3 style="margin: 16px 0 10px;">Твоя задача</h3>
+            <p>Реализуй оба цикла строго через арифметические операции (<code>//</code>, <code>%</code>), не переводя число в строку. Выведи вердикт: <code>«Это число Армстронга!»</code> или <code>«Это обычное число»</code>.</p>
+          </div>
+        </section>
+
+        <!-- Задание 9 -->
+        <section class="glass section task-card" data-task-index="8">
+          <h2>🚌 Задание 9: Ближайшая автобусная остановка</h2>
+          
+          <div class="theory-content">
+            <p><strong>Сюжет:</strong> Автобусные остановки расположены через каждые <code>K</code> метров вдоль проспекта (на расстояниях 0, K, 2K, 3K и т.д.). Маша прошла <code>N</code> метров от начала и хочет сесть в автобус. Как далеко ей идти до ближайшей остановки?</p>
+            
+            <h3 style="margin: 16px 0 10px;">📐 Формат данных</h3>
+            <ul>
+              <li><strong>Вход:</strong> два целых числа <code>K</code> и <code>N</code> (в отдельных строках). 1 ≤ K, N ≤ 2·10⁹.</li>
+              <li><strong>Выход:</strong> одно целое число — минимальное расстояние до остановки.</li>
+            </ul>
+            
+            <h3 style="margin: 16px 0 10px;">Пример</h3>
+            <p><code>K = 600, N = 2000</code> → Остановки: 0, 600, 1200, <strong>1800</strong>, 2400...<br>
+            Маша на 2000 м. Ближайшая — 1800 м. Расстояние: <code>200</code>.</p>
+            
+            <h3 style="margin: 16px 0 10px;">Подсказка</h3>
+            <p>Используй целочисленное деление <code>//</code> и остаток <code>%</code>, чтобы найти две ближайшие остановки: позади Маши и впереди неё. Ответ — минимальное из двух расстояний.</p>
+          </div>
+        </section>
+
+        <!-- Задание 10 -->
+        <section class="glass section task-card" data-task-index="9">
+          <h2>🧗 Задание 10: Надёжная страховка альпиниста</h2>
+          
+          <div class="theory-content">
+            <p><strong>Сюжет:</strong> Альпинист пристегивается тремя карабинами, которые выдерживают массу <code>a</code>, <code>b</code> и <code>c</code> кг. Страховка надёжна, если <em>хотя бы два</em> карабина выдерживают массу альпиниста со снаряжением. Определите максимальную массу, для которой страховка будет надёжной.</p>
+            
+            <h3 style="margin: 16px 0 10px;">📐 Формат данных</h3>
+            <ul>
+              <li><strong>Вход:</strong> три натуральных числа <code>a</code>, <code>b</code>, <code>c</code> (в отдельных строках). 1 ≤ a, b, c ≤ 2·10⁹.</li>
+              <li><strong>Выход:</strong> одно целое число — максимальная надёжная масса.</li>
+            </ul>
+            
+            <h3 style="margin: 16px 0 10px;">Пример</h3>
+            <p>Вход: <code>28</code>, <code>15</code>, <code>10</code> → Выход: <code>15</code></p>
+          </div>
+        </section>
+
+        <!-- Задание 11 -->
+        <section class="glass section task-card" data-task-index="10">
+          <h2>🕵️ Задание 11: Дедуктивная игра «Бейглз»</h2>
+          
+          <div class="theory-content">
+            <p><strong>Сюжет:</strong> В логической игре «Бейглз» необходимо по подсказкам угадать секретное число из трёх цифр. Компьютер загадывает число, а ты пробуешь его отгадать за 10 попыток.</p>
+            
+            <h3 style="margin: 16px 0 10px;">Правила подсказок</h3>
+            <ul>
+              <li><strong>Fermi</strong> — правильная цифра стоит на <em>правильном</em> месте</li>
+              <li><strong>Pico</strong> — правильная цифра, но на <em>неправильном</em> месте</li>
+              <li><strong>Bagels</strong> — в догадке нет ни одной правильной цифры</li>
+            </ul>
+            <p><em>Примечание: цифры в секретном числе не повторяются.</em></p>
+            
+            <h3 style="margin: 16px 0 10px;">Твоя задача</h3>
+            <p>Реализуй игровой цикл: компьютер загадывает число, игрок вводит догадку, программа анализирует совпадения и выдаёт подсказки. Игра заканчивается при полном угадывании или после 10 попыток.</p>
+            
+            <h3 style="margin: 16px 0 10px;">Алгоритм проверки</h3>
+            <ol>
+              <li>Сравни догадку и секретное число по позициям → собирай <code>Fermi</code></li>
+              <li>Для остальных цифр проверяй наличие в секретном числе → собирай <code>Pico</code></li>
+              <li>Если списки подсказок пусты → выводи <code>Bagels</code></li>
+              <li>Иначе выводи все подсказки через запятую (например: <code>Fermi, Pico</code>)</li>
+            </ol>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Точки-индикаторы -->
+      <div class="carousel-dots" id="carouselDots"></div>
+
+    </section>
+    <!-- ========== КОНЕЦ КАРУСЕЛИ ========== -->
+
+    <section class="glass section">
+      <h2>📝 Проверка знаний</h2>
+      
+      <!-- Заголовок с прогрессом -->
+      <div id="quizHeader" class="quiz-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);"></div>
+      
+      <!-- Контейнер для вопроса -->
+      <div id="quizContainer" class="quiz-single" style="min-height:280px;"></div>
+      
+      <!-- Навигация -->
+      <div id="quizNav" class="quiz-nav" style="display:flex;justify-content:space-between;margin-top:20px;gap:10px;">
+        <button class="btn btn-ghost" id="prevBtn" onclick="quiz.navigate(-1)" disabled>← Назад</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" id="nextBtn" onclick="quiz.navigate(1)">Далее →</button>
+          <button class="btn btn-primary" id="finishBtn" onclick="quiz.finish()" style="display:none;">Завершить 🎉</button>
+        </div>
+      </div>
+      
+      <!-- Финальный экран -->
+      <div id="quizSummary" class="quiz-summary" style="display:none;text-align:center;padding:20px;">
+        <h3>🎯 Тест завершён!</h3>
+        <div class="score" id="finalScore" style="font-size:3rem;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;color:transparent;margin:10px 0;"></div>
+        <p class="message" id="finalMessage" style="color:var(--text-muted);margin-bottom:20px;"></p>
+        <button class="btn btn-primary" onclick="location.reload()">Пройти ещё раз 🔄</button>
+      </div>
+    </section>
+
+    <section class="glass download-zone">
+  <h3>📦 Дополнительные материалы</h3>
+  <p style="margin-bottom:14px; color:var(--text-muted)">
+    Скачай архив для первых 2-х заданий
+  </p>
+  <a href="../downloads/Summer2026_day_1.zip" download class="btn btn-primary">
+    ⬇ Скачать архив с заготовками (ZIP)
+  </a>
+</section>
+
+    <div style="display:flex; justify-content:space-between; margin-top:30px;">
+      <a href="../index.html" class="btn btn-ghost">← На главную</a>
+      <button class="btn btn-primary" disabled>Урок 2 → 🔒</button>
+    </div>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Инициализация карусели заданий (вынесено в app.js, но можно оставить здесь для простоты)
+    document.addEventListener('DOMContentLoaded', () => {
+      // Простая инициализация: обновляем счётчики и прогресс
+      const taskCards = document.querySelectorAll('.task-card');
+      const totalEl = document.getElementById('totalTasks');
+      const progressFill = document.getElementById('taskProgress');
+      
+      if (taskCards.length && totalEl) {
+        totalEl.textContent = taskCards.length;
+        if (progressFill) {
+          progressFill.style.width = `${(1 / taskCards.length) * 100}%`;
+        }
+      }
+      
+      // Кнопка скачивания
+      document.getElementById('downloadBtn')?.addEventListener('click', () => {
+        const code = `# УПРАЖНЕНИЯ К УРОКУ 1\\n\\n# 1. Выведи на экран своё имя\\n# 2. Создай переменную age = 14 и выведи её\\n# 3. Попробуй сложить две строки: "Hello" + " World"\\n\\nprint("Открой этот файл в Python и реши задачи!")`;
+        const blob = new Blob([code], {type:'text/x-python'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'lesson1_exercises.py';
+        a.click();
+        if (typeof toast === 'function') toast('Файл скачан!', 'success');
+      });
+    });
+  </script>
+</body>
+</html>
