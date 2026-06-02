@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>День 3 | Pygame</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="toast-container" id="toast-container"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <header>
+    <div class="container header-inner">
+      <a href="../index.html" class="logo" style="text-decoration:none; font-size:1.2rem;">← На главную</a>
+      <div class="user-stats">
+        <span class="badge">🔥 <span class="streak-val">3</span></span>
+        <span class="badge">⭐ <span class="xp-val">0</span> XP</span>
+        <button class="theme-toggle">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="glass lesson-header">
+      <h1>🐣 День 3: Pygame</h1>
+    </div>
+
+    <section class="glass section">
+  <h2>Работа с текстовыми файлами в Python</h2>
+  
+  <div class="theory-content">
+    <p>Python предоставляет встроенные инструменты для чтения файлов через функцию <code>open()</code>. Для безопасной работы используется контекстный менеджер <code>with</code>, который автоматически закрывает файл после выхода из блока, даже при ошибках.</p>
+  </div>
+
+  <h3>Базовый синтаксис</h3>
+  <div class="theory-content">
+    <div class="code-block">
+<span class="code-hl">with open("data.txt", "r", encoding="utf-8") as f:</span>
+<span class="code-hl">    content = f.read()</span>
+    </div>
+    <p style="margin-top:8px;"><strong>Параметры <code>open()</code>:</strong></p>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li><code>"r"</code> — чтение. Файл должен существовать.</li>
+      <li><code>"w"</code> — запись. Создаёт файл или <em>полностью очищает</em> существующий.</li>
+      <li><code>"a"</code> — добавление. Запись в конец без удаления данных.</li>
+      <li><code>encoding="utf-8"</code> — корректная работа с кириллицей и спецсимволами.</li>
+    </ul>
+  </div>
+
+  <h3>Методы чтения: примеры использования</h3>
+  <div class="theory-content">
+
+    <!-- .read() -->
+    <h4 style="margin:12px 0 6px;">1. <code>f.read()</code> — читает всё содержимое</h4>
+    <div class="code-block">
+with open("notes.txt", "r", encoding="utf-8") as f:
+<span class="code-hl">    text = f.read()</span>
+<span class="code-hl">    print(text)</span>
+    </div>
+    <p style="margin-top:6px; color:var(--text-muted);"><strong>Результат:</strong> Одна строка со всем текстом, включая <code>\n</code>. Подходит для файлов до 10–20 МБ.</p>
+
+    <!-- .readline() -->
+    <h4 style="margin:16px 0 6px;">2. <code>f.readline()</code> — читает одну строку</h4>
+    <div class="code-block">
+with open("log.txt", "r", encoding="utf-8") as f:
+<span class="code-hl">    line1 = f.readline()</span>  <span class="code-hl" style="opacity:0.7"># Первая строка файла</span>
+<span class="code-hl">    line2 = f.readline()</span>  <span class="code-hl" style="opacity:0.7"># Вторая строка файла</span>
+<span class="code-hl">    print(line1.strip())</span>
+    </div>
+    <p style="margin-top:6px; color:var(--text-muted);"><strong>Результат:</strong> Возвращает строку с символом <code>\n</code> на конце. Используется редко, обычно в связке с циклом <code>while</code> для чтения построчно без загрузки всего файла.</p>
+
+    <!-- .readlines() -->
+    <h4 style="margin:16px 0 6px;">3. <code>f.readlines()</code> — возвращает список строк</h4>
+    <div class="code-block">
+with open("config.txt", "r", encoding="utf-8") as f:
+<span class="code-hl">    lines = f.readlines()</span>
+<span class="code-hl">    print(lines[0])</span>        <span class="code-hl" style="opacity:0.7"># Доступ по индексу</span>
+<span class="code-hl">    print(len(lines))</span>      <span class="code-hl" style="opacity:0.7"># Количество строк</span>
+    </div>
+    <p style="margin-top:6px; color:var(--text-muted);"><strong>Результат:</strong> Список вида <code>["строка1\n", "строка2\n", ...]</code>. Удобно для сортировки, фильтрации или доступа к конкретной строке по номеру. Загружает весь файл в память.</p>
+
+    <!-- for line in f -->
+    <h4 style="margin:16px 0 6px;">4. <code>for line in f:</code> — итерация (рекомендуемый способ)</h4>
+    <div class="code-block">
+with open("server.log", "r", encoding="utf-8") as f:
+<span class="code-hl">    for line in f:</span>
+<span class="code-hl">        if "ERROR" in line:</span>
+<span class="code-hl">            print(line.strip())</span>
+    </div>
+    <p style="margin-top:6px; color:var(--text-muted);"><strong>Результат:</strong> Чтение по одной строке без создания списка. <strong>Экономит память</strong>, работает с файлами любого размера. Стандартный паттерн для обработки логов и данных.</p>
+  </div>
+
+  <h3>Обработка строк</h3>
+  <div class="theory-content">
+    <p>Методы чтения сохраняют символы переноса <code>\n</code>. Для очистки используйте:</p>
+    <div class="code-block">
+with open("data.txt", "r", encoding="utf-8") as f:
+    for line in f:
+<span class="code-hl">        clean = line.strip()      # удаляет \n и пробелы</span>
+<span class="code-hl">        if not clean: continue  # пропускает пустые строки</span>
+        print(clean)
+    </div>
+    <p style="margin-top:8px;"><strong>Полезные методы:</strong> <code>.strip()</code> (очистка), <code>.split()</code> (разбиение на слова), <code>.startswith()</code> (проверка префикса).</p>
+  </div>
+
+
+  <div class="glass" style="padding:14px; margin:16px 0; border-left:4px solid var(--primary); background:linear-gradient(135deg, rgba(99,102,241,0.1), transparent);">
+    <h3 style="margin:0 0 8px;">Когда какой метод использовать?</h3>
+    <ul style="margin:0; padding-left:20px; line-height:1.7; color:var(--text-muted);">
+      <li><strong>Маленький файл, весь текст сразу</strong> → <code>f.read()</code></li>
+      <li><strong>Нужен доступ к строкам по индексу</strong> → <code>f.readlines()</code></li>
+      <li><strong>Любой файл, особенно большой</strong> → <code>for line in f:</code> (рекомендуется)</li>
+    </ul>
+  </div>
+</section>
+
+    <section class="glass section tasks-carousel-wrapper">
+      
+      <div class="carousel-header">
+        <h2>Практические задания</h2>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev-btn" id="prevTask" disabled>← Назад</button>
+          <span class="carousel-counter"><span id="currentTask">1</span>/<span id="totalTasks">11</span></span>
+          <button class="carousel-btn next-btn" id="nextTask">Вперёд →</button>
+        </div>
+      </div>
+
+      <div class="task-progress-bar">
+        <div class="task-progress-fill" id="taskProgress"></div>
+      </div>
+
+      <div class="tasks-carousel" id="tasksCarousel">
+
+        <!-- Задание 1 -->
+<!-- ========== CSS ДЛЯ ЗЕЛЁНОЙ ПОДСВЕТКИ (добавь в <head> или style.css) ========== -->
+<style>
+  .code-hl { color: #4ade80; font-weight: 600; }
+  .code-block { 
+    white-space: pre !important; 
+    tab-size: 4; 
+    line-height: 1.5 !important; 
+    padding: 16px 20px !important; 
+    overflow-x: auto; 
+    font-family: var(--font-code); 
+    font-size: 0.9rem; 
+    background: #0d1117; 
+    color: #e6edf3; 
+    border-radius: 12px; 
+    border: 1px solid var(--border); 
+  }
+</style>
+
+<section class="glass section task-card task-easy" data-task-index="30">
+  <h2>📜 Задание: Анализ лог-файла (поиск ошибок)</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Написать программу, которая эффективно читает большой текстовый файл с логами, построчно ищет строки, содержащие подстроку <code>"ERROR"</code>, и выводит их общее количество.</p>
+    <p style="margin-top:8px; color:var(--warning);"><strong>Файл для тестирования:</strong> готовый лог-файл <code>app.log</code> можно скачать в блоке «Дополнительные материалы» внизу страницы.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Требования к программе</h3>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li>Не загружать весь файл в оперативную память (файл может весить несколько ГБ).</li>
+      <li>Использовать построчное чтение: <code>for line in file:</code>.</li>
+      <li>Имя файла должно запрашиваться через <code>input()</code></li>
+      <li>Подсчитать строки, в которых встречается <code>"ERROR"</code>.</li>
+      <li>Вывести результат в формате: <code>Найдено ошибок: N</code>.</li>
+    </ul>
+
+    <h3>💡 Подсказки (если застрял)</h3>
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Как читать файл без нагрузки на память</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl">with open("app.log", "r", encoding="utf-8") as f:</span>
+<span class="code-hl">    for line in f:  # читает по одной строке, не грузит файл целиком</span>
+<span class="code-hl">        if "ERROR" in line:</span>
+<span class="code-hl">            count += 1</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Как получить имя файла от пользователя</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl">filename = input("Введите путь к файлу: ")</span>
+<span class="code-hl"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Чек-лист для проверки:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Программа запускается без <code>MemoryError</code> даже с файлом >100 МБ</li>
+      <li>Корректно обрабатывает существующие и несуществующие пути к файлу</li>
+      <li>Выводит точное количество строк с <code>"ERROR"</code></li>
+      <li>Использует <code>with open()</code> для автоматического закрытия файла</li>
+    </ul>
+  </div>
+</section>
+
+<section class="glass section task-card task-medium" data-task-index="31">
+  <h2>🛡️ Задание: Индексатор «Антиплагиат» (Базовый уровень)</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Написать программу, которая принимает два текстовых файла, сравнивает их содержимое и вычисляет процент совпадения уникальных слов.</p>
+    <p style="margin-top:8px; color:var(--warning);"><strong>Тестовые файлы:</strong> <code>source.txt</code> и <code>check.txt</code> доступны для скачивания в блоке «Дополнительные материалы» внизу страницы.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Требования к программе</h3>
+    <ol style="margin-left:20px; line-height:1.7;">
+      <li>Спроси у пользователя имена двух файлов через <code>input()</code>.</li>
+      <li>Считай текст из обоих файлов (укажи <code>encoding="utf-8"</code>).</li>
+      <li>Приведи текст к нижнему регистру (чтобы «Привет» и «привет» считались одним словом).</li>
+      <li>Убери знаки препинания (точки, запятые и т.д.), заменив их на пробелы.</li>
+      <li>Преобразуй текст в <code>set</code> (множество уникальных слов).</li>
+      <li>Найди общие слова и посчитай процент совпадения.</li>
+    </ol>
+
+    <h3>💡 Подсказки (если застрял)</h3>
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Как удалить знаки препинания</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl">symbols = ".,!?;:()[]{}\"'—–-"</span>
+<span class="code-hl">for s in symbols:</span>
+<span class="code-hl">    text1 = text1.replace(s, " ")</span>
+<span class="code-hl">    text2 = text2.replace(s, " ")</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Как найти общие слова</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl">set1 = set(text1.split())</span>
+<span class="code-hl">set2 = set(text2.split())</span>
+<span class="code-hl">common = set1 & set2  # пересечение множеств</span>
+<span class="code-hl">percent = len(common) / len(set1) * 100</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔓 КНОПКА ПОЛНОГО РЕШЕНИЯ -->
+    <div class="hint-wrapper" style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border);">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)" style="background: var(--primary); color: white; border-color: var(--primary);">
+        <span class="hint-icon">📝</span><span class="hint-label">Показать полное решение</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl">print(" Программа сравнения текстов")</span>
+<span class="code-hl">f1_name = input("Введите имя первого файла (например, source.txt): ")</span>
+<span class="code-hl">f2_name = input("Введите имя второго файла (например, check.txt): ")</span>
+<span class="code-hl"></span>
+<span class="code-hl"># 1. Чтение файлов</span>
+<span class="code-hl">file1 = open(f1_name, "r", encoding="utf-8")</span>
+<span class="code-hl">text1 = file1.read().lower()</span>
+<span class="code-hl">file1.close()</span>
+<span class="code-hl"></span>
+<span class="code-hl">file2 = open(f2_name, "r", encoding="utf-8")</span>
+<span class="code-hl">text2 = file2.read().lower()</span>
+<span class="code-hl">file2.close()</span>
+<span class="code-hl"></span>
+<span class="code-hl"># 2. Удаление знаков препинания</span>
+<span class="code-hl">symbols = ".,!?;:()[]{}\"'—–-"</span>
+<span class="code-hl">for char in symbols:</span>
+<span class="code-hl">    text1 = text1.replace(char, " ")</span>
+<span class="code-hl">    text2 = text2.replace(char, " ")</span>
+<span class="code-hl"></span>
+<span class="code-hl"># 3. Превращаем текст в наборы уникальных слов</span>
+<span class="code-hl">words1 = set(text1.split())</span>
+<span class="code-hl">words2 = set(text2.split())</span>
+<span class="code-hl"></span>
+<span class="code-hl"># 4. Считаем совпадения</span>
+<span class="code-hl">common = words1 & words2</span>
+<span class="code-hl">percent = (len(common) / len(words1)) * 100</span>
+<span class="code-hl"></span>
+<span class="code-hl"># 5. Вывод</span>
+<span class="code-hl">print(f"Совпадение: {percent:.1f}%")</span>
+<span class="code-hl">print(f"Найдено одинаковых слов: {len(common)} из {len(words1)}")</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Чек-лист для проверки:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Программа запускается, запрашивает имена файлов и выводит результат</li>
+      <li>Регистр букв не влияет на результат (А = а)</li>
+      <li>Знаки препинания удаляются, слова считаются корректно</li>
+      <li>Используются множества (<code>set</code>) и оператор <code>&</code></li>
+      <li>Результат округлен до 1 знака после запятой</li>
+    </ul>
+  </div>
+</section>
+
+<section class="glass section task-card task-easy" data-task-index="20">
+  <h2>🔊 Задание 3</h2>
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Далее идут взаимосвязанные шаги, выполнив которые вы собирете простое приложение с GUI</p>
+  </div>
+</section>
+
+<!-- Шаг 1 -->
+<section class="glass section task-card" data-task-index="20">
+  <h2>🪙 Шаг 1: Создаём пустое окно</h2>
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Запустить библиотеку, создать главное окно и заставить его «слушать» действия пользователя.</p>
+  </div>
+  <div class="task-instructions">
+    <h4 style="margin:12px 0 6px;">Инструкция</h4>
+    <p>Создай файл <code>converter.py</code>. Вставь код и запусти (<code>F5</code> или <code>python converter.py</code>):</p>
+    <div class="code-block">
+<span class="code-hl">import tkinter as tk</span>
+<span class="code-hl">window = tk.Tk()</span>
+<span class="code-hl">window.title("Конвертер км → мили")</span>
+<span class="code-hl">window.geometry("300x150")</span>
+<span class="code-hl">window.mainloop()</span>
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Что добавилось и зачем</h4>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li><span class="code-hl">import tkinter as tk</span> — подключаем инструменты для окон. <code>as tk</code> — сокращение, чтобы не писать длинное название каждый раз.</li>
+      <li><span class="code-hl">window = tk.Tk()</span> — создаём главное окно. Имя <code>window</code> мы придумали сами. Всё остальное будем «вставлять» внутрь него.</li>
+      <li><span class="code-hl">.title()</span> и <span class="code-hl">.geometry()</span> — задаём название и размер окна (300×150 пикселей).</li>
+      <li><span class="code-hl">window.mainloop()</span> — <strong>сердце приложения</strong>. Запускает бесконечный цикл, который ждёт кликов и печатания. Без него окно появится на долю секунды и исчезнет.</li>
+    </ul>
+  </div>
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Запусти и проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Появилось окно 300×150 с заголовком «Конвертер км → мили»</li>
+      <li>Окно не закрывается само, его можно двигать и сворачивать</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Шаг 2 -->
+<section class="glass section task-card" data-task-index="21">
+  <h2>📝 Шаг 2: Добавляем текстовую подсказку</h2>
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Положить внутрь окна надпись, которая подскажет пользователю, что вводить.</p>
+  </div>
+  <div class="task-instructions">
+    <h4 style="margin:12px 0 6px;">Инструкция</h4>
+    <p>Добавь <span class="code-hl">🟢 зелёные строки</span> <strong>после</strong> настройки окна, но <strong>до</strong> <code>window.mainloop()</code>:</p>
+    <div class="code-block">
+import tkinter as tk
+window = tk.Tk()
+window.title("Конвертер км → мили")
+window.geometry("300x150")
+
+<span class="code-hl">label_hint = tk.Label(window, text="Введите километры:")</span>
+<span class="code-hl">label_hint.pack()</span>
+
+window.mainloop()
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Что добавилось и зачем</h4>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li><span class="code-hl">tk.Label(window, text=...)</span> — создаёт «стикер» с текстом. Первый параметр <code>window</code> говорит: «положи этот стикер внутрь нашего окна».</li>
+      <li><span class="code-hl">label_hint.pack()</span> — команда <code>pack()</code> означает «упакуй сверху вниз». Tkinter автоматически кладёт надпись в начало окна. Мы сохраняем её в переменную, чтобы позже менять текст.</li>
+    </ul>
+  </div>
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Запусти и проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Вверху окна появилась надпись «Введите километры:»</li>
+      <li>Окно стало чуть выше, чтобы вместить текст</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Шаг 3 -->
+<section class="glass section task-card" data-task-index="22">
+  <h2>⌨️ Шаг 3: Добавляем поле для ввода</h2>
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Разместить поле ввода, куда пользователь сможет вводить числа.</p>
+  </div>
+  <div class="task-instructions">
+    <h4 style="margin:12px 0 6px;">Инструкция</h4>
+    <p>Добавь <span class="code-hl">🟢 зелёные строки</span> сразу <strong>после</strong> кода с <code>label_hint</code>:</p>
+    <div class="code-block">
+import tkinter as tk
+window = tk.Tk()
+window.title("Конвертер км → мили")
+window.geometry("300x150")
+
+label_hint = tk.Label(window, text="Введите километры:")
+label_hint.pack()
+
+<span class="code-hl">entry_km = tk.Entry(window)</span>
+<span class="code-hl">entry_km.pack()</span>
+
+window.mainloop()
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Что добавилось и зачем</h4>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li><span class="code-hl">tk.Entry(window)</span> — создаёт интерактивное поле ввода. В него можно кликнуть и печатать.</li>
+      <li><span class="code-hl">entry_km.pack()</span> — снова «упаковываем». Tkinter кладёт поле <strong>под</strong> предыдущим элементом. Порядок вызовов <code>.pack()</code> = порядок на экране.</li>
+    </ul>
+  </div>
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Запусти и проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Под надписью появилось белое поле ввода</li>
+      <li>В него можно кликнуть и печатать любые символы</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Шаг 4 -->
+<section class="glass section task-card" data-task-index="23">
+  <h2>🔘 Шаг 4: Добавляем кнопку</h2>
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Добавить кнопку, по которой пользователь будет запускать расчёт. Пока она «пустая».</p>
+  </div>
+  <div class="task-instructions">
+    <h4 style="margin:12px 0 6px;">Инструкция</h4>
+    <p>Добавь <span class="code-hl">🟢 зелёные строки</span> <strong>после</strong> поля ввода:</p>
+    <div class="code-block">
+import tkinter as tk
+window = tk.Tk()
+window.title("Конвертер км → мили")
+window.geometry("300x150")
+
+label_hint = tk.Label(window, text="Введите километры:")
+label_hint.pack()
+entry_km = tk.Entry(window)
+entry_km.pack()
+
+<span class="code-hl">btn_convert = tk.Button(window, text="Перевести в мили")</span>
+<span class="code-hl">btn_convert.pack()</span>
+
+window.mainloop()
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Что добавилось и зачем</h4>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li><span class="code-hl">tk.Button(window, text=...)</span> — создаёт кликабельную кнопку.</li>
+      <li><span class="code-hl">btn_convert.pack()</span> — кладёт кнопку под поле ввода.</li>
+      <li>Кнопка пока <strong>ничего не делает</strong>. Tkinter проверяет параметр <code>command</code>. Если его нет, клик игнорируется. На следующем шаге мы это исправим.</li>
+    </ul>
+  </div>
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Запусти и проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Кнопка появилась под полем ввода</li>
+      <li>При клике ничего не происходит — это нормально, мы ещё не написали логику</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Шаг 5 -->
+<section class="glass section task-card" data-task-index="24">
+  <h2>📊 Шаг 5: Добавляем место для результата</h2>
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Создать надпись, куда программа будет выводить посчитанные мили.</p>
+  </div>
+  <div class="task-instructions">
+    <h4 style="margin:12px 0 6px;">Инструкция</h4>
+    <p>Добавь <span class="code-hl">🟢 зелёные строки</span> <strong>после</strong> кнопки:</p>
+    <div class="code-block">
+import tkinter as tk
+window = tk.Tk()
+window.title("Конвертер км → мили")
+window.geometry("300x150")
+
+label_hint = tk.Label(window, text="Введите километры:")
+label_hint.pack()
+entry_km = tk.Entry(window)
+entry_km.pack()
+btn_convert = tk.Button(window, text="Перевести в мили")
+btn_convert.pack()
+
+<span class="code-hl">label_result = tk.Label(window, text="Результат: ---")</span>
+<span class="code-hl">label_result.pack()</span>
+
+window.mainloop()
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Что добавилось и зачем</h4>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li><span class="code-hl">tk.Label(..., text="Результат: ---")</span> — снова используем <code>Label</code>, потому что результат мы только <em>показываем</em>, а не редактируем.</li>
+      <li><span class="code-hl">"---"</span> — это «заглушка». Она резервирует место под будущую цифру, чтобы окно не дёргалось по высоте при обновлении.</li>
+      <li>Сохраняем в <code>label_result</code>, чтобы позже командой <code>.config(text=...)</code> заменить «---» на реальное число.</li>
+    </ul>
+  </div>
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Запусти и проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Внизу появилась надпись «Результат: ---»</li>
+      <li>Интерфейс готов: Подсказка → Поле → Кнопка → Место для ответа</li>
+    </ul>
+  </div>
+</section>
+
+<section class="glass section task-card" data-task-index="24">
+  <h2>🔘 Как заставить кнопку работать в Tkinter</h2>
+  
+  <div class="theory-content">
+    <p>В Tkinter кнопка (<code>tk.Button</code>) по умолчанию пуста. Чтобы она реагировала на нажатие, нужно привязать к ней <strong>функцию-обработчик</strong> через параметр <code>command</code>.</p>
+    
+    <h3>📝 Алгоритм подключения (3 шага)</h3>
+    <ol style="margin-left:20px; line-height:1.7;">
+      <li><strong>Создай функцию</strong> с логикой, которая должна выполниться при клике.</li>
+      <li><strong>Передай её имя</strong> в параметр <code>command=...</code> при создании кнопки.</li>
+      <li><strong>Не ставь скобки</strong> после имени функции (разбор ниже).</li>
+    </ol>
+
+    <div class="code-block">
+<span class="code-hl"># 1. Функция объявляется ПЕРЕД кнопкой</span>
+<span class="code-hl">def convert():</span>
+<span class="code-hl">    label_result.config(text="Результат: 100 USD")</span>
+
+<span class="code-hl"># 2. Привязка через command</span>
+<span class="code-hl">btn = tk.Button(root, text="Перевести", command=convert)</span>
+<span class="code-hl">btn.grid(row=0, column=0)</span>
+    </div>
+
+    <h3>⚠️ Главное правило: БЕЗ скобок</h3>
+    <table class="rules-table">
+      <thead><tr><th>Код</th><th>Что произойдёт</th><th>Вердикт</th></tr></thead>
+      <tbody>
+        <tr><td><code>command=convert</code></td><td>Функция вызовется <strong>только при клике</strong></td><td>✅ Правильно</td></tr>
+        <tr><td><code>command=convert()</code></td><td>Функция вызовется <strong>сразу при запуске</strong>, а кнопка останется «пустой»</td><td>❌ Ошибка новичка</td></tr>
+      </tbody>
+    </table>
+
+    <h3>🔍 Почему так работает?</h3>
+    <p>Параметр <code>command</code> ожидает <strong>ссылку на объект функции</strong> (callable), а не результат её выполнения. Когда вы пишете <code>convert</code> без скобок, Python передаёт саму функцию в Tkinter. А когда добавляете <code>()</code>, Python сразу её запускает и передаёт в <code>command</code> возвращаемое значение (обычно <code>None</code>), поэтому клик игнорируется.</p>
+
+    <h3>💡 Как передать аргументы в функцию?</h3>
+    <p>Если функция требует параметров, оберните вызов в <code>lambda</code>:</p>
+    <div class="code-block">
+<span class="code-hl">def show_message(text):</span>
+<span class="code-hl">    print(text)</span>
+<span class="code-hl"></span>
+<span class="code-hl">btn = tk.Button(root, text="Кликни", command=lambda: show_message("Привет!"))</span>
+    </div>
+    <p style="margin-top:6px; color:var(--text-muted); font-size:0.9rem;">
+      <code>lambda</code> создаёт лёгкую функцию-обёртку. Она не выполняется сразу, а хранит инструкцию «вызови <code>show_message("Привет!")</code> при клике».
+    </p>
+  </div>
+</section>
+
+<!-- Шаг 6 -->
+<section class="glass section task-card" data-task-index="25">
+  <h2>⚙️ Шаг 6: Оживляем кнопку и пишем логику</h2>
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Написать функцию расчёта, защитить программу от ошибок ввода и привязать всё к кнопке.</p>
+  </div>
+  <div class="task-instructions">
+    <h4 style="margin:12px 0 6px;">Инструкция</h4>
+    <p>1 Измени строку кнопки, добавив <span class="code-hl">🟢 параметр</span><br>
+    2 Вставь <span class="code-hl">🟢 блок функции</span> <strong>перед</strong> <code>window.mainloop()</code></p>
+    <div class="code-block">
+import tkinter as tk
+window = tk.Tk()
+window.title("Конвертер км → мили")
+window.geometry("300x150")
+
+label_hint = tk.Label(window, text="Введите километры:")
+label_hint.pack()
+entry_km = tk.Entry(window)
+entry_km.pack()
+
+<span class="code-hl">btn_convert = tk.Button(window, text="Перевести в мили", command=convert)</span>
+btn_convert.pack()
+
+label_result = tk.Label(window, text="Результат: ---")
+label_result.pack()
+
+<span class="code-hl">def convert():</span>
+<span class="code-hl">    try:</span>
+<span class="code-hl">        km = float(entry_km.get())</span>
+<span class="code-hl">        miles = km * 0.621371</span>
+<span class="code-hl">        label_result.config(text=f"Результат: {miles:.2f} миль")</span>
+<span class="code-hl">    except ValueError:</span>
+<span class="code-hl">        label_result.config(text="Ошибка: введите число")</span>
+
+window.mainloop()
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Что добавилось и зачем</h4>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li><span class="code-hl">command=convert</span> — <strong>без скобок!</strong> Мы передаём Tkinter <em>ссылку на функцию</em>. Tkinter сам вызовет её при клике. Если написать <code>convert()</code>, функция сработает сразу при запуске.</li>
+      <li><span class="code-hl">def convert():</span> — создаёт «сценарий», который выполнится только по клику.</li>
+      <li><span class="code-hl">entry_km.get()</span> — забирает текст из поля. <strong>Всегда возвращает строку!</strong> Даже если ввели <code>10</code>.</li>
+      <li><span class="code-hl">float(...)</span> — превращает строку в число. Если ввели <code>abc</code>, Python бросит ошибку.</li>
+      <li><span class="code-hl">try / except ValueError</span> — «подушка безопасности». Вместо вылета программы мы ловим ошибку и пишем в окно предупреждение.</li>
+      <li><span class="code-hl">label_result.config(text=...)</span> — меняет текст на «стикере» на лету. Не нужно удалять старый и создавать новый — просто обновляем свойство.</li>
+    </ul>
+  </div>
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Запусти и проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Введи <code>10</code> → клик → «Результат: 6.21 миль»</li>
+      <li>Введи <code>abc</code> → клик → «Ошибка: введите число»</li>
+      <li>Программа не закрывается, консоль чистая</li>
+      <li>Кнопка срабатывает только при клике, а не при запуске</li>
+    </ul>
+  </div>
+</section>
+
+<section class="glass section task-card task-easy" data-task-index="20">
+  <h2>Задание 4</h2>
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Далее идет задание на выбор. Вы выполняете либо следующее, либо задание "Звуковая доска"</p>
+  </div>
+</section>
+
+
+<section class="glass section task-card" data-task-index="27">
+  <h2>💱 Задание: Конвертер RUB → USD и EUR</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Разработай оконное приложение на <code>tkinter</code>, которое принимает сумму в рублях и одновременно выводит её эквивалент в долларах (USD) и евро (EUR) по фиксированным курсам.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Условия и курсы</h3>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li>Одно поле ввода для суммы в рублях.</li>
+      <li>Фиксированные курсы: <code>1 USD = 92.50 RUB</code>, <code>1 EUR = 101.00 RUB</code>.</li>
+      <li>При нажатии кнопки программа вычисляет оба значения и обновляет метку результата.</li>
+      <li>Формат вывода: <code>Сумма RUB → X.XX USD | Y.YY EUR</code></li>
+    </ul>
+
+    <img src="../img/image1.png" alt="Пример" style="max-width:100%; height:auto; display:block; margin:16px 0; border-radius:8px;">
+
+    <h3 style="margin-top:16px;">💡 Подсказка: Как сформировать строку результата</h3>
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Показать код форматирования</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl"># Внутри функции convert(), после вычислений usd и eur:</span>
+<span class="code-hl">result_text = f"{rub:.2f} RUB → {usd:.2f} USD | {eur:.2f} EUR"</span>
+<span class="code-hl">label_result.config(text=result_text)</span>
+        </div>
+        <p style="margin-top:6px; font-size:0.9rem; color:var(--text-muted);">
+          <code>:.2f</code> внутри f-строки автоматически округляет число до двух знаков после запятой. Это стандартный способ форматирования валют в Python.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Чек-лист для проверки:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Окно открывается, поле ввода и кнопка работают без ошибок</li>
+      <li>При вводе числа выводятся оба конвертированных значения с точностью до 2 знаков</li>
+      <li>При вводе букв или пустого поля появляется сообщение об ошибке, программа не закрывается</li>
+      <li>В коде используется деление: <code>usd = rub / 92.50</code> и <code>eur = rub / 101.00</code></li>
+    </ul>
+  </div>
+</section>
+
+<section class="glass section task-card" data-task-index="32">
+  <h2>🎛️ Задание: Звуковая доска + новый способ расстановки кнопок (grid)</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>В этом задании мы познакомимся с новым способом расстановки элементов — <strong>сеткой (grid)</strong>, и создадим приложение «Звуковая доска».</p>
+  </div>
+
+  <!-- 📐 ТЕОРИЯ: ЧТО ТАКОЕ GRID -->
+  <div class="theory-content">
+    <h3>📐 Как работает сетка (grid)</h3>
+    <p>До этого мы использовали <code>.pack()</code>, который просто складывал кнопки друг под другом. Но что, если нам нужно сделать ровную таблицу? Для этого есть <code>.grid()</code>.</p>
+    <p>Представь окно как тетрадный лист в клетку. Чтобы поставить кнопку, нужно указать её <strong>номер строки</strong> и <strong>номер столбца</strong> (счёт начинается с 0):</p>
+    
+    <div style="background:var(--surface); padding:12px; border-radius:8px; font-family:var(--font-code); text-align:center; margin-bottom:12px;">
+      <table style="width:100%; border-collapse:collapse;">
+        <tr><td style="border:2px solid var(--primary); padding:15px;">🎉 <br><small>row=0, column=0</small></td><td style="border:2px solid var(--primary); padding:15px;">🤦 <br><small>row=0, column=1</small></td></tr>
+        <tr><td style="border:2px solid var(--primary); padding:15px;">🦗 <br><small>row=1, column=0</small></td><td style="border:2px solid var(--primary); padding:15px;">🎺 <br><small>row=1, column=1</small></td></tr>
+      </table>
+    </div>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li><code>row=</code> — номер строки (сверху вниз).</li>
+      <li><code>column=</code> — номер столбца (слева направо).</li>
+      <li><code>columnspan=2</code> — если виджет должен занять 2 клетки в ширину (как ползунок внизу).</li>
+    </ul>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Твоё задание</h3>
+    <p>В коде ниже уже настроено окно, инициализирован звук и добавлена <strong>одна кнопка (🎉)</strong>. Тебе нужно:</p>
+    <ol style="margin-left:20px; line-height:1.7;">
+      <li>Добавить функции для воспроизведения оставшихся звуков (по аналогии с <code>play_cheer</code>).</li>
+      <li>Добавить кнопки с правильными эмодзи в нужные ячейки сетки.</li>
+    </ol>
+
+    <h4>Таблица соответствия (что куда ставить):</h4>
+    <table class="rules-table">
+      <thead><tr><th>Эмодзи</th><th>Звук</th><th>Координаты (row, col)</th><th>Где писать?</th></tr></thead>
+      <tbody>
+        <tr><td>🎉</td><td><code>cheer.wav</code></td><td>0, 0</td><td>✅ Уже есть в коде</td></tr>
+        <tr><td>🤦</td><td><code>fail.wav</code></td><td>0, 1</td><td>❌ Нужно добавить</td></tr>
+        <tr><td>🦗</td><td><code>crickets.wav</code></td><td>1, 0</td><td>❌ Нужно добавить</td></tr>
+        <tr><td>🎺</td><td><code>fanfare.wav</code></td><td>1, 1</td><td>❌ Нужно добавить</td></tr>
+      </tbody>
+    </table>
+
+    <h4 style="margin:12px 0 6px;">Заготовка (скопируй и дополни)</h4>
+
+
+    <h3>💡 Подсказки (если застрял)</h3>
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Как создать функцию для звука</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl">def play_NAME():</span>
+<span class="code-hl">    sound = pygame.mixer.Sound("FILE.wav")</span>
+<span class="code-hl">    sound.set_volume(current_volume)</span>
+<span class="code-hl">    sound.play()</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Как добавить кнопку в сетку</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl">tk.Button(root, text="EMOJI", command=play_NAME, font=big_font).grid(row=R, column=C, padx=20, pady=20)</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Запусти и проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Все 4 кнопки стоят ровно в 2 столбца, не наезжают друг на друга</li>
+      <li>Каждый смайлик играет свой звук (🤦 — ошибка, 🦗 — сверчки, 🎺 — фанфары)</li>
+      <li>Ползунок громкости расположен внизу и растянут на всю ширину окна</li>
+      <li>Перетаскивание ползунка меняет громкость для всех кнопок</li>
+    </ul>
+  </div>
+</section>
+
+<section class="glass section task-card" data-task-index="33">
+  <h2>📦 Задание: Превращаем скрипт в готовую программу для Linux</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Научиться упаковывать Python-скрипт в <strong>один самостоятельный исполняемый файл</strong>, который можно запустить на любом Ubuntu-компьютере, даже если там не установлен Python.</p>
+  </div>
+
+  <!-- 📐 ТЕОРИЯ: ПОЧЕМУ ЭТО НУЖНО -->
+  <div class="theory-content">
+    <h3>Зачем упаковывать, если Python уже работает?</h3>
+    <p>Библиотека <code>PyInstaller</code> берёт твой код, добавляет внутрь «мини-кухню» (интерпретатор Python и все зависимости) и собирает всё в <strong>один самостоятельный файл</strong>. На Linux у него не будет расширения <code>.exe</code>, но он запустится двойным кликом или через терминал!</p>
+
+    <h3>📦 Разбираем команды упаковщика</h3>
+    <table class="rules-table">
+      <thead><tr><th>Флаг в команде</th><th>Что делает простыми словами</th><th>Почему важно</th></tr></thead>
+      <tbody>
+        <tr><td><code>--onefile</code></td><td>Собирает всё в <strong>один</strong> файл</td><td>Без него появится папка с десятками библиотек, в которых легко запутаться</td></tr>
+        <tr><td><code>--noconsole</code></td><td>Скрывает окно терминала при запуске</td><td>Для GUI-приложений (Tkinter/Pygame) оно не нужно и только мешает</td></tr>
+        <tr><td><code>--name "Имя"</code></td><td>Даёт файлу понятное название</td><td>Вместо <code>script</code> получится <code>КонвертерВалют</code></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px; font-size:0.9rem; color:var(--text-muted);">💡 <strong>Важно для Linux:</strong> PyInstaller создаст файл <strong>без расширения</strong>. Чтобы запустить его из файлового менеджера, может потребоваться отметить галочку «Разрешить исполнение» в свойствах файла.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>🛠️ Пошаговая инструкция (делай по порядку)</h3>
+    <ol style="margin-left:20px; line-height:1.7;">
+      <li><strong>Установи упаковщик.</strong> Открой терминал (<code>Ctrl+Alt+T</code>) и напиши: <code>pip install pyinstaller</code>. Это нужно сделать только один раз.</li>
+      <li><strong>Перейди в папку со скриптом.</strong> В терминале используй команду <code>cd</code>. Например: <code>cd ~/Документы/МойПроект</code>. Проверь файлы командой <code>ls</code>.</li>
+      <li><strong>Запусти сборку.</strong> Скопируй команду ниже, замени <code>имя_скрипта.py</code> на название твоего файла и нажми <code>Enter</code>.</li>
+      <li><strong>Дождись окончания.</strong> Терминал выведет много строк. Когда появится <code>completed successfully</code> — сборка готова.</li>
+      <li><strong>Найди и проверь.</strong> Готовый файл появится в папке <code>dist/</code>. Запусти его через терминал: <code>./dist/ИмяФайла</code> или двойным кликом.</li>
+    </ol>
+
+    <h4 style="margin:12px 0 6px;">Команда для терминала</h4>
+    <div class="code-block">
+<span class="code-hl">pyinstaller --onefile --noconsole --name "МояПрограмма" имя_скрипта.py</span>
+    </div>
+
+    <h3>💡 Подсказки (если что-то пошло не так)</h3>
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Как быстро попасть в нужную папку через терминал?</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl"># 1. Открой файловый менеджер, найди папку со скриптом</span>
+<span class="code-hl"># 2. Кликни правой кнопкой мыши по пустому месту → "Открыть в терминале"</span>
+<span class="code-hl"># 3. Или вручную: cd ~/путь/к/папке</span>
+<span class="code-hl"># 4. Проверь, что скрипт тут: ls *.py</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span><span class="hint-label">Файл не запускается двойным кликом? ("Ошибка выполнения")</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl"># В Linux нужно явно разрешить исполнение:</span>
+<span class="code-hl">chmod +x dist/МояПрограмма</span>
+<span class="code-hl"></span>
+<span class="code-hl"># Или через графический интерфейс:</span>
+<span class="code-hl">ПКМ по файлу → Свойства → Права → ☑ Разрешить исполнение как программы</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔓 КНОПКА ПОЛНОГО ПРОЦЕССА -->
+    <div class="hint-wrapper" style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border);">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)" style="background: var(--primary); color: white; border-color: var(--primary);">
+        <span class="hint-icon">📝</span><span class="hint-label">Показать полный пример сборки</span>
+      </button>
+      <div class="hint-content">
+        <p style="margin-bottom:10px; font-size:0.9rem; color:var(--text-muted);">Пример для файла <code>soundboard.py</code>. Повтори те же шаги для своего скрипта.</p>
+        <div class="code-block">
+<span class="code-hl"># 1. Установка (делаем один раз)</span>
+pip install pyinstaller
+
+<span class="code-hl"># 2. Переход в папку проекта</span>
+cd ~/Документы/ЗвуковаяДоска
+
+<span class="code-hl"># 3. Сборка</span>
+<span class="code-hl">pyinstaller --onefile --noconsole --name "Soundboard" soundboard.py</span>
+
+<span class="code-hl"># 4. Даём право на запуск</span>
+<span class="code-hl">chmod +x dist/Soundboard</span>
+
+<span class="code-hl"># 5. Запускаем</span>
+<span class="code-hl">./dist/Soundboard</span>
+<span class="code-hl"># Или просто дважды кликни по файлу в папке dist/</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Финальный чек-лист:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Команда <code>pyinstaller</code> завершилась сообщением <code>completed successfully</code></li>
+      <li>В папке <code>dist/</code>
+
+
+<!-- ========== КОНЕЦ БЛОКА TKINTER ========== -->
+
+      </div>
+
+      <!-- Точки-индикаторы -->
+      <div class="carousel-dots" id="carouselDots"></div>
+
+    </section>
+    <!-- ========== КОНЕЦ КАРУСЕЛИ ========== -->
+
+    <section class="glass section">
+      <h2>📝 Проверка знаний</h2>
+      
+      <!-- Заголовок с прогрессом -->
+      <div id="quizHeader" class="quiz-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);"></div>
+      
+      <!-- Контейнер для вопроса -->
+      <div id="quizContainer" class="quiz-single" style="min-height:280px;"></div>
+      
+      <!-- Навигация -->
+      <div id="quizNav" class="quiz-nav" style="display:flex;justify-content:space-between;margin-top:20px;gap:10px;">
+        <button class="btn btn-ghost" id="prevBtn" onclick="quiz.navigate(-1)" disabled>← Назад</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" id="nextBtn" onclick="quiz.navigate(1)">Далее →</button>
+          <button class="btn btn-primary" id="finishBtn" onclick="quiz.finish()" style="display:none;">Завершить 🎉</button>
+        </div>
+      </div>
+      
+      <!-- Финальный экран -->
+      <div id="quizSummary" class="quiz-summary" style="display:none;text-align:center;padding:20px;">
+        <h3>🎯 Тест завершён!</h3>
+        <div class="score" id="finalScore" style="font-size:3rem;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;color:transparent;margin:10px 0;"></div>
+        <p class="message" id="finalMessage" style="color:var(--text-muted);margin-bottom:20px;"></p>
+        <button class="btn btn-primary" onclick="location.reload()">Пройти ещё раз 🔄</button>
+      </div>
+    </section>
+
+    <section class="glass download-zone">
+  <h3>📦 Дополнительные материалы</h3>
+  <p style="margin-bottom:14px; color:var(--text-muted)">
+  </p>
+  <a href="../downloads/Summer_2026_3.zip" download class="btn btn-primary">
+    ⬇ Скачать архив с заготовками (ZIP)
+  </a>
+</section>
+
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Инициализация карусели заданий (вынесено в app.js, но можно оставить здесь для простоты)
+    document.addEventListener('DOMContentLoaded', () => {
+      // Простая инициализация: обновляем счётчики и прогресс
+      const taskCards = document.querySelectorAll('.task-card');
+      const totalEl = document.getElementById('totalTasks');
+      const progressFill = document.getElementById('taskProgress');
+      
+      if (taskCards.length && totalEl) {
+        totalEl.textContent = taskCards.length;
+        if (progressFill) {
+          progressFill.style.width = `${(1 / taskCards.length) * 100}%`;
+        }
+      }
+      
+      // Кнопка скачивания
+      document.getElementById('downloadBtn')?.addEventListener('click', () => {
+        const code = `# УПРАЖНЕНИЯ К УРОКУ 1\\n\\n# 1. Выведи на экран своё имя\\n# 2. Создай переменную age = 14 и выведи её\\n# 3. Попробуй сложить две строки: "Hello" + " World"\\n\\nprint("Открой этот файл в Python и реши задачи!")`;
+        const blob = new Blob([code], {type:'text/x-python'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'lesson1_exercises.py';
+        a.click();
+        if (typeof toast === 'function') toast('Файл скачан!', 'success');
+      });
+    });
+  </script>
+</body>
+</html>
