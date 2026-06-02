@@ -203,7 +203,6 @@ data.clear()
 
         <!-- Задание 1 -->
 <!-- ========== ЗАДАНИЯ 17-20: СЛОВАРИ И ОБРАБОТКА ДАННЫХ ========== -->
-
 <section class="glass section task-card" data-task-index="16">
   <h2>Задание 1: Инвентарь искателя приключений</h2>
   
@@ -241,6 +240,40 @@ data.clear()
       <li>Пройдись по полученному списку слов. Если слово есть в словаре, добавь его стоимость к общей сумме.</li>
       <li>Выведи итоговое число.</li>
     </ol>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--accent); background:rgba(99,102,241,0.08);">
+    <details style="cursor:pointer;">
+      <summary style="font-weight:bold; color:var(--accent); font-size:1rem;">💻 Решение (нажми, чтобы открыть)</summary>
+      <div style="background:var(--surface); padding:12px; border-radius:8px; font-family:var(--font-code); font-size:0.85rem; margin-top:10px; line-height:1.6; overflow-x:auto;">
+<pre style="margin:0; white-space:pre;">
+s = input().lower()
+
+# заменяем все лишние символы на пробелы
+for ch in '!,.?()1234567890':
+    s = s.replace(ch, ' ')
+
+words = s.split()
+
+prices = {
+    'камень': 1, 'палка': 1, 'тряпка': 1,
+    'дерево': 2, 'кость': 2, 'шерсть': 2,
+    'медь': 3, 'олово': 3, 'серебро': 3, 'железо': 3,
+    'бронза': 5, 'сталь': 5, 'золото': 5, 'платина': 5,
+    'рубин': 8, 'сапфир': 8, 'алмаз': 8, 'изумруд': 8,
+    'драконий_зуб': 12, 'перо_феникса': 12, 'кристалл_силы': 12,
+    'экскалибур': 20, 'кольцо_всевластия': 20, 'философский_камень': 20
+}
+
+total = 0
+for w in words:
+    if w in prices:
+        total = total + prices[w]
+
+print(total)
+</pre>
+      </div>
+    </details>
   </div>
 
   <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
@@ -282,6 +315,31 @@ data.clear()
     </ol>
   </div>
 
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--accent); background:rgba(99,102,241,0.08);">
+    <details style="cursor:pointer;">
+      <summary style="font-weight:bold; color:var(--accent); font-size:1rem;">💻 Решение (нажми, чтобы открыть)</summary>
+      <div style="background:var(--surface); padding:12px; border-radius:8px; font-family:var(--font-code); font-size:0.85rem; margin-top:10px; line-height:1.6; overflow-x:auto;">
+<pre style="margin:0; white-space:pre;">
+s = input().upper()
+
+rim = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+
+total = 0
+for i in range(len(s) - 1):
+    if rim[s[i]] &lt; rim[s[i + 1]]:
+        total = total - rim[s[i]]
+    else:
+        total = total + rim[s[i]]
+
+# последнюю цифру всегда прибавляем
+total = total + rim[s[len(s) - 1]]
+
+print(total)
+</pre>
+      </div>
+    </details>
+  </div>
+
   <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
     <strong>✅ Чек-лист для самопроверки:</strong>
     <ul style="margin:6px 0 0 20px;">
@@ -314,6 +372,33 @@ data.clear()
       &nbsp;&nbsp;"какао": 100<br>
       }</code>
     </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--accent); background:rgba(99,102,241,0.08);">
+    <details style="cursor:pointer;">
+      <summary style="font-weight:bold; color:var(--accent); font-size:1rem;">💻 Решение (нажми, чтобы открыть)</summary>
+      <div style="background:var(--surface); padding:12px; border-radius:8px; font-family:var(--font-code); font-size:0.85rem; margin-top:10px; line-height:1.6; overflow-x:auto;">
+<pre style="margin:0; white-space:pre;">
+menu = {
+    "эспрессо": 80,
+    "капучино": 120,
+    "латте": 150,
+    "американо": 90,
+    "какао": 100
+}
+
+max_price = 0
+max_name = ""
+
+for name in menu:
+    if menu[name] &gt; max_price:
+        max_price = menu[name]
+        max_name = name
+
+print("Самый дорогой напиток: " + max_name + " (" + str(max_price) + " руб.)")
+</pre>
+      </div>
+    </details>
   </div>
 
   <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
@@ -350,6 +435,26 @@ data.clear()
     </div>
     <p style="font-size:0.9rem; color:var(--text-muted); margin-top:6px;">💡 <em>Примечание:</em> порядок ключей в выводе может отличаться, главное — правильные числа.</p>
 
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--accent); background:rgba(99,102,241,0.08);">
+    <details style="cursor:pointer;">
+      <summary style="font-weight:bold; color:var(--accent); font-size:1rem;">💻 Решение (нажми, чтобы открыть)</summary>
+      <div style="background:var(--surface); padding:12px; border-radius:8px; font-family:var(--font-code); font-size:0.85rem; margin-top:10px; line-height:1.6; overflow-x:auto;">
+<pre style="margin:0; white-space:pre;">
+storage = {"томаты": 5, "сыр": 2, "базилик": 10}
+shopping_list = ["томаты", "сыр", "сливки", "томаты"]
+
+for item in shopping_list:
+    if item in storage:
+        storage[item] = storage[item] + 1
+    else:
+        storage[item] = 1
+
+print(storage)
+</pre>
+      </div>
+    </details>
   </div>
 
   <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
