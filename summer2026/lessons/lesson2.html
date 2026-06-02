@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>День 2 | Строки</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="toast-container" id="toast-container"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <header>
+    <div class="container header-inner">
+      <a href="../index.html" class="logo" style="text-decoration:none; font-size:1.2rem;">← На главную</a>
+      <div class="user-stats">
+        <span class="badge">🔥 <span class="streak-val">2</span></span>
+        <span class="badge">⭐ <span class="xp-val">0</span> XP</span>
+        <button class="theme-toggle">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="glass lesson-header">
+      <h1>🐣 День 2: Строки в Python</h1>
+    </div>
+<!-- ========== ТЕОРИЯ: СЛОВАРИ В PYTHON ========== -->
+<section class="glass section">
+  <h2>📖 Словари в Python: dict</h2>
+  
+  <div class="theory-content">
+    <p><strong>Словарь (dictionary)</strong> — это неупорядоченная (до Python 3.6) или упорядоченная по вставке (Python 3.7+) коллекция пар <code>ключ: значение</code>. Аналогия из жизни: телефонная книга, где имя — ключ, а номер — значение. Или инвентарь в игре, где название предмета хранит количество.</p>
+    
+    <div class="glass" style="padding:14px; margin:16px 0; border-left:4px solid var(--primary); background:rgba(99,102,241,0.1);">
+      <strong>🔑 Главное правило:</strong><br>
+      • Ключи должны быть <strong>неизменяемыми</strong> (строки, числа, кортежи).<br>
+      • Ключи <strong>уникальны</strong> (повтор перезапишет старое значение).<br>
+      • Значения могут быть любого типа (числа, строки, списки, другие словари).
+    </div>
+  </div>
+
+  <h3>🔨 Создание словаря</h3>
+  <div class="theory-content">
+    <div class="code-block">
+<span style="color:#6b7280"># Литерал (самый частый способ)</span>
+prices = {"яблоко": 50, "хлеб": 80, "молоко": 95}
+
+<span style="color:#6b7280"># Пустой словарь</span>
+empty = {}
+
+<span style="color:#6b7280"># Через функцию dict() и список кортежей</span>
+config = dict([("theme", "dark"), ("lang", "ru")])
+    </div>
+  </div>
+
+  <h3>📥 Чтение и изменение данных</h3>
+  <div class="theory-content">
+    <div class="code-block">
+prices = {"яблоко": 50, "хлеб": 80}
+
+<span style="color:#6b7280"># Чтение по ключу</span>
+print(prices["яблоко"])  # 50
+
+<span style="color:#6b7280"># Изменение существующего значения</span>
+prices["яблоко"] = 55
+
+<span style="color:#6b7280"># Добавление новой пары</span>
+prices["банан"] = 40
+
+<span style="color:#6b7280"># ⚠️ Ошибка KeyError при несуществующем ключе!</span>
+print(prices["груша"])  # упадёт с ошибкой
+    </div>
+    <p style="margin-top:8px;">Чтобы избежать <code>KeyError</code>, используйте оператор <code>in</code> или метод <code>.get()</code>.</p>
+  </div>
+
+  <h3>🛡️ Безопасное чтение: .get()</h3>
+  <div class="theory-content">
+    <div class="code-block">
+prices = {"яблоко": 55, "хлеб": 80}
+
+<span style="color:#6b7280"># Вернёт значение, если ключ есть</span>
+print(prices.get("хлеб"))        # 80
+
+<span style="color:#6b7280"># Вернёт None, если ключа нет</span>
+print(prices.get("груша"))       # None
+
+<span style="color:#6b7280"># Вернёт значение по умолчанию</span>
+print(prices.get("груша", 0))    # 0
+    </div>
+    <p style="margin-top:8px;"><code>.get()</code> <strong>не меняет</strong> словарь и никогда не вызывает ошибку. Идеально для подсчётов и агрегаций.</p>
+  </div>
+
+  <h3>🔄 Перебор словаря</h3>
+  <div class="theory-content">
+    <div class="code-block">
+menu = {"эспрессо": 80, "латте": 150, "какао": 100}
+
+<span style="color:#6b7280"># 1. Только ключи (по умолчанию)</span>
+for item in menu:
+    print(item)
+
+<span style="color:#6b7280"># 2. Ключи и значения одновременно</span>
+for drink, price in menu.items():
+    print(f"{drink} стоит {price} руб.")
+
+<span style="color:#6b7280"># 3. Только значения</span>
+for p in menu.values():
+    print(p)
+    </div>
+    <p style="margin-top:8px;">💡 <code>.items()</code> возвращает кортежи <code>(ключ, значение)</code>. Распаковка в цикле — стандарт Python.</p>
+  </div>
+
+  <h3>🗑️ Удаление элементов</h3>
+  <div class="theory-content">
+    <div class="code-block">
+data = {"a": 1, "b": 2, "c": 3}
+
+<span style="color:#6b7280"># del: удаляет по ключу (ничего не возвращает)</span>
+del data["a"]
+
+<span style="color:#6b7280"># .pop(): удаляет и возвращает значение</span>
+removed = data.pop("b")  # removed = 2
+
+<span style="color:#6b7280"># .popitem(): удаляет последнюю добавленную пару (LIFO)</span>
+last_key, last_val = data.popitem()
+
+<span style="color:#6b7280"># .clear(): очищает весь словарь</span>
+data.clear()
+    </div>
+  </div>
+
+  <h3>📊 Часто используемые методы</h3>
+  <div class="theory-content">
+    <table class="rules-table">
+      <thead>
+        <tr><th>Метод</th><th>Что делает</th><th>Пример</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.keys()</code></td>
+          <td>Возвращает все ключи</td>
+          <td><code>list(d.keys())</code></td>
+        </tr>
+        <tr>
+          <td><code>.values()</code></td>
+          <td>Возвращает все значения</td>
+          <td><code>max(d.values())</code></td>
+        </tr>
+        <tr>
+          <td><code>.items()</code></td>
+          <td>Возвращает пары (ключ, значение)</td>
+          <td><code>for k, v in d.items()</code></td>
+        </tr>
+        <tr>
+          <td><code>.update(other)</code></td>
+          <td>Обновляет словарь данными из другого</td>
+          <td><code>d.update({"x": 5})</code></td>
+        </tr>
+        <tr>
+          <td><code>.copy()</code></td>
+          <td>Создаёт поверхностную копию</td>
+          <td><code>d2 = d.copy()</code></td>
+        </tr>
+        <tr>
+          <td><code>len(d)</code></td>
+          <td>Количество пар ключ-значение</td>
+          <td><code>len({"a":1}) # 1</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background:var(--surface); padding:14px; border-radius:10px; margin-top:8px;">
+    <strong>💡 Где словари используются на практике:</strong>
+    <ul style="margin:8px 0 0 20px; color:var(--text-muted);">
+      <li>Конфигурации и настройки программ (<code>settings.json</code> → <code>dict</code>)</li>
+      <li>Кэширование результатов вычислений (memoization)</li>
+      <li>Подсчёт частоты слов, голосов, товаров</li>
+      <li>API-ответы (JSON автоматически парсится в словарь)</li>
+      <li>Игровые инвентари, профили пользователей, базы данных в памяти</li>
+    </ul>
+  </div>
+</section>
+
+    <!-- ========== КАРУСЕЛЬ ЗАДАНИЙ ========== -->
+    <section class="glass section tasks-carousel-wrapper">
+      
+      <div class="carousel-header">
+        <h2>Практические задания</h2>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev-btn" id="prevTask" disabled>← Назад</button>
+          <span class="carousel-counter"><span id="currentTask">1</span>/<span id="totalTasks">11</span></span>
+          <button class="carousel-btn next-btn" id="nextTask">Вперёд →</button>
+        </div>
+      </div>
+
+      <div class="task-progress-bar">
+        <div class="task-progress-fill" id="taskProgress"></div>
+      </div>
+
+      <div class="tasks-carousel" id="tasksCarousel">
+
+        <!-- Задание 1 -->
+<!-- ========== ЗАДАНИЯ 17-20: СЛОВАРИ И ОБРАБОТКА ДАННЫХ ========== -->
+
+<section class="glass section task-card" data-task-index="16">
+  <h2>Задание 1: Инвентарь искателя приключений</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Игрок исследует подземелья и собирает предметы. Напиши программу, которая принимает строку с перечнем найденных предметов и вычисляет их суммарную ценность, используя словарь игровых ресурсов.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Условия задачи</h3>
+    
+    <table class="rules-table">
+      <thead><tr><th>Стоимость</th><th>Предметы</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>камень, палка, тряпка</td></tr>
+        <tr><td>2</td><td>дерево, кость, шерсть</td></tr>
+        <tr><td>3</td><td>медь, олово, серебро, железо</td></tr>
+        <tr><td>5</td><td>бронза, сталь, золото, платина</td></tr>
+        <tr><td>8</td><td>рубин, сапфир, алмаз, изумруд</td></tr>
+        <tr><td>12</td><td>драконий_зуб, перо_феникса, кристалл_силы</td></tr>
+        <tr><td>20</td><td>экскалибур, кольцо_всевластия, философский_камень</td></tr>
+      </tbody>
+    </table>
+
+    <h4 style="margin:12px 0 6px;">💡 Примеры</h4>
+    <div style="background:var(--surface); padding:10px; border-radius:8px; font-family:var(--font-code); font-size:0.9rem; margin-bottom:12px;">
+      <code>Тряпка, палка, зОлОто!!!!</code> → <strong>7</strong><br>
+      <code>Драконий_зуб!!! Кольцо_всевластия... сталь (100)</code> → <strong>37</strong>
+    </div>
+
+    <h3>🛠 Как подойти к решению</h3>
+    <ol style="margin-left:20px; line-height:1.7;">
+      <li>Создай словарь, где ключами будут названия предметов (в нижнем регистре), а значениями – их стоимость.</li>
+      <li>Приведи входную строку к нижнему регистру и очисти её от лишних символов. Можно использовать регулярные выражения или замену знаков препинания на пробелы, после чего разбить строку на слова.</li>
+      <li>Пройдись по полученному списку слов. Если слово есть в словаре, добавь его стоимость к общей сумме.</li>
+      <li>Выведи итоговое число.</li>
+    </ol>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Чек-лист для самопроверки:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Регистр не влияет на результат</li>
+      <li>Предметы с подчёркиванием распознаются целиком</li>
+      <li>Неизвестные слова и цифры игнорируются</li>
+      <li>Пустой ввод или мусор → вывод <code>0</code></li>
+    </ul>
+  </div>
+</section>
+
+<!-- Задание 18: Римские числа в десятичные -->
+<section class="glass section task-card" data-task-index="17">
+  <h2>🏛️ Задание 2: Римские числа в десятичные</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Напиши конвертер, который принимает строку с римским числом и преобразует её в обычное десятичное целое число.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Условия задачи</h3>
+    <p>Используй базовый словарь соответствий: <code>{'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}</code>.</p>
+    
+    <h4 style="margin:12px 0 6px;">💡 Примеры</h4>
+    <div style="background:var(--surface); padding:10px; border-radius:8px; font-family:var(--font-code); font-size:0.9rem; margin-bottom:12px;">
+      <code>XIV</code> → <strong>14</strong><br>
+      <code>MCMXCIV</code> → <strong>1994</strong>
+    </div>
+
+    <h3>🛠 Как подойти к решению</h3>
+    <ol style="margin-left:20px; line-height:1.7;">
+      <li>Создай словарь с значениями римских цифр.</li>
+      <li>Пройдись по строке слева направо. Для каждой цифры сравнивай её значение со значением <strong>следующей</strong> цифры.</li>
+      <li><strong>Главное правило:</strong> если текущая цифра меньше следующей (например, <code>I</code> перед <code>V</code>), её нужно <em>вычесть</em> из суммы. Во всех остальных случаях – <em>прибавить</em>.</li>
+      <li>Не забудь обработать последнюю цифру отдельно или выйти за пределы строки аккуратно.</li>
+    </ol>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Чек-лист для самопроверки:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Простые числа: <code>III</code> → 3, <code>VI</code> → 6</li>
+      <li>Сложные случаи с вычитанием: <code>IV</code> → 4, <code>IX</code> → 9, <code>XL</code> → 40</li>
+      <li>Длинное число <code>MCMXCIV</code> должно давать 1994</li>
+      <li>Код работает для любой длины корректного римского числа</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Задание 19: Самый дорогой напиток -->
+<section class="glass section task-card" data-task-index="18">
+  <h2>☕ Задание 3: Самый дорогой напиток в меню</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Найди в словаре меню напиток с максимальной ценой и выведи его название и стоимость в заданном формате.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Условия задачи</h3>
+    <p>Дан словарь меню:</p>
+    <div style="background:var(--surface); padding:10px; border-radius:8px; font-family:var(--font-code); font-size:0.9rem; margin-bottom:12px;">
+      <code>menu = {<br>
+      &nbsp;&nbsp;"эспрессо": 80,<br>
+      &nbsp;&nbsp;"капучино": 120,<br>
+      &nbsp;&nbsp;"латте": 150,<br>
+      &nbsp;&nbsp;"американо": 90,<br>
+      &nbsp;&nbsp;"какао": 100<br>
+      }</code>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Чек-лист для самопроверки:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Вывод точно совпадает с примером (включая скобки и слово "руб.")</li>
+      <li>Если несколько напитков стоят одинаково дорого, выводится первый найденный</li>
+      <li>Код не ломается, если изменить цены или добавить новые позиции</li>
+    </ul>
+  </div>
+</section>
+
+
+<section class="glass section task-card" data-task-index="19">
+  <h2>🛒 Задание 4: Обновление склада ингредиентов</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Напиши программу, которая берёт текущий остаток продуктов на складе и <strong>пополняет</strong> его согласно списку закупок. Если продукта ещё нет на складе — он добавляется со значением <code>1</code>.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Условия задачи</h3>
+    <p>В начале твоего скрипта <strong>уже заданы</strong> две переменные. Не меняй их вручную, работай только через код:</p>
+    <div style="background:var(--surface); padding:12px; border-radius:8px; font-family:var(--font-code); font-size:0.9rem; margin-bottom:12px;">
+      <code>storage = {"томаты": 5, "сыр": 2, "базилик": 10}<br>
+      shopping_list = ["томаты", "сыр", "сливки", "томаты"]</code>
+    </div>
+
+    <h4 style="margin:12px 0 6px;">📤 Ожидаемый результат</h4>
+    <p>После запуска программа должна вывести:</p>
+    <div style="background:var(--surface); padding:10px; border-radius:8px; font-family:var(--font-code); font-size:0.9rem;">
+      <code>{"томаты": 7, "сыр": 3, "базилик": 10, "сливки": 1}</code>
+    </div>
+    <p style="font-size:0.9rem; color:var(--text-muted); margin-top:6px;">💡 <em>Примечание:</em> порядок ключей в выводе может отличаться, главное — правильные числа.</p>
+
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Чек-лист для самопроверки:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li><code>"томаты"</code> встречается в списке 2 раза → было 5, стало 7</li>
+      <li><code>"сливки"</code> не было в словаре → появилось со значением 1</li>
+      <li><code>"базилик"</code> не упоминается в закупках → осталось 10</li>
+      <li>Программа не вызывает ошибку <code>KeyError</code> при первом добавлении нового продукта</li>
+    </ul>
+  </div>
+
+</section>
+<!-- ========== КОНЕЦ ЗАДАНИЙ 17-20 ========== -->
+
+      </div>
+
+      <!-- Точки-индикаторы -->
+      <div class="carousel-dots" id="carouselDots"></div>
+
+    </section>
+    <!-- ========== КОНЕЦ КАРУСЕЛИ ========== -->
+
+    <div style="display:flex; justify-content:space-between; margin-top:30px;">
+      <a href="../index.html" class="btn btn-ghost">← На главную</a>
+      <a href="lesson3.html" class="btn btn-ghost">Продолжение →</a>
+    </div>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Инициализация карусели заданий (вынесено в app.js, но можно оставить здесь для простоты)
+    document.addEventListener('DOMContentLoaded', () => {
+      // Простая инициализация: обновляем счётчики и прогресс
+      const taskCards = document.querySelectorAll('.task-card');
+      const totalEl = document.getElementById('totalTasks');
+      const progressFill = document.getElementById('taskProgress');
+      
+      if (taskCards.length && totalEl) {
+        totalEl.textContent = taskCards.length;
+        if (progressFill) {
+          progressFill.style.width = `${(1 / taskCards.length) * 100}%`;
+        }
+      }
+      
+      // Кнопка скачивания
+      document.getElementById('downloadBtn')?.addEventListener('click', () => {
+        const code = `# УПРАЖНЕНИЯ К УРОКУ 1\\n\\n# 1. Выведи на экран своё имя\\n# 2. Создай переменную age = 14 и выведи её\\n# 3. Попробуй сложить две строки: "Hello" + " World"\\n\\nprint("Открой этот файл в Python и реши задачи!")`;
+        const blob = new Blob([code], {type:'text/x-python'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'lesson1_exercises.py';
+        a.click();
+        if (typeof toast === 'function') toast('Файл скачан!', 'success');
+      });
+    });
+  </script>
+</body>
+</html>

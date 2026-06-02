@@ -390,3 +390,27 @@ document.addEventListener('DOMContentLoaded', () => {
   initTasksCarousel();
   // ... остальная инициализация (квиз, скачивание и т.д.)
 });
+
+// === 8. УНИВЕРСАЛЬНЫЙ ТОГГЛ ПОДСКАЗОК (для заданий и квизов) ===
+function toggleHint(btn) {
+  const hint = btn.nextElementSibling;
+  if (!hint) return;
+  
+  const isHidden = hint.style.display === 'none' || !hint.classList.contains('visible');
+  
+  // Поддержка двух режимов: через style.display И через класс .visible
+  if (hint.style.display === 'none' || hint.style.display === '') {
+    hint.style.display = 'block';
+    hint.classList.add('visible');
+    btn.classList.add('active');
+    btn.innerHTML = btn.innerHTML.replace('Показать', 'Скрыть');
+  } else {
+    hint.style.display = 'none';
+    hint.classList.remove('visible');
+    btn.classList.remove('active');
+    btn.innerHTML = btn.innerHTML.replace('Скрыть', 'Показать');
+  }
+}
+
+// Делаем функцию глобально доступной для inline-onclick
+window.toggleHint = toggleHint;

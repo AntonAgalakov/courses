@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>День 2 | Pygame</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="toast-container" id="toast-container"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <header>
+    <div class="container header-inner">
+      <a href="../index.html" class="logo" style="text-decoration:none; font-size:1.2rem;">← На главную</a>
+      <div class="user-stats">
+        <span class="badge">🔥 <span class="streak-val">1</span></span>
+        <span class="badge">⭐ <span class="xp-val">0</span> XP</span>
+        <button class="theme-toggle">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="glass lesson-header">
+      <h1>🐣 День 2: Pygame</h1>
+    </div>
+
+    <section class="glass section">
+      <h2>Теория</h2>
+<style>
+  .code-block {
+    white-space: pre !important;
+    tab-size: 4;
+    line-height: 1.6 !important;
+    padding: 16px 20px !important;
+    overflow-x: auto;
+    font-family: var(--font-code);
+    font-size: 0.9rem;
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .code-hl { color: #4ade80; font-weight: 600; }
+  .code-hl-warn { color: #fbbf24; font-weight: 600; }
+  .step-theory {
+    margin-top: 12px; padding: 10px 12px;
+    background: var(--surface); border-radius: 8px; font-size: 0.88rem;
+  }
+  .step-theory ul { margin: 6px 0 0 18px; color: var(--text-muted); }
+  .step-theory li { margin-bottom: 4px; line-height: 1.45; }
+  .step-theory code { background: rgba(99,102,241,0.15); padding: 2px 5px; border-radius: 4px; color: var(--primary); }
+</style>
+
+<div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; font-size:0.85rem; color:var(--text-muted);">
+  <span><span style="color:#4ade80; font-weight:600;">●</span> Новый код</span>
+  <span><span style="color:#fbbf24; font-weight:600;">●</span> Изменено</span>
+</div>
+
+<!-- Шаг 1 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 1: Инициализация + пустое окно</h3>
+  <div class="code-block">
+<span class="code-hl">import pygame</span>
+<span class="code-hl">pygame.init()</span>
+<span class="code-hl">screen = pygame.display.set_mode((400, 600))</span>
+<span class="code-hl">pygame.display.set_caption("Фрукты")</span>
+<span class="code-hl">clock = pygame.time.Clock()</span>
+<span class="code-hl">running = True</span>
+<span class="code-hl">while running:</span>
+<span class="code-hl">    for event in pygame.event.get():</span>
+<span class="code-hl">        if event.type == pygame.QUIT:</span>
+<span class="code-hl">            running = False</span>
+<span class="code-hl">    screen.fill((255, 255, 255))</span>
+<span class="code-hl">    pygame.display.flip()</span>
+<span class="code-hl">    clock.tick(60)</span>
+<span class="code-hl">pygame.quit()</span>
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Результат:</strong> Белое окно 400×600, работает на 60 FPS, закрывается по крестику.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>pygame.init()</code> — запускает все подсистемы. Обязателен первым.</li>
+      <li><code>set_mode((W, H))</code> — создаёт окно заданного размера.</li>
+      <li><code>event.get()</code> — забирает очередь событий (клики, клавиши, закрытие).</li>
+      <li><code>screen.fill()</code> — стирает предыдущий кадр новым цветом.</li>
+      <li><code>flip()</code> — выводит отрисованное на экран (двойная буферизация).</li>
+      <li><code>clock.tick(60)</code> — ограничивает цикл 60 кадрами/сек, экономит CPU.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 2 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 2: Рисуем корзину <span style="font-size:0.8em; color:var(--warning);">← +2 строки</span></h3>
+  <div class="code-block">
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+<span class="code-hl">basket = pygame.Rect(170, 550, 60, 20)</span>
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    screen.fill((255, 255, 255))
+    <span class="code-hl">pygame.draw.rect(screen, (139, 69, 19), basket)</span>
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Что изменилось:</strong> Появился объект <code>Rect</code> и его отрисовка.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>pygame.Rect(x, y, w, h)</code> — создаёт невидимый прямоугольник для позиционирования и коллизий.</li>
+      <li><code>draw.rect(surface, color, rect)</code> — рисует залитый прямоугольник на поверхности.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 3 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 3: Движение корзины <span style="font-size:0.8em; color:var(--warning);">← +4 строки</span></h3>
+  <div class="code-block">
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+basket = pygame.Rect(170, 550, 60, 20)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    <span class="code-hl">keys = pygame.key.get_pressed()</span>
+    <span class="code-hl">if keys[pygame.K_LEFT]:</span>
+<span class="code-hl">        basket.x -= 5</span>
+    <span class="code-hl">if keys[pygame.K_RIGHT]:</span>
+<span class="code-hl">        basket.x += 5</span>
+    <span class="code-hl-warn">basket.clamp_ip(pygame.Rect(0, 0, 400, 600))</span>
+    screen.fill((255, 255, 255))
+    pygame.draw.rect(screen, (139, 69, 19), basket)
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Что изменилось:</strong> Управление стрелками и защита от выхода за края.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>key.get_pressed()</code> — возвращает состояние всех клавиш прямо сейчас.</li>
+      <li><code>clamp_ip(rect)</code> — <strong>in-place</strong> подвинет объект, чтобы он не вылетел за границы <code>rect</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 4 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 4: Один падающий фрукт <span style="font-size:0.8em; color:var(--warning);">← +6 строк</span></h3>
+  <div class="code-block">
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+basket = pygame.Rect(170, 550, 60, 20)
+<span class="code-hl">fruit = pygame.Rect(200, -20, 20, 20)</span>
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        basket.x -= 5
+    if keys[pygame.K_RIGHT]:
+        basket.x += 5
+    basket.clamp_ip(pygame.Rect(0, 0, 400, 600))
+    <span class="code-hl">fruit.y += 3</span>
+    <span class="code-hl">if fruit.top > 600:</span>
+<span class="code-hl">        fruit.x = 200</span>
+<span class="code-hl">        fruit.y = -20</span>
+    screen.fill((255, 255, 255))
+    pygame.draw.rect(screen, (139, 69, 19), basket)
+    <span class="code-hl">pygame.draw.rect(screen, (255, 0, 0), fruit)</span>
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Что изменилось:</strong> Фрукт падает и «телепортируется» наверх.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>fruit.y += 3</code> — смещение по вертикали каждый кадр (скорость).</li>
+      <li><code>.top</code> — свойство Rect с Y верхней грани. Удобнее, чем сырые индексы.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 5 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 5: Столкновение с корзиной <span style="font-size:0.8em; color:var(--warning);">← +5 строк</span></h3>
+  <div class="code-block">
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+basket = pygame.Rect(170, 550, 60, 20)
+fruit = pygame.Rect(200, -20, 20, 20)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        basket.x -= 5
+    if keys[pygame.K_RIGHT]:
+        basket.x += 5
+    basket.clamp_ip(pygame.Rect(0, 0, 400, 600))
+    fruit.y += 3
+    <span class="code-hl">if basket.colliderect(fruit):</span>
+<span class="code-hl">        print("Поймал!")</span>
+<span class="code-hl">        fruit.y = -20</span>
+    <span class="code-hl">elif fruit.top > 600:</span>
+<span class="code-hl">        fruit.y = -20</span>
+    screen.fill((255, 255, 255))
+    pygame.draw.rect(screen, (139, 69, 19), basket)
+    pygame.draw.rect(screen, (255, 0, 0), fruit)
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Что изменилось:</strong> Проверка пересечения. При поимке фрукт мгновенно возвращается наверх.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>colliderect(other)</code> — возвращает <code>True</code>, если прямоугольники пересекаются (AABB-алгоритм).</li>
+      <li><code>elif</code> гарантирует, что при поимке не сработает проверка "упал за экран".</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 6 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 6: Множество фруктов <span style="font-size:0.8em; color:var(--warning);">← +10 строк</span></h3>
+  <div class="code-block">
+import pygame
+<span class="code-hl">import random</span>
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+basket = pygame.Rect(170, 550, 60, 20)
+<span class="code-hl">fruits = []</span>
+<span class="code-hl">spawn_timer = 0</span>
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        basket.x -= 5
+    if keys[pygame.K_RIGHT]:
+        basket.x += 5
+    basket.clamp_ip(pygame.Rect(0, 0, 400, 600))
+    <span class="code-hl">spawn_timer += 1</span>
+    <span class="code-hl">if spawn_timer >= 40:</span>
+<span class="code-hl">        spawn_timer = 0</span>
+<span class="code-hl">        fruits.append(pygame.Rect(random.randint(20, 380), -20, 20, 20))</span>
+    <span class="code-hl">new_fruits = []</span>
+    <span class="code-hl">for f in fruits:</span>
+<span class="code-hl">        f.y += 3</span>
+<span class="code-hl">        if basket.colliderect(f):</span>
+<span class="code-hl">            pass  # пойман</span>
+<span class="code-hl">        elif f.top < 600:</span>
+<span class="code-hl">            new_fruits.append(f)</span>
+    <span class="code-hl">fruits = new_fruits</span>
+    screen.fill((255, 255, 255))
+    pygame.draw.rect(screen, (139, 69, 19), basket)
+    <span class="code-hl">for f in fruits:</span>
+<span class="code-hl">        pygame.draw.rect(screen, (255, 0, 0), f)</span>
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Что изменилось:</strong> Один фрукт → список. Таймер спавна и фильтрация упавших объектов.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>random.randint(a, b)</code> — случайное целое число от <code>a</code> до <code>b</code> включительно.</li>
+      <li><code>new_fruits = [] ... fruits = new_fruits</code> — безопасная фильтрация списка без изменения его во время итерации.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 7 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 7: Счётчик очков 🎉 <span style="font-size:0.8em; color:var(--warning);">← +4 строки</span></h3>
+  <div class="code-block">
+import pygame
+import random
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+basket = pygame.Rect(170, 550, 60, 20)
+fruits = []
+spawn_timer = 0
+<span class="code-hl">score = 0</span>
+<span class="code-hl">font = pygame.font.Font(None, 36)</span>
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        basket.x -= 5
+    if keys[pygame.K_RIGHT]:
+        basket.x += 5
+    basket.clamp_ip(pygame.Rect(0, 0, 400, 600))
+    spawn_timer += 1
+    if spawn_timer >= 40:
+        spawn_timer = 0
+        fruits.append(pygame.Rect(random.randint(20, 380), -20, 20, 20))
+    new_fruits = []
+    for f in fruits:
+        f.y += 3
+        <span class="code-hl">if basket.colliderect(f):</span>
+<span class="code-hl">            score += 1</span>
+        elif f.top < 600:
+            new_fruits.append(f)
+    fruits = new_fruits
+    screen.fill((255, 255, 255))
+    pygame.draw.rect(screen, (139, 69, 19), basket)
+    for f in fruits:
+        pygame.draw.rect(screen, (255, 0, 0), f)
+    <span class="code-hl">text = font.render(f"Счёт: {score}", True, (0, 0, 0))</span>
+    <span class="code-hl">screen.blit(text, (10, 10))</span>
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Что изменилось:</strong> Переменная <code>score</code> растёт при поимке. Текст рендерится и накладывается в угол.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>pygame.font.Font(None, 36)</code> — системный шрифт 36pt.</li>
+      <li><code>font.render(text, antialias, color)</code> — создаёт поверхность с текстом. <code>True</code> = сглаживание.</li>
+      <li><code>screen.blit(surface, pos)</code> — «приклеивает» поверхность текста на экран.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 8 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 8: Загрузка и масштабирование 🖼️ <span style="font-size:0.8em; color:var(--warning);">← +6 строк</span></h3>
+  <div class="code-block">
+import pygame
+import random
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+<span class="code-hl">basket_img = pygame.image.load("basket.png").convert_alpha()</span>
+<span class="code-hl">basket_img = pygame.transform.scale(basket_img, (80, 50))</span>
+<span class="code-hl">apple_img = pygame.image.load("apple.png").convert_alpha()</span>
+<span class="code-hl">apple_img = pygame.transform.scale(apple_img, (40, 40))</span>
+basket = pygame.Rect(170, 550, 60, 20)
+fruits = []
+spawn_timer = 0
+score = 0
+font = pygame.font.Font(None, 36)
+<span style="color:#6b7280"># ... игровой цикл без изменений ...</span>
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Что изменилось:</strong> Картинки загружаются один раз перед циклом и подгоняются под размер.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>image.load(path)</code> — читает файл в память.</li>
+      <li><code>.convert_alpha()</code> — конвертирует под формат GPU, сохраняет прозрачность, ускоряет рендер в 3–5 раз.</li>
+      <li><code>transform.scale(img, (w, h))</code> — меняет размер. Делается <strong>один раз</strong> до цикла!</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 9 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6;">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 9: Переход на `blit` и `Rect` спрайтов 📐 <span style="font-size:0.8em; color:var(--warning);">← ~8 строк изменено</span></h3>
+  <div class="code-block">
+import pygame
+import random
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+basket_img = pygame.image.load("basket.png").convert_alpha()
+basket_img = pygame.transform.scale(basket_img, (80, 50))
+apple_img = pygame.image.load("apple.png").convert_alpha()
+apple_img = pygame.transform.scale(apple_img, (40, 40))
+<span class="code-hl-warn">basket = basket_img.get_rect(center=(200, 550))</span>
+fruits = []
+spawn_timer = 0
+score = 0
+font = pygame.font.Font(None, 36)
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    <span style="color:#6b7280"># ... управление ...</span>
+    <span class="code-hl">if random.randint(0, 40) == 0:</span>
+<span class="code-hl">        x = random.randint(20, 380)</span>
+<span class="code-hl">        f_rect = apple_img.get_rect(center=(x, -30))</span>
+<span class="code-hl">        fruits.append([f_rect, apple_img])</span>
+    <span class="code-hl">new_fruits = []</span>
+    <span class="code-hl">for f_rect, f_img in fruits:</span>
+<span class="code-hl">        f_rect.y += 3</span>
+<span class="code-hl">        if basket.colliderect(f_rect):</span>
+<span class="code-hl">            score += 1</span>
+<span class="code-hl">        elif f_rect.top < 600:</span>
+<span class="code-hl">            new_fruits.append([f_rect, f_img])</span>
+    <span class="code-hl">fruits = new_fruits</span>
+    screen.fill((255, 255, 255))
+    <span class="code-hl">screen.blit(basket_img, basket)</span>
+    <span class="code-hl">for f_rect, f_img in fruits:</span>
+<span class="code-hl">        screen.blit(f_img, f_rect)</span>
+    text = font.render(f"Счёт: {score}", True, (0, 0, 0))
+    screen.blit(text, (10, 10))
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Что изменилось:</strong> Квадраты → картинки. <code>get_rect()</code> даёт точные габариты для коллизий.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>img.get_rect(center=(x,y))</code> — создаёт Rect размером с картинку, центрирует его.</li>
+      <li><code>screen.blit(img, rect)</code> — рисует пиксели картинки в позиции <code>rect</code>. Заменяет <code>draw.rect()</code>.</li>
+      <li><code>[f_rect, f_img]</code> — храним пару "позиция + картинка". Двигаем только <code>rect</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Шаг 10 -->
+<div class="glass" style="padding:16px; margin:16px 0; border-left:4px solid #3b82f6; background:linear-gradient(135deg, rgba(16,185,129,0.1), transparent);">
+  <h3 style="margin:0 0 8px;">🟦 Шаг 10: Разные фрукты + случайный выбор 🍒🍌🍎 <span style="font-size:0.8em; color:var(--warning);">← +5 строк</span></h3>
+  <div class="code-block">
+import pygame
+import random
+pygame.init()
+screen = pygame.display.set_mode((400, 600))
+clock = pygame.time.Clock()
+basket_img = pygame.image.load("basket.png").convert_alpha()
+basket_img = pygame.transform.scale(basket_img, (80, 50))
+apple_img = pygame.image.load("apple.png").convert_alpha()
+apple_img = pygame.transform.scale(apple_img, (40, 40))
+<span class="code-hl">banana_img = pygame.image.load("banana.png").convert_alpha()</span>
+<span class="code-hl">banana_img = pygame.transform.scale(banana_img, (40, 40))</span>
+<span class="code-hl">cherry_img = pygame.image.load("cherry.png").convert_alpha()</span>
+<span class="code-hl">cherry_img = pygame.transform.scale(cherry_img, (40, 40))</span>
+<span class="code-hl">fruit_images = [apple_img, banana_img, cherry_img]</span>
+basket = basket_img.get_rect(center=(200, 550))
+fruits = []
+score = 0
+font = pygame.font.Font(None, 36)
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    <span style="color:#6b7280"># ... управление ...</span>
+    if random.randint(0, 40) == 0:
+        x = random.randint(20, 380)
+        <span class="code-hl">img = random.choice(fruit_images)</span>
+        <span class="code-hl">f_rect = img.get_rect(center=(x, -30))</span>
+        <span class="code-hl">fruits.append([f_rect, img])</span>
+    new_fruits = []
+    for f_rect, f_img in fruits:
+        f_rect.y += 3
+        if basket.colliderect(f_rect):
+            score += 1
+        elif f_rect.top < 600:
+            new_fruits.append([f_rect, f_img])
+    fruits = new_fruits
+    screen.fill((255, 255, 255))
+    screen.blit(basket_img, basket)
+    for f_rect, f_img in fruits:
+        screen.blit(f_img, f_rect)
+    text = font.render(f"Счёт: {score}", True, (0, 0, 0))
+    screen.blit(text, (10, 10))
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
+  </div>
+  <p style="margin:6px 0 0; color:var(--success); font-size:0.9rem;">✅ <strong>Финал:</strong> Падают разные фрукты! Логика прежняя, меняется только список картинок.</p>
+  <div class="step-theory">
+    <strong>📘 Разбор функций:</strong>
+    <ul>
+      <li><code>random.choice(sequence)</code> — возвращает случайный элемент из списка.</li>
+      <li><code>fruit_images</code> — централизованный список. Легко добавить новый фрукт: загрузить → масштабировать → добавить.</li>
+      <li><strong>Принцип расширения:</strong> Цикл не знает, какая картинка падает, но работает с любой из списка.</li>
+    </ul>
+  </div>
+</div>
+<!-- ========== КОНЕЦ ТУТОРИАЛА ========== -->
+         </section>
+<!-- ========== КОНЕЦ НОВОЙ ТЕОРИИ ========== -->
+
+    <!-- ========== КАРУСЕЛЬ ЗАДАНИЙ ========== -->
+    <section class="glass section tasks-carousel-wrapper">
+      
+      <div class="carousel-header">
+        <h2>Практические задания</h2>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev-btn" id="prevTask" disabled>← Назад</button>
+          <span class="carousel-counter"><span id="currentTask">1</span>/<span id="totalTasks">11</span></span>
+          <button class="carousel-btn next-btn" id="nextTask">Вперёд →</button>
+        </div>
+      </div>
+
+      <div class="task-progress-bar">
+        <div class="task-progress-fill" id="taskProgress"></div>
+      </div>
+
+      <div class="tasks-carousel" id="tasksCarousel">
+
+        <!-- Задание 1 -->
+<!-- ========== ЗАДАНИЯ 12-16: ПРОКАЧКА ИГРЫ «ЛОВИ ФРУКТЫ» ========== -->
+
+<section class="glass section task-card" data-task-index="11">
+  <h2>Задание 5: Добавляем звук поимки</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>При каждом попадании фрукта в корзину должен звучать короткий приятный звук.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Инструкция</h3>
+    
+    <h4 style="margin:12px 0 6px;">Шаг 1: Загрузка звука</h4>
+    <p>После <code>pygame.init()</code> добавь код для загрузки звука:</p>
+    
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span>
+        <span class="hint-label">Показать код</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl"># Загрузка звука поимки</span>
+<span class="code-hl">catch_sound = pygame.mixer.Sound("catch.wav")</span>
+<span class="code-hl">catch_sound.set_volume(0.5)  # громкость от 0.0 до 1.0</span>
+        </div>
+      </div>
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Шаг 2: Воспроизведение при столкновении</h4>
+    <p>В цикле обработки фруктов, внутри проверки <code>colliderect</code>:</p>
+    
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span>
+        <span class="hint-label">Показать код</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+if basket.colliderect(f_rect):
+    <span class="code-hl">catch_sound.play()  # ← новая строка</span>
+    score += 1
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="glass section task-card" data-task-index="12">
+  <h2>Задание 6: Разные очки за разные фрукты</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Яблоко = 1 очко, банан = 2, вишня = 3. Игрок будет стараться ловить более ценные фрукты!</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Инструкция</h3>
+    
+    <h4 style="margin:12px 0 6px;">Шаг 1: Создаём словарь «картинка → очки»</h4>
+    <p>После загрузки всех картинок фруктов добавь:</p>
+    
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span>
+        <span class="hint-label">Показать код</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<span class="code-hl"># Словарь: какая картинка сколько очков даёт</span>
+<span class="code-hl">fruit_scores = {</span>
+<span class="code-hl">    apple_img: 1,</span>
+<span class="code-hl">    banana_img: 2,</span>
+<span class="code-hl">    cherry_img: 3</span>
+<span class="code-hl">}</span>
+        </div>
+      </div>
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Шаг 2: Используем словарь при поимке</h4>
+    <p>Замени <code>score += 1</code> на динамическое получение очков:</p>
+    
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span>
+        <span class="hint-label">Показать код</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+if basket.colliderect(f_rect):
+    catch_sound.play()
+    <span class="code-hl">score += fruit_scores[f_img]  # ← берём очки по картинке</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Яблоко добавляет +1, банан +2, вишня +3</li>
+      <li>Словарь создан <strong>после</strong> загрузки всех картинок</li>
+    </ul>
+  </div>
+
+  <div class="task-instructions">
+    <h3>⚠️ Частая ошибка</h3>
+    <p style="background:var(--surface); padding:10px; border-radius:8px; font-size:0.9rem;">
+      <code>TypeError: unhashable type</code> возникает, если словарь создан <strong>до</strong> загрузки картинок. Всегда сначала <code>pygame.image.load()</code>, потом словарь!
+    </p>
+  </div>
+</section>
+
+<section class="glass section task-card" data-task-index="13">
+  <h2>Задание 7: Штраф за пропущенный фрукт</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Если фрукт упал за нижний край — отнимать 1 очко. Это добавляет элемент риска!</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Инструкция</h3>
+    
+    <h4 style="margin:12px 0 6px;">Шаг: Добавляем штраф в цикл обработки</h4>
+    <p>В блоке, где проверяется, упал ли фрукт за экран:</p>
+    
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span>
+        <span class="hint-label">Показать код</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+elif f_rect.top > HEIGHT:  # фрукт улетел за нижний край
+    <span class="code-hl">score = max(0, score - 1)  # ← штраф, но не ниже 0</span>
+        </div>
+      </div>
+    </div>
+
+    <p style="background:var(--surface); padding:10px; border-radius:8px; font-size:0.9rem; margin-top:8px;">
+      <strong>🔒 Зачем <code>max(0, ...)</code>?</strong><br>
+      Без этой защиты счёт может уйти в отрицательные значения. Функция <code>max()</code> гарантирует, что результат никогда не будет меньше нуля.
+    </p>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Пропущенный фрукт уменьшает счёт на 1</li>
+      <li>Счёт никогда не становится отрицательным</li>
+    </ul>
+  </div>
+</section>
+
+<section class="glass section task-card" data-task-index="14">
+  <h2>Задание 8: Выход по ESC + сохранение рекорда</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Нажатие <code>ESC</code> завершает игру и сохраняет лучший результат в файл <code>record.txt</code>.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Инструкция</h3>
+    
+    <h4 style="margin:12px 0 6px;">Шаг 1: Загрузка рекорда при старте</h4>
+    <p>После <code>pygame.init()</code> добавь:</p>
+    
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span>
+        <span class="hint-label">Показать код</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+<!-- <span class="code-hl">import os</span> -->
+<!-- <span class="code-hl"></span> -->
+<span class="code-hl">record = 0</span>
+<!-- <span class="code-hl">if os.path.exists("record.txt"):</span> -->
+<span class="code-hl">    with open("record.txt", "r") as f:</span>
+<span class="code-hl">        record = int(f.read().strip())</span>
+        </div>
+      </div>
+    </div>
+
+    <h4 style="margin:12px 0 6px;">Шаг 2: Обработка нажатия ESC</h4>
+    <p>В цикле <code>for event in pygame.event.get():</code> добавь:</p>
+    
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span>
+        <span class="hint-label">Показать код</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+if event.type == pygame.KEYDOWN:
+    if event.key == pygame.K_ESCAPE:
+        <span class="code-hl">if score > record:</span>
+<span class="code-hl">            with open("record.txt", "w") as f:</span>
+<span class="code-hl">                f.write(str(score))</span>
+        <span class="code-hl">running = False  # выход из главного цикла</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--warning); background:rgba(245,158,11,0.1);">
+    <strong>⚠️ Важно:</strong>
+    <ul style="margin:6px 0 0 20px; font-size:0.9rem;">
+      <li>Проверка <code>ESC</code> должна быть в <code>event.get()</code>, а не в <code>key.get_pressed()</code></li>
+      <li>Используй <code>with open(...)</code> — это автоматически закроет файл даже при ошибке</li>
+    </ul>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Нажатие <code>ESC</code> сразу закрывает окно</li>
+      <li>После перезапуска игры рекорд сохраняется</li>
+      <li>Файл <code>record.txt</code> появляется в папке со скриптом</li>
+    </ul>
+  </div>
+</section>
+
+<section class="glass section task-card" data-task-index="15">
+  <h2>Задание 9: Отображение счёта и рекорда на экране</h2>
+  
+  <div class="task-legend">
+    <h3> Цель</h3>
+    <p>Игрок должен всегда видеть текущий счёт и лучший результат. Это мотивирует бить рекорды!</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Инструкция</h3>
+    
+    <h4 style="margin:12px 0 6px;">Шаг: Добавляем текст в отрисовку</h4>
+    <p>В блоке отрисовки (перед <code>pygame.display.flip()</code>):</p>
+    
+    <div class="hint-wrapper">
+      <button class="hint-btn" type="button" onclick="toggleHint(this)">
+        <span class="hint-icon">💡</span>
+        <span class="hint-label">Показать код</span>
+      </button>
+      <div class="hint-content">
+        <div class="code-block">
+screen.fill((255, 255, 255))
+# ... здесь отрисовка корзины и фруктов ...
+
+<span class="code-hl"># Отрисовка счёта и рекорда</span>
+<span class="code-hl">text = font.render(f"Счёт: {score}  |  Рекорд: {record}", True, (0, 0, 0))</span>
+<span class="code-hl">screen.blit(text, (10, 10))</span>
+
+pygame.display.flip()
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>В левом верхнем углу видно «Счёт: X | Рекорд: Y»</li>
+      <li>Счёт обновляется в реальном времени</li>
+      <li>Текст читаемый (цвет контрастирует с фоном)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Задание 21: Монетки -->
+<section class="glass section task-card" data-task-index="20">
+  <h2>Задание 21: Добавляем монетки для сбора</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Размести на уровне несколько монет. Игрок собирает их при касании, а счётчик обновляется в реальном времени.</p>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Монеты появляются на заданных позициях</li>
+      <li>При касании игрока монета исчезает</li>
+      <li>В консоли выводится остаток монет</li>
+      <li>Игра не падает при удалении элементов из списка</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Задание 22: Условие победы -->
+<section class="glass section task-card" data-task-index="21">
+  <h2>🏆 Задание 22: Победа только при сборе ВСЕХ монет</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Игрок побеждает <strong>только тогда</strong>, когда список монет пуст. Пока хотя бы одна монета на экране – игра продолжается. При победе выведи сообщение и закрой окно.</p>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Игра не останавливается, пока на экране есть хотя бы 1 монета</li>
+      <li>При сборе последней появляется зелёная надпись "УРОВЕНЬ ПРОЙДЕН!"</li>
+      <li>Окно закрывается через 2 секунды автоматически</li>
+      <li>Физика и платформы продолжают работать до момента победы</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Задание 23: Враг по траектории -->
+<section class="glass section task-card" data-task-index="22">
+  <h2>👾 Задание 23: Враг с заданной траекторией патрулирования</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Добавь противника, который движется по платформе или в воздухе между двумя точками. Если игрок коснётся его – игра заканчивается.</p>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Проверь:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Враг плавно двигается между <code>patrol_left</code> и <code>patrol_right</code></li>
+      <li>На границах мгновенно разворачивается без "застревания"</li>
+      <li>Касание игрока → красная надпись "ПОРАЖЕНИЕ!" → закрытие игры</li>
+      <li>Логика врага не мешает сбору монет и движению платформ</li>
+    </ul>
+  </div>
+
+  <div class="task-instructions">
+    <h3>💡 Идеи для усложнения траектории</h3>
+    <ul style="margin-left:20px; color:var(--text-muted);">
+      <li>Сделай синусоидальное движение: <code>enemy.y += math.sin(pygame.time.get_ticks() * 0.003) * 2</code></li>
+      <li>Добавь ускорение: <code>enemy_speed += 0.002</code> (враг становится опаснее со временем)</li>
+    </ul>
+  </div>
+
+</section>
+
+      </div>
+
+      <!-- Точки-индикаторы -->
+      <div class="carousel-dots" id="carouselDots"></div>
+
+    </section>
+    <!-- ========== КОНЕЦ КАРУСЕЛИ ========== -->
+
+    <section class="glass section">
+      <h2>📝 Проверка знаний</h2>
+      
+      <!-- Заголовок с прогрессом -->
+      <div id="quizHeader" class="quiz-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);"></div>
+      
+      <!-- Контейнер для вопроса -->
+      <div id="quizContainer" class="quiz-single" style="min-height:280px;"></div>
+      
+      <!-- Навигация -->
+      <div id="quizNav" class="quiz-nav" style="display:flex;justify-content:space-between;margin-top:20px;gap:10px;">
+        <button class="btn btn-ghost" id="prevBtn" onclick="quiz.navigate(-1)" disabled>← Назад</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" id="nextBtn" onclick="quiz.navigate(1)">Далее →</button>
+          <button class="btn btn-primary" id="finishBtn" onclick="quiz.finish()" style="display:none;">Завершить 🎉</button>
+        </div>
+      </div>
+      
+      <!-- Финальный экран -->
+      <div id="quizSummary" class="quiz-summary" style="display:none;text-align:center;padding:20px;">
+        <h3>🎯 Тест завершён!</h3>
+        <div class="score" id="finalScore" style="font-size:3rem;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;color:transparent;margin:10px 0;"></div>
+        <p class="message" id="finalMessage" style="color:var(--text-muted);margin-bottom:20px;"></p>
+        <button class="btn btn-primary" onclick="location.reload()">Пройти ещё раз 🔄</button>
+      </div>
+    </section>
+
+    <section class="glass download-zone">
+  <h3>📦 Дополнительные материалы</h3>
+  <p style="margin-bottom:14px; color:var(--text-muted)">
+    Скачай архив для первых 2-х заданий
+  </p>
+  <a href="../downloads/Summer_cump_2026_2.zip" download class="btn btn-primary">
+    ⬇ Скачать архив с заготовками (ZIP)
+  </a>
+</section>
+
+    <div style="display:flex; justify-content:space-between; margin-top:30px;">
+      <a href="../index.html" class="btn btn-ghost">← На главную</a>
+      <button class="btn btn-primary" disabled>Урок 2 → 🔒</button>
+    </div>
+  </main>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Инициализация карусели заданий (вынесено в app.js, но можно оставить здесь для простоты)
+    document.addEventListener('DOMContentLoaded', () => {
+      // Простая инициализация: обновляем счётчики и прогресс
+      const taskCards = document.querySelectorAll('.task-card');
+      const totalEl = document.getElementById('totalTasks');
+      const progressFill = document.getElementById('taskProgress');
+      
+      if (taskCards.length && totalEl) {
+        totalEl.textContent = taskCards.length;
+        if (progressFill) {
+          progressFill.style.width = `${(1 / taskCards.length) * 100}%`;
+        }
+      }
+      
+      // Кнопка скачивания
+      document.getElementById('downloadBtn')?.addEventListener('click', () => {
+        const code = `# УПРАЖНЕНИЯ К УРОКУ 1\\n\\n# 1. Выведи на экран своё имя\\n# 2. Создай переменную age = 14 и выведи её\\n# 3. Попробуй сложить две строки: "Hello" + " World"\\n\\nprint("Открой этот файл в Python и реши задачи!")`;
+        const blob = new Blob([code], {type:'text/x-python'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'lesson1_exercises.py';
+        a.click();
+        if (typeof toast === 'function') toast('Файл скачан!', 'success');
+      });
+    });
+  </script>
+</body>
+</html>
