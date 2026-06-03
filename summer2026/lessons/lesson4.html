@@ -26,7 +26,7 @@
       <h1>🐣 День 3: Pygame</h1>
     </div>
 
-    <section class="glass section">
+<section class="glass section">
   <h2>Работа с текстовыми файлами в Python</h2>
   
   <div class="theory-content">
@@ -104,6 +104,26 @@ with open("data.txt", "r", encoding="utf-8") as f:
     <p style="margin-top:8px;"><strong>Полезные методы:</strong> <code>.strip()</code> (очистка), <code>.split()</code> (разбиение на слова), <code>.startswith()</code> (проверка префикса).</p>
   </div>
 
+  <h3>Запись в файл</h3>
+  <div class="theory-content">
+    <p>Для записи данных используются режимы <code>"w"</code> (перезапись) и <code>"a"</code> (дополнение). Методы записи <strong>не добавляют</strong> перенос строки автоматически.</p>
+
+    <h4 style="margin:12px 0 6px;">1. <code>f.write()</code> — запись одной строки</h4>
+    <div class="code-block">
+with open("report.txt", "w", encoding="utf-8") as f:
+<span class="code-hl">    f.write("Отчёт сгенерирован\n")</span>
+<span class="code-hl">    f.write(f"Дата: 2026-05-20\n")</span>
+    </div>
+    <p style="margin-top:6px; color:var(--text-muted);"><strong>Важно:</strong> Если файл существует, режим <code>"w"</code> сотрёт его содержимое перед записью. Для добавления в конец используйте <code>"a"</code>.</p>
+
+    <h4 style="margin:16px 0 6px;">2. <code>f.writelines()</code> — запись итерируемого объекта</h4>
+    <div class="code-block">
+results = ["Иванов: 95\n", "Петрова: 88\n", "Сидоров: 91\n"]
+with open("grades.txt", "w", encoding="utf-8") as f:
+<span class="code-hl">    f.writelines(results)</span>
+    </div>
+    <p style="margin-top:6px; color:var(--text-muted);"><strong>Важно:</strong> Метод принимает любой итератор строк. Часто используется с генераторами: <code>f.writelines(f"{name}: {score}\n" for name, score in data.items())</code>.</p>
+  </div>
 
   <div class="glass" style="padding:14px; margin:16px 0; border-left:4px solid var(--primary); background:linear-gradient(135deg, rgba(99,102,241,0.1), transparent);">
     <h3 style="margin:0 0 8px;">Когда какой метод использовать?</h3>
@@ -111,6 +131,8 @@ with open("data.txt", "r", encoding="utf-8") as f:
       <li><strong>Маленький файл, весь текст сразу</strong> → <code>f.read()</code></li>
       <li><strong>Нужен доступ к строкам по индексу</strong> → <code>f.readlines()</code></li>
       <li><strong>Любой файл, особенно большой</strong> → <code>for line in f:</code> (рекомендуется)</li>
+      <li><strong>Создать новый файл или перезаписать</strong> → <code>open("file", "w")</code> + <code>f.write()</code></li>
+      <li><strong>Добавить данные в конец без стирания</strong> → <code>open("file", "a")</code> + <code>f.write()</code> / <code>f.writelines()</code></li>
     </ul>
   </div>
 </section>
@@ -312,8 +334,44 @@ with open("data.txt", "r", encoding="utf-8") as f:
   </div>
 </section>
 
+<section class="glass section task-card" data-task-index="34">
+  <h2>📊 Задание: Фильтрация студентов и поиск лучших</h2>
+  
+  <div class="task-legend">
+    <h3>Цель</h3>
+    <p>Обработать файл с данными студентов: отфильтровать тех, у кого все оценки положительные, сохранить их в новый файл и вывести на экран ФИО студентов с максимальным средним баллом.</p>
+  </div>
+
+  <div class="task-instructions">
+    <h3>Формат входного файла (<code>students.txt</code>)</h3>
+    <div style="background:var(--surface); padding:10px; border-radius:8px; font-family:var(--font-code); font-size:0.9rem; margin-bottom:12px;">
+      Иванов Иван Иванович 5 4 5 3<br>
+      Петрова Анна Сергеевна 2 3 4 2<br>
+      Сидоров Алексей Дмитриевич 5 5 4 5
+    </div>
+    <ul style="margin-left:20px; line-height:1.7;">
+      <li>Первые 3 слова — ФИО, остальные через пробел — числовые оценки.</li>
+      <li>Положительной считается оценка <code>&gt; 3</code>.</li>
+      <li>Создай файл <code>passed.txt</code> и запиши в него строки только тех студентов, у которых <strong>все</strong> оценки положительные.</li>
+      <li>Вычисли средний балл каждого отфильтрованного студента.</li>
+      <li>Найди максимальный средний балл и выведи на экран ФИО студентов, получивших его.</li>
+    </ul>
+  </div>
+
+  <div class="glass" style="padding:12px; margin:12px 0; border-left:4px solid var(--success); background:rgba(16,185,129,0.1);">
+    <strong>✅ Чек-лист для проверки:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>Файл <code>passed.txt</code> создан и содержит только строки с положительными оценками</li>
+      <li>В консоли выведен максимальный средний балл (округлён до 2 знаков)</li>
+      <li>Если несколько студентов набрали одинаковый максимальный балл — выведены все</li>
+      <li>Программа корректно обрабатывает пустые строки и пробелы в файле</li>
+      <li>Использовано одновременное открытие двух файлов (<code>with open(...) as f1, open(...) as f2:</code>)</li>
+    </ul>
+  </div>
+</section>
+
 <section class="glass section task-card task-easy" data-task-index="20">
-  <h2>🔊 Задание 3</h2>
+  <h2>🔊 Задание 4</h2>
   <div class="task-legend">
     <h3>Цель</h3>
     <p>Далее идут взаимосвязанные шаги, выполнив которые вы собирете простое приложение с GUI</p>
@@ -630,7 +688,7 @@ window.mainloop()
 </section>
 
 <section class="glass section task-card task-easy" data-task-index="20">
-  <h2>Задание 4</h2>
+  <h2>Задание 5</h2>
   <div class="task-legend">
     <h3>Цель</h3>
     <p>Далее идет задание на выбор. Вы выполняете либо следующее, либо задание "Звуковая доска"</p>
@@ -687,7 +745,7 @@ window.mainloop()
 </section>
 
 <section class="glass section task-card" data-task-index="32">
-  <h2>🎛️ Задание: Звуковая доска + новый способ расстановки кнопок (grid)</h2>
+  <h2>🎛️ Задание: Звуковая доска</h2>
   
   <div class="task-legend">
     <h3>Цель</h3>
@@ -793,7 +851,7 @@ window.mainloop()
       <tbody>
         <tr><td><code>--onefile</code></td><td>Собирает всё в <strong>один</strong> файл</td><td>Без него появится папка с десятками библиотек, в которых легко запутаться</td></tr>
         <tr><td><code>--noconsole</code></td><td>Скрывает окно терминала при запуске</td><td>Для GUI-приложений (Tkinter/Pygame) оно не нужно и только мешает</td></tr>
-        <tr><td><code>--name "Имя"</code></td><td>Даёт файлу понятное название</td><td>Вместо <code>script</code> получится <code>КонвертерВалют</code></td></tr>
+        <tr><td><code>--name "Имя"</code></td><td>Даёт файлу понятное название</td><td></td></tr>
       </tbody>
     </table>
     <p style="margin-top:8px; font-size:0.9rem; color:var(--text-muted);">💡 <strong>Важно для Linux:</strong> PyInstaller создаст файл <strong>без расширения</strong>. Чтобы запустить его из файлового менеджера, может потребоваться отметить галочку «Разрешить исполнение» в свойствах файла.</p>

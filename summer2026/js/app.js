@@ -414,3 +414,15 @@ function toggleHint(btn) {
 
 // Делаем функцию глобально доступной для inline-onclick
 window.toggleHint = toggleHint;
+
+
+document.addEventListener('contextmenu', e => {
+  if (e.target.closest('.code-block')) e.preventDefault();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.target.closest('.code-block') && 
+     (e.ctrlKey && (e.key === 'c' || e.key === 'u') || e.key === 'F12')) {
+    e.preventDefault();
+  }
+});

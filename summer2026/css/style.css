@@ -464,3 +464,10 @@ header { position: sticky; top: 0; z-index: 100; padding: 14px 0; background: rg
 .task-card {
   position: relative;
 }
+
+.code-block, pre, code {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
