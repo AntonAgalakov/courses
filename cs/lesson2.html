@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторная работа №2 · Информатика</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== Все стили (из шаблона) ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        #pin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        #pin-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .pin-box {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 40px 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .pin-box h2 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+        .pin-box p {
+            color: #475569;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .pin-box input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: border 0.2s;
+            font-weight: 600;
+        }
+        .pin-box input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        .pin-box .error-msg {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            height: 24px;
+            font-weight: 500;
+        }
+        .pin-box button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pin-box button:hover {
+            background: #1d4ed8;
+        }
+        .pin-box .hint {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 16px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 0;
+            transition: box-shadow 0.3s;
+        }
+        nav.scrolled {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #2563eb;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            color: #0f172a;
+            font-weight: 400;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+            transition: color 0.2s;
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-links a:hover {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        .hero {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero h1 .highlight {
+            color: #2563eb;
+        }
+        .hero p.sub {
+            font-size: 1.2rem;
+            color: #475569;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        section {
+            padding: 48px 0;
+            border-bottom: 1px solid #e9edf2;
+        }
+        section:last-of-type {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title .number {
+            background: #2563eb;
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .task-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 28px 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            border: 1px solid #eef2f6;
+            transition: box-shadow 0.2s;
+        }
+        .task-card:hover {
+            box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+        }
+        .task-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .task-card p, .task-card li {
+            font-size: 1.05rem;
+            color: #1e293b;
+            line-height: 1.7;
+        }
+        .task-card ul {
+            padding-left: 24px;
+            margin: 10px 0;
+        }
+        .task-card ul li {
+            margin-bottom: 6px;
+        }
+        .variant-selector {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: #f1f5f9;
+            padding: 12px 24px;
+            border-radius: 40px;
+            margin: 20px 0 30px;
+            flex-wrap: wrap;
+        }
+        .variant-selector label {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+        .variant-selector select {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid #cbd5e1;
+            font-size: 1rem;
+            font-weight: 500;
+            background: white;
+            cursor: pointer;
+            outline: none;
+        }
+        .variant-selector select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        .scroll-anchor {
+            scroll-margin-top: 80px;
+        }
+        .sub {
+            font-size: 0.7em;
+            vertical-align: sub;
+        }
+        .sup {
+            font-size: 0.7em;
+            vertical-align: super;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 0 24px;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9edf2;
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .nav-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .nav-links {
+                gap: 12px;
+            }
+            .section-title {
+                font-size: 1.6rem;
+            }
+            .task-card {
+                padding: 20px;
+            }
+            .task-card h3 {
+                font-size: 1.2rem;
+            }
+            .variant-selector {
+                padding: 12px 16px;
+                border-radius: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PIN-оверлей -->
+<div id="pin-overlay">
+    <div class="pin-box">
+        <h2>Доступ к работе</h2>
+        <p>Введите PIN-код для просмотра материалов</p>
+        <input type="password" id="pin-input" maxlength="4" placeholder="— — — —" inputmode="numeric">
+        <div class="error-msg" id="pin-error"></div>
+        <button id="pin-btn">Подтвердить</button>
+        <div class="hint">Подсказка: 4 цифры</div>
+    </div>
+</div>
+
+<!-- Основной контент -->
+<div id="main-content" style="display: none;">
+
+    <nav id="navbar">
+        <div class="container nav-inner">
+            <div class="logo">Лабораторная работа <span>№2</span></div>
+            <ul class="nav-links">
+                <li><a href="#part-a">Часть A</a></li>
+                <li><a href="#part-b">Часть B</a></li>
+                <li><a href="#part-c">Часть C</a></li>
+                <li><a href="#part-e">Часть E</a></li>
+                <li><a href="#part-f">Часть F</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="badge">Информатика</div>
+            <h1>Двоичная арифметика и <br><span class="highlight">представление чисел в ЭВМ</span></h1>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <!-- Селектор варианта (33 варианта) -->
+        <div class="variant-selector">
+            <label for="variantSelect">Ваш вариант (от 1 до 33):</label>
+            <select id="variantSelect"></select>
+            <span style="font-size:0.9rem; color:#475569;">(номер получаете у преподавателя)</span>
+        </div>
+
+        <!-- ===== Часть A ===== -->
+        <section id="part-a" class="scroll-anchor">
+            <div class="section-title"><span class="number">A</span> Бинарная арифметика</div>
+            <div class="task-list">
+                <div class="task-card" id="task-a">
+                    <p>Выполните вычисления в двоичной системе. Результат запишите в двоичном виде и для проверки укажите десятичный эквивалент.</p>
+                    <ol style="padding-left: 24px; margin-top: 12px;" id="a-list">
+                        <!-- заполняется через JS -->
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Часть B ===== -->
+        <section id="part-b" class="scroll-anchor">
+            <div class="section-title"><span class="number">B</span> 8‑битный дополнительный код</div>
+            <div class="task-list">
+                <div class="task-card" id="task-b">
+                    <p>Бортовой компьютер хранит углы наклона в дополнительном коде. Для каждой операции переведите числа в 8‑битный дополнительный код, выполните сложение и переведите результат в десятичную систему.</p>
+                    <ol style="padding-left: 24px; margin-top: 12px;" id="b-list">
+                        <!-- заполняется через JS -->
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Часть C ===== -->
+        <section id="part-c" class="scroll-anchor">
+            <div class="section-title"><span class="number">C</span> Обратный перевод (датчик температуры)</div>
+            <div class="task-list">
+                <div class="task-card" id="task-c">
+                    <p>На спутнике установлен термодатчик, который выдаёт значение в дополнительном коде. Получен код <code id="temp-code">10110100</code>. Какая температура (в °C) соответствует этому значению?</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Часть E (исправлена) ===== -->
+        <section id="part-e" class="scroll-anchor">
+            <div class="section-title"><span class="number">E</span> Переполнение (аварийная ситуация)</div>
+            <div class="task-list">
+                <div class="task-card" id="task-e">
+                    <p>Алгоритм стабилизации спутника складывает показания гироскопов. Для каждой операции выполните сложение в 8-битном дополнительном коде (покажите двоичные вычисления) и определите, возникает ли переполнение (выход за диапазон [-128, 127]). Если переполнение есть, укажите, какой ошибочный десятичный результат выдаст система.</p>
+                    <ol style="padding-left: 24px; margin-top: 12px;" id="e-list">
+                        <!-- заполняется через JS -->
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Часть F ===== -->
+        <section id="part-f" class="scroll-anchor">
+            <div class="section-title"><span class="number">F</span> Вещественные числа в IEEE 754</div>
+            <div class="task-list">
+
+                <div class="task-card" id="task-f1">
+                    <h3>Задание F1. Перевод в IEEE 754</h3>
+                    <p>Переведите следующие десятичные числа в 32‑битный IEEE 754. Покажите этапы: двоичное представление, нормализация, вычисление смещённого порядка E, формирование мантиссы. Результат запишите в виде 32‑битной двоичной строки.</p>
+                    <ol style="padding-left: 24px; margin-top: 8px;" id="f1-list">
+                        <!-- заполняется через JS -->
+                    </ol>
+                </div>
+
+                <div class="task-card" id="task-f2">
+                    <h3>Задание F2. Обратный перевод</h3>
+                    <p>По двоичным строкам восстановите десятичные значения:</p>
+                    <ol style="padding-left: 24px; margin-top: 8px;" id="f2-list">
+                        <!-- заполняется через JS -->
+                    </ol>
+                </div>
+
+            </div>
+        </section>
+
+        <footer>
+            <p>Лабораторная работа №2 · Двоичная арифметика и представление чисел в ЭВМ · 2026</p>
+            <p style="margin-top: 8px; font-size: 0.8rem;">Разработано в рамках учебного задания</p>
+        </footer>
+
+    </div> <!-- /container -->
+</div> <!-- /main-content -->
+
+<script>
+    // ===== Данные для 8 вариантов =====
+    var variantsData = {
+        1: {
+            a: [
+                "1101<sub>2</sub> × 101<sub>2</sub>",
+                "101101<sub>2</sub> − 1010<sub>2</sub>",
+                "11111<sub>2</sub> + 1<sub>2</sub>",
+                "11010<sub>2</sub> ÷ 101<sub>2</sub>",
+                "10011<sub>2</sub> ÷ 10<sub>2</sub>",
+                "0.101<sub>2</sub> + 0.011<sub>2</sub>"
+            ],
+            b: [
+                "30° - 75°",
+                "-50° + 25°",
+                "110° - 40°",
+                "-100° + 5°"
+            ],
+            c: "10110100",
+            e: [
+                "60 + 70",
+                "100 + 30",
+                "120 + 10",
+                "-90 - 50"
+            ],
+            f1: [14.25, -6.625],
+            f2: [
+                "01000001110000000000000000000000",
+                "11000000101000000000000000000000"
+            ]
+        },
+        2: {
+            a: [
+                "1011<sub>2</sub> × 11<sub>2</sub>",
+                "110011<sub>2</sub> − 101<sub>2</sub>",
+                "10101<sub>2</sub> + 1<sub>2</sub>",
+                "10011<sub>2</sub> ÷ 11<sub>2</sub>",
+                "11101<sub>2</sub> ÷ 10<sub>2</sub>",
+                "0.111<sub>2</sub> + 0.001<sub>2</sub>"
+            ],
+            b: [
+                "45° - 80°",
+                "-30° + 40°",
+                "100° - 50°",
+                "-110° + 10°"
+            ],
+            c: "11001010",
+            e: [
+                "70 + 80",
+                "110 + 25",
+                "125 + 5",
+                "-100 - 40"
+            ],
+            f1: [12.5, -8.75],
+            f2: [
+                "01000010100000000000000000000000",
+                "11000001101000000000000000000000"
+            ]
+        },
+        3: {
+            a: [
+                "1110<sub>2</sub> × 101<sub>2</sub>",
+                "100101<sub>2</sub> − 1101<sub>2</sub>",
+                "11011<sub>2</sub> + 1<sub>2</sub>",
+                "10110<sub>2</sub> ÷ 110<sub>2</sub>",
+                "10101<sub>2</sub> ÷ 11<sub>2</sub>",
+                "0.011<sub>2</sub> + 0.101<sub>2</sub>"
+            ],
+            b: [
+                "60° - 95°",
+                "-40° + 35°",
+                "120° - 60°",
+                "-115° + 8°"
+            ],
+            c: "11100110",
+            e: [
+                "80 + 60",
+                "105 + 30",
+                "126 + 2",
+                "-120 - 30"
+            ],
+            f1: [18.75, -5.25],
+            f2: [
+                "01000011110000000000000000000000",
+                "11000010101000000000000000000000"
+            ]
+        },
+        4: {
+            a: [
+                "1001<sub>2</sub> × 11<sub>2</sub>",
+                "111001<sub>2</sub> − 1001<sub>2</sub>",
+                "10111<sub>2</sub> + 1<sub>2</sub>",
+                "11100<sub>2</sub> ÷ 100<sub>2</sub>",
+                "11011<sub>2</sub> ÷ 10<sub>2</sub>",
+                "0.110<sub>2</sub> + 0.010<sub>2</sub>"
+            ],
+            b: [
+                "35° - 70°",
+                "-20° + 30°",
+                "95° - 35°",
+                "-105° + 6°"
+            ],
+            c: "10011011",
+            e: [
+                "50 + 80",
+                "95 + 40",
+                "124 + 4",
+                "-110 - 20"
+            ],
+            f1: [9.375, -12.5],
+            f2: [
+                "01000010110000000000000000000000",
+                "11000001100000000000000000000000"
+            ]
+        },
+        5: {
+            a: [
+                "1100<sub>2</sub> × 10<sub>2</sub>",
+                "101010<sub>2</sub> − 111<sub>2</sub>",
+                "10011<sub>2</sub> + 1<sub>2</sub>",
+                "11101<sub>2</sub> ÷ 101<sub>2</sub>",
+                "10001<sub>2</sub> ÷ 11<sub>2</sub>",
+                "0.100<sub>2</sub> + 0.011<sub>2</sub>"
+            ],
+            b: [
+                "25° - 65°",
+                "-55° + 20°",
+                "80° - 25°",
+                "-95° + 3°"
+            ],
+            c: "10101100",
+            e: [
+                "65 + 75",
+                "102 + 28",
+                "127 + 1",
+                "-85 - 60"
+            ],
+            f1: [22.25, -3.875],
+            f2: [
+                "01000011011000000000000000000000",
+                "11000000111100000000000000000000"
+            ]
+        },
+        6: {
+            a: [
+                "1010<sub>2</sub> × 101<sub>2</sub>",
+                "100011<sub>2</sub> − 1011<sub>2</sub>",
+                "11001<sub>2</sub> + 1<sub>2</sub>",
+                "11011<sub>2</sub> ÷ 110<sub>2</sub>",
+                "11110<sub>2</sub> ÷ 10<sub>2</sub>",
+                "0.001<sub>2</sub> + 0.111<sub>2</sub>"
+            ],
+            b: [
+                "50° - 85°",
+                "-35° + 45°",
+                "115° - 55°",
+                "-120° + 12°"
+            ],
+            c: "11010001",
+            e: [
+                "90 + 50",
+                "108 + 22",
+                "123 + 6",
+                "-130 + 20"
+            ],
+            f1: [16.5, -7.125],
+            f2: [
+                "01000011101000000000000000000000",
+                "11000001100100000000000000000000"
+            ]
+        },
+        7: {
+            a: [
+                "1111<sub>2</sub> × 11<sub>2</sub>",
+                "110110<sub>2</sub> − 100<sub>2</sub>",
+                "10101<sub>2</sub> + 1<sub>2</sub>",
+                "10111<sub>2</sub> ÷ 101<sub>2</sub>",
+                "11001<sub>2</sub> ÷ 10<sub>2</sub>",
+                "0.010<sub>2</sub> + 0.101<sub>2</sub>"
+            ],
+            b: [
+                "40° - 90°",
+                "-10° + 15°",
+                "90° - 30°",
+                "-80° + 7°"
+            ],
+            c: "11101001",
+            e: [
+                "75 + 65",
+                "112 + 18",
+                "125 + 3",
+                "-95 - 45"
+            ],
+            f1: [11.75, -9.25],
+            f2: [
+                "01000010111000000000000000000000",
+                "11000001110000000000000000000000"
+            ]
+        },
+        8: {
+            a: [
+                "1001<sub>2</sub> × 10<sub>2</sub>",
+                "101111<sub>2</sub> − 1101<sub>2</sub>",
+                "11110<sub>2</sub> + 1<sub>2</sub>",
+                "11000<sub>2</sub> ÷ 100<sub>2</sub>",
+                "10110<sub>2</sub> ÷ 11<sub>2</sub>",
+                "0.111<sub>2</sub> + 0.001<sub>2</sub>"
+            ],
+            b: [
+                "55° - 100°",
+                "-45° + 50°",
+                "105° - 45°",
+                "-125 + 15"
+            ],
+            c: "10111100",
+            e: [
+                "55 + 85",
+                "98 + 35",
+                "122 + 8",
+                "-105 - 35"
+            ],
+            f1: [19.875, -4.375],
+            f2: [
+                "01000011111000000000000000000000",
+                "11000010011000000000000000000000"
+            ]
+        }
+    };
+
+    // ===== Функции рендеринга =====
+    function renderPartA(v) {
+        var items = variantsData[v].a;
+        var html = '';
+        items.forEach(function(item) {
+            html += '<li>' + item + '</li>';
+        });
+        document.getElementById('a-list').innerHTML = html;
+    }
+
+    function renderPartB(v) {
+        var items = variantsData[v].b;
+        var html = '';
+        items.forEach(function(item) {
+            html += '<li>' + item + '</li>';
+        });
+        document.getElementById('b-list').innerHTML = html;
+    }
+
+    function renderPartC(v) {
+        var code = variantsData[v].c;
+        document.getElementById('temp-code').textContent = code;
+    }
+
+    function renderPartE(v) {
+        var items = variantsData[v].e;
+        var html = '';
+        items.forEach(function(item) {
+            html += '<li>' + item + '</li>';
+        });
+        document.getElementById('e-list').innerHTML = html;
+    }
+
+    function renderPartF(v) {
+        var f1 = variantsData[v].f1;
+        var f2 = variantsData[v].f2;
+        var html1 = '';
+        f1.forEach(function(num) {
+            html1 += '<li>' + num + '</li>';
+        });
+        document.getElementById('f1-list').innerHTML = html1;
+
+        var html2 = '';
+        f2.forEach(function(bin) {
+            html2 += '<li><code>' + bin + '</code></li>';
+        });
+        document.getElementById('f2-list').innerHTML = html2;
+    }
+
+    function updateAll(optionNumber) {
+        var realIndex = ((optionNumber - 1) % 8) + 1;
+        var v = realIndex;
+        renderPartA(v);
+        renderPartB(v);
+        renderPartC(v);
+        renderPartE(v);
+        renderPartF(v);
+    }
+
+    // ===== Инициализация селектора (33 варианта) =====
+    document.addEventListener('DOMContentLoaded', function() {
+        var select = document.getElementById('variantSelect');
+        for (var i = 1; i <= 33; i++) {
+            var option = document.createElement('option');
+            option.value = i;
+            option.textContent = 'Вариант ' + i;
+            select.appendChild(option);
+        }
+        select.value = 1;
+        updateAll(1);
+
+        select.addEventListener('change', function() {
+            var val = parseInt(this.value);
+            updateAll(val);
+        });
+    });
+
+    // ===== PIN-защита =====
+    (function() {
+        const overlay = document.getElementById('pin-overlay');
+        const mainContent = document.getElementById('main-content');
+        const pinInput = document.getElementById('pin-input');
+        const pinBtn = document.getElementById('pin-btn');
+        const pinError = document.getElementById('pin-error');
+
+        const CORRECT_PIN_BASE64 = 'NDMyMQ==';
+
+        if (sessionStorage.getItem('pin_verified') === 'true') {
+            overlay.classList.add('hidden');
+            mainContent.style.display = 'block';
+            var select = document.getElementById('variantSelect');
+            if (select) updateAll(parseInt(select.value));
+            return;
+        }
+
+        function verifyPin() {
+            const entered = pinInput.value.trim();
+            if (entered === '') {
+                pinError.textContent = 'Введите PIN-код.';
+                return;
+            }
+            const enteredBase64 = btoa(entered);
+            if (enteredBase64 === CORRECT_PIN_BASE64) {
+                sessionStorage.setItem('pin_verified', 'true');
+                overlay.classList.add('hidden');
+                mainContent.style.display = 'block';
+                pinError.textContent = '';
+                var select = document.getElementById('variantSelect');
+                if (select) updateAll(parseInt(select.value));
+            } else {
+                pinError.textContent = 'Неверный PIN-код. Попробуйте ещё раз.';
+                pinInput.value = '';
+                pinInput.focus();
+            }
+        }
+
+        pinBtn.addEventListener('click', verifyPin);
+        pinInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                verifyPin();
+            }
+        });
+        pinInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 4);
+        });
+        pinInput.focus();
+
+        // Плавный скролл
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                const target = document.querySelector(targetId);
+                if (target) {
+                    const offset = 80;
+                    const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    window.scrollTo({ top, behavior: 'smooth' });
+                }
+            });
+        });
+
+        const nav = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+    })();
+</script>
+
+</body>
+</html>
