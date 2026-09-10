@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Практическая работа · Разработка и модульное тестирование Playlist</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== Основные стили ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        /* PIN-оверлей */
+        #pin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        #pin-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .pin-box {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 40px 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .pin-box h2 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+        .pin-box p {
+            color: #475569;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .pin-box input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: border 0.2s;
+            font-weight: 600;
+        }
+        .pin-box input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        .pin-box .error-msg {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            height: 24px;
+            font-weight: 500;
+        }
+        .pin-box button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pin-box button:hover {
+            background: #1d4ed8;
+        }
+        .pin-box .hint {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 16px;
+        }
+
+        /* Контейнер и навигация */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 0;
+            transition: box-shadow 0.3s;
+        }
+        nav.scrolled {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #2563eb;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            color: #0f172a;
+            font-weight: 400;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+            transition: color 0.2s;
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-links a:hover {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero h1 .highlight {
+            color: #2563eb;
+        }
+        .hero p.sub {
+            font-size: 1.2rem;
+            color: #475569;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        /* Секции */
+        section {
+            padding: 48px 0;
+            border-bottom: 1px solid #e9edf2;
+        }
+        section:last-of-type {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title .number {
+            background: #2563eb;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+        }
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+        .card p,
+        .card li {
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        .card ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+        .card ul li {
+            margin-bottom: 4px;
+        }
+        .card-full {
+            grid-column: 1 / -1;
+        }
+
+        /* Блоки кода — теперь pre с сохранением форматирования */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin: 16px 0;
+            white-space: pre;
+            tab-size: 4;
+            -moz-tab-size: 4;
+            word-break: normal;
+        }
+        .code-block .comment {
+            color: #94a3b8;
+        }
+        .code-block .keyword {
+            color: #f472b6;
+        }
+        .code-block .func {
+            color: #60a5fa;
+        }
+        .code-block .string {
+            color: #a3e635;
+        }
+        .code-block .number {
+            color: #fbbf24;
+        }
+        .code-block .error-mark {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 3px solid #ef4444;
+            padding-left: 8px;
+        }
+        .code-block .type {
+            color: #c084fc;
+        }
+        .code-block .op {
+            color: #f472b6;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #ecf1f6;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .info-box {
+            background: #f1f5f9;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border-left: 4px solid #2563eb;
+            margin: 16px 0;
+        }
+        .info-box strong {
+            color: #0f172a;
+        }
+
+        .btn-top {
+            display: inline-block;
+            padding: 10px 24px;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-top:hover {
+            background: #1d4ed8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0 24px;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9edf2;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .nav-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .nav-links {
+                gap: 12px;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .scroll-anchor {
+            scroll-margin-top: 80px;
+        }
+
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .fw-600 {
+            font-weight: 600;
+        }
+        .text-muted {
+            color: #64748b;
+        }
+        .sub-section {
+            margin-top: 32px;
+        }
+        .sub-section h4 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .op-list {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+        .op-list li {
+            margin-bottom: 6px;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        .op-list li strong {
+            color: #0f172a;
+        }
+        .spec-block {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border: 1px solid #eef2f6;
+        }
+        .spec-block .label {
+            font-weight: 600;
+            color: #2563eb;
+            display: inline-block;
+            min-width: 120px;
+        }
+        .spec-block .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+            padding: 2px 0;
+        }
+        .spec-block .row .label {
+            font-weight: 600;
+            color: #475569;
+        }
+        .inline-code {
+            background: #eef2f6;
+            padding: 0 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PIN-оверлей -->
+    <div id="pin-overlay">
+        <div class="pin-box">
+            <h2>🔐 Доступ к работе</h2>
+            <p>Введите PIN-код для просмотра материалов</p>
+            <input type="password" id="pin-input" maxlength="4" placeholder="— — — —" inputmode="numeric">
+            <div class="error-msg" id="pin-error"></div>
+            <button id="pin-btn">Подтвердить</button>
+            <div class="hint">Подсказка: 4 цифры</div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div id="main-content" style="display: none;">
+
+        <!-- Навигация -->
+        <nav id="navbar">
+            <div class="container nav-inner">
+                <div class="logo">Практика <span>· Playlist</span></div>
+                <ul class="nav-links">
+                    <li><a href="#goal">Цель</a></li>
+                    <li><a href="#questions">Вопросы</a></li>
+                    <li><a href="#assignment">Задание</a></li>
+                    <li><a href="#spec">Спецификация</a></li>
+                    <li><a href="#code">Код</a></li>
+                    <li><a href="#tests">Тесты</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="container">
+                <div class="badge">Современные технологии программирования</div>
+                <h1>Разработка и модульное тестирование<br><span class="highlight">класса Playlist</span></h1>
+            </div>
+        </section>
+
+        <!-- Тема и Цель -->
+        <section id="goal" class="scroll-anchor">
+            <div class="container">
+                <div class="section-title"><span class="number">1</span> Тема и цель</div>
+                <div class="card-grid" style="grid-template-columns: 1fr;">
+                    <div class="card">
+                        <h3>Тема</h3>
+                        <p>Модульное тестирование классов на C++.</p>
+                        <h3 style="margin-top: 16px;">Цель</h3>
+                        <p>Сформировать практические навыки разработки на C++ и модульного тестирования классов.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Вопросы для обсуждения -->
+        <section id="questions" class="scroll-anchor">
+            <div class="container">
+                <div class="section-title"><span class="number">2</span> Вопросы для обсуждения</div>
+                <div class="card-grid">
+                    <div class="card">
+                        <ul>
+                            <li>Описание класса</li>
+                            <li>Простые свойства. Индексаторы (<code>operator[]</code>).</li>
+                            <li>Метод для чтения.</li>
+                            <li>Метод для записи.</li>
+                            <li>Связь свойства с полем.</li>
+                            <li>Модульное тестирование.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Задание -->
+        <section id="assignment" class="scroll-anchor">
+            <div class="container">
+                <div class="section-title"><span class="number">3</span> Задание</div>
+                <div class="card">
+                    <p>Разработайте класс <code>Playlist</code> для хранения и обработки списка музыкальных треков в соответствии со спецификацией требований, приведённой ниже.</p>
+                    <p class="mt-16">Разработайте тестовые наборы для тестирования методов класса на основе критерия C2 (покрытия путей).</p>
+                    <p class="mt-16">Выполните модульное тестирование класса средствами выбранного вами фреймворка тестирования C++ (Google Test или аналогичный).</p>
+                    <p class="mt-16">Выполните анализ покрытия кода методов тестами.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Спецификация -->
+        <section id="spec" class="scroll-anchor">
+            <div class="container">
+                <div class="section-title"><span class="number">4</span> Спецификация типа данных Playlist</div>
+
+                <!-- ADT Track -->
+                <div class="card">
+                    <h3>ADT Track</h3>
+                    <p>Вспомогательный тип, представляющий один трек.</p>
+                    <p><strong>Данные:</strong> название (<code>title</code>), исполнитель (<code>artist</code>), длительность в секундах (<code>durationSec</code>).</p>
+                    <p><strong>Равенство:</strong> два трека считаются одинаковыми, если совпадают <code>title</code> и <code>artist</code>. </p>
+
+                    <pre class="code-block"><span class="keyword">struct</span> <span class="type">Track</span> {
+        std::<span class="type">string</span> title;
+        std::<span class="type">string</span> artist;
+        <span class="keyword">int</span> durationSec;
+
+        <span class="keyword">bool</span> <span class="func">operator==</span>(<span class="keyword">const</span> Track<span class="op">&amp;</span> other) <span class="keyword">const</span> {
+            <span class="keyword">return</span> title <span class="op">==</span> other.title <span class="op">&amp;&amp;</span> artist <span class="op">==</span> other.artist;
+        }
+        <span class="keyword">bool</span> <span class="func">operator!=</span>(<span class="keyword">const</span> Track<span class="op">&amp;</span> other) <span class="keyword">const</span> {
+            <span class="keyword">return</span> <span class="op">!</span>(<span class="op">*</span><span class="keyword">this</span> <span class="op">==</span> other);
+        }
+    };</pre>
+                </div>
+
+                <!-- ADT Playlist -->
+                <div class="card" style="margin-top: 24px;">
+                    <h3>ADT Playlist</h3>
+                    <p><strong>Данные</strong></p>
+                    <p>Плейлист (тип <code>Playlist</code>) — упорядоченный список треков ограниченной вместимости. Объект типа <code>Playlist</code> — неизменяемый относительно своей вместимости (capacity задаётся один раз в конструкторе и не меняется).</p>
+
+                    <p style="margin-top: 16px;"><strong>Операции</strong></p>
+
+                    <!-- Конструктор -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Конструктор (Playlist)</span></div>
+                        <div class="row"><span class="label">Вход:</span> <code>capacity</code> — максимальное число треков в плейлисте (int).</div>
+                        <div class="row"><span class="label">Предусловия:</span> <code>capacity</code> должно быть больше 0.</div>
+                        <div class="row"><span class="label">Процесс:</span> Создаёт пустой плейлист заданной вместимости. Заносит вместимость в соответствующее свойство <code>Capacity</code>. Число треков (<code>Count</code>) устанавливается в 0.</div>
+                        <div class="row"><span class="label">Выход:</span> —</div>
+                        <div class="row"><span class="label">Постусловия:</span> <code>Count == 0</code>.</div>
+                        <div class="row"><span class="label">Исключения:</span> <code>PlaylistException</code>, если <code>capacity &lt;= 0</code>.</div>
+                    </div>
+
+                    <!-- Взять элемент -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Взять элемент с индексом i (<code>this[i]</code>)</span></div>
+                        <div class="row"><span class="label">Вход:</span> Значение <code>i</code> типа int.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Значение <code>i</code> должно находиться в диапазоне <code>[0, Count - 1]</code>.</div>
+                        <div class="row"><span class="label">Процесс:</span> Возвращает трек с индексом <code>i</code>.</div>
+                        <div class="row"><span class="label">Выход:</span> Значение типа <code>Track</code>.</div>
+                        <div class="row"><span class="label">Постусловия:</span> Нет.</div>
+                        <div class="row"><span class="label">Исключения:</span> <code>PlaylistException</code>, если <code>i</code> вне диапазона.</div>
+                    </div>
+
+                    <!-- Записать элемент -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Записать элемент с индексом i (<code>this[i] = track</code>)</span></div>
+                        <div class="row"><span class="label">Вход:</span> Значение <code>i</code> типа int, <code>track</code> типа <code>Track</code>.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Значение <code>i</code> должно находиться в диапазоне <code>[0, Count - 1]</code> (запись возможна только в уже занятую позицию — для добавления нового трека используется <code>Add</code>).</div>
+                        <div class="row"><span class="label">Процесс:</span> Заменяет трек с индексом <code>i</code> на переданный.</div>
+                        <div class="row"><span class="label">Выход:</span> —</div>
+                        <div class="row"><span class="label">Постусловия:</span> Нет.</div>
+                        <div class="row"><span class="label">Исключения:</span> <code>PlaylistException</code>, если <code>i</code> вне диапазона.</div>
+                    </div>
+
+                    <!-- Равно -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Равно (<code>operator==</code>)</span></div>
+                        <div class="row"><span class="label">Вход:</span> <code>other</code> — объект типа <code>Playlist</code>.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Нет.</div>
+                        <div class="row"><span class="label">Процесс:</span> Возвращает <code>true</code>, если число треков совпадает и все треки на одинаковых позициях равны (в порядке следования).</div>
+                        <div class="row"><span class="label">Выход:</span> Значение типа <code>bool</code>.</div>
+                        <div class="row"><span class="label">Постусловия:</span> Нет.</div>
+                    </div>
+
+                    <!-- Добавить трек -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Добавить трек (Add)</span></div>
+                        <div class="row"><span class="label">Вход:</span> <code>track</code> типа <code>Track</code>.</div>
+                        <div class="row"><span class="label">Предусловия:</span> <code>Count &lt; Capacity</code> (есть свободное место); в плейлисте не должно быть трека, равного добавляемому (см. равенство <code>Track</code>).</div>
+                        <div class="row"><span class="label">Процесс:</span> Добавляет трек в конец плейлиста, увеличивает <code>Count</code> на 1.</div>
+                        <div class="row"><span class="label">Выход:</span> —</div>
+                        <div class="row"><span class="label">Постусловия:</span> <code>Count</code> увеличился на 1.</div>
+                        <div class="row"><span class="label">Исключения:</span> <code>PlaylistException</code> при переполнении; <code>PlaylistException</code> при дубликате.</div>
+                    </div>
+
+                    <!-- Объединить -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Объединить (Merge)</span></div>
+                        <div class="row"><span class="label">Вход:</span> <code>other</code> — объект типа <code>Playlist</code>.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Суммарное число треков (с учётом исключения дубликатов) не должно превышать <code>Capacity</code> текущего плейлиста; при совпадении трека в обоих плейлистах он не дублируется, а пропускается.</div>
+                        <div class="row"><span class="label">Процесс:</span> Последовательно добавляет в текущий плейлист все треки из <code>other</code>, которых в нём ещё нет.</div>
+                        <div class="row"><span class="label">Выход:</span> —</div>
+                        <div class="row"><span class="label">Постусловия:</span> <code>Count</code> увеличивается на число реально добавленных (уникальных) треков.</div>
+                        <div class="row"><span class="label">Исключения:</span> <code>PlaylistException</code>, если вместимости не хватает для всех уникальных треков <code>other</code>.</div>
+                    </div>
+
+                    <!-- Убрать треки -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Убрать треки исполнителя/треки другого плейлиста (RemoveTracksOf)</span></div>
+                        <div class="row"><span class="label">Вход:</span> <code>other</code> — объект типа <code>Playlist</code>.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Хотя бы один трек из <code>other</code> должен присутствовать в текущем плейлисте.</div>
+                        <div class="row"><span class="label">Процесс:</span> Удаляет из текущего плейлиста все треки, которые встречаются в <code>other</code>; оставшиеся треки сдвигаются, сохраняя порядок.</div>
+                        <div class="row"><span class="label">Выход:</span> —</div>
+                        <div class="row"><span class="label">Постусловия:</span> <code>Count</code> уменьшается на число реально удалённых треков.</div>
+                        <div class="row"><span class="label">Исключения:</span> <code>PlaylistException</code>, если ни один трек из <code>other</code> не найден в текущем плейлисте.</div>
+                    </div>
+
+                    <!-- Суммарная длительность -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Суммарная длительность (TotalDuration)</span></div>
+                        <div class="row"><span class="label">Вход:</span> Нет.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Нет.</div>
+                        <div class="row"><span class="label">Процесс:</span> Суммирует <code>durationSec</code> всех треков плейлиста.</div>
+                        <div class="row"><span class="label">Выход:</span> Значение типа int (секунды).</div>
+                        <div class="row"><span class="label">Постусловия:</span> Нет.</div>
+                    </div>
+
+                    <!-- Найти трек исполнителя -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Найти трек исполнителя (FindByArtist)</span></div>
+                        <div class="row"><span class="label">Вход:</span> <code>artist</code> типа <code>std::string</code>.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Нет.</div>
+                        <div class="row"><span class="label">Процесс:</span> Ищет первый по порядку трек, у которого <code>artist</code> совпадает с переданным.</div>
+                        <div class="row"><span class="label">Выход:</span> Индекс найденного трека (int).</div>
+                        <div class="row"><span class="label">Постусловия:</span> Нет.</div>
+                        <div class="row"><span class="label">Исключения:</span> <code>PlaylistException</code>, если трек исполнителя не найден.</div>
+                    </div>
+
+                    <!-- Преобразовать в строку -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Преобразовать в строку (ToString)</span></div>
+                        <div class="row"><span class="label">Вход:</span> Нет.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Нет.</div>
+                        <div class="row"><span class="label">Процесс:</span> Формирует строковое представление плейлиста, по одному треку на строку, в формате <code>Исполнитель — Название (мм:сс)</code>.</div>
+                        <div class="row"><span class="label">Выход:</span> <code>std::string</code>.</div>
+                        <div class="row"><span class="label">Постусловия:</span> Нет.</div>
+                    </div>
+
+                    <!-- Взять вместимость / число треков -->
+                    <div class="spec-block">
+                        <div class="row"><span class="label">Взять вместимость (Capacity) / число треков (Count)</span></div>
+                        <div class="row"><span class="label">Вход:</span> Нет.</div>
+                        <div class="row"><span class="label">Предусловия:</span> Нет.</div>
+                        <div class="row"><span class="label">Процесс:</span> Возвращает значение соответствующего свойства.</div>
+                        <div class="row"><span class="label">Выход:</span> int.</div>
+                        <div class="row"><span class="label">Постусловия:</span> Нет.</div>
+                    </div>
+
+                    <p class="text-muted mt-16" style="font-size:0.9rem;"><em>end Playlist</em></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Пример описания класса (код) -->
+        <section id="code" class="scroll-anchor">
+            <div class="container">
+                <div class="section-title"><span class="number">5</span> Пример описания класса (заготовка для доработки)</div>
+
+                <div class="card">
+                    <p><strong>Playlist.h</strong></p>
+                    <pre class="code-block"><span class="comment">// Playlist.h</span>
+        <span class="keyword">#pragma</span> once
+        <span class="keyword">#include</span> &lt;string&gt;
+        <span class="keyword">#include</span> &lt;stdexcept&gt;
+
+        <span class="keyword">struct</span> <span class="type">Track</span> {
+            std::<span class="type">string</span> title;
+            std::<span class="type">string</span> artist;
+            <span class="keyword">int</span> durationSec;
+
+            <span class="keyword">bool</span> <span class="func">operator==</span>(<span class="keyword">const</span> Track<span class="op">&amp;</span> other) <span class="keyword">const</span> {
+                <span class="keyword">return</span> title <span class="op">==</span> other.title <span class="op">&amp;&amp;</span> artist <span class="op">==</span> other.artist;
+            }
+            <span class="keyword">bool</span> <span class="func">operator!=</span>(<span class="keyword">const</span> Track<span class="op">&amp;</span> other) <span class="keyword">const</span> {
+                <span class="keyword">return</span> <span class="op">!</span>(<span class="op">*</span><span class="keyword">this</span> <span class="op">==</span> other);
+            }
+        };
+
+        <span class="keyword">class</span> <span class="type">PlaylistException</span> : <span class="keyword">public</span> std::<span class="type">runtime_error</span> {
+        <span class="keyword">public</span>:
+            <span class="func">explicit</span> PlaylistException(<span class="keyword">const</span> std::<span class="type">string</span><span class="op">&amp;</span> message)
+                : std::<span class="func">runtime_error</span>(message) {}
+        };
+
+        <span class="keyword">class</span> <span class="type">Playlist</span> {
+        <span class="keyword">private</span>:
+            Track<span class="op">*</span> tracks;
+            <span class="keyword">int</span> capacity;
+            <span class="keyword">int</span> count;
+
+        <span class="keyword">public</span>:
+            <span class="comment">// Конструктор.</span>
+            <span class="func">explicit</span> Playlist(<span class="keyword">int</span> capacity);
+
+            <span class="comment">// Конструктор копирования, оператор присваивания, деструктор.</span>
+            Playlist(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other);
+            Playlist<span class="op">&amp;</span> <span class="func">operator=</span>(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other);
+            <span class="func">~Playlist</span>();
+
+            <span class="comment">// Свойства.</span>
+            <span class="keyword">int</span> <span class="func">Capacity</span>() <span class="keyword">const</span> { <span class="keyword">return</span> capacity; }
+            <span class="keyword">int</span> <span class="func">Count</span>() <span class="keyword">const</span> { <span class="keyword">return</span> count; }
+
+            <span class="comment">// Индексатор.</span>
+            <span class="keyword">const</span> Track<span class="op">&amp;</span> <span class="func">operator[]</span>(<span class="keyword">int</span> i) <span class="keyword">const</span>;
+            Track<span class="op">&amp;</span> <span class="func">operator[]</span>(<span class="keyword">int</span> i);
+
+            <span class="comment">// Равенство.</span>
+            <span class="keyword">bool</span> <span class="func">operator==</span>(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other) <span class="keyword">const</span>;
+            <span class="keyword">bool</span> <span class="func">operator!=</span>(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other) <span class="keyword">const</span> { <span class="keyword">return</span> <span class="op">!</span>(<span class="op">*</span><span class="keyword">this</span> <span class="op">==</span> other); }
+
+            <span class="comment">// Методы.</span>
+            <span class="keyword">void</span> <span class="func">Add</span>(<span class="keyword">const</span> Track<span class="op">&amp;</span> track);
+            <span class="keyword">void</span> <span class="func">Merge</span>(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other);
+            <span class="keyword">void</span> <span class="func">RemoveTracksOf</span>(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other);
+            <span class="keyword">int</span> <span class="func">TotalDuration</span>() <span class="keyword">const</span>;
+            <span class="keyword">int</span> <span class="func">FindByArtist</span>(<span class="keyword">const</span> std::<span class="type">string</span><span class="op">&amp;</span> artist) <span class="keyword">const</span>;
+            std::<span class="type">string</span> <span class="func">ToString</span>() <span class="keyword">const</span>;
+
+        <span class="keyword">private</span>:
+            <span class="keyword">bool</span> <span class="func">Contains</span>(<span class="keyword">const</span> Track<span class="op">&amp;</span> track) <span class="keyword">const</span>;
+        };</pre>
+
+                    <p style="margin-top:20px;"><strong>Playlist.cpp — частичная реализация (для примера; часть методов оставлена как задание студентам)</strong></p>
+                    <pre class="code-block"><span class="comment">// Playlist.cpp — частичная реализация (для примера; часть методов оставлена как задание студентам)</span>
+        <span class="keyword">#include</span> <span class="string">"Playlist.h"</span>
+        <span class="keyword">#include</span> &lt;sstream&gt;
+        <span class="keyword">#include</span> &lt;iomanip&gt;
+
+        Playlist::<span class="func">Playlist</span>(<span class="keyword">int</span> capacity) {
+            <span class="keyword">if</span> (capacity <span class="op">&lt;=</span> 0)
+                <span class="keyword">throw</span> PlaylistException(<span class="string">"недопустимое значение вместимости = "</span> <span class="op">+</span> std::<span class="func">to_string</span>(capacity));
+            <span class="keyword">this</span><span class="op">-&gt;</span>capacity <span class="op">=</span> capacity;
+            <span class="keyword">this</span><span class="op">-&gt;</span>count <span class="op">=</span> 0;
+            <span class="keyword">this</span><span class="op">-&gt;</span>tracks <span class="op">=</span> <span class="keyword">new</span> Track[capacity];
+        }
+
+        Playlist::<span class="func">Playlist</span>(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other) {
+            capacity <span class="op">=</span> other.capacity;
+            count <span class="op">=</span> other.count;
+            tracks <span class="op">=</span> <span class="keyword">new</span> Track[capacity];
+            <span class="keyword">for</span> (<span class="keyword">int</span> i <span class="op">=</span> 0; i <span class="op">&lt;</span> count; i<span class="op">++</span>)
+                tracks[i] <span class="op">=</span> other.tracks[i];
+        }
+
+        Playlist<span class="op">&amp;</span> Playlist::<span class="func">operator=</span>(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other) {
+            <span class="keyword">if</span> (<span class="keyword">this</span> <span class="op">==</span> <span class="op">&amp;</span>other)
+                <span class="keyword">return</span> <span class="op">*</span><span class="keyword">this</span>;
+            <span class="keyword">delete[]</span> tracks;
+            capacity <span class="op">=</span> other.capacity;
+            count <span class="op">=</span> other.count;
+            tracks <span class="op">=</span> <span class="keyword">new</span> Track[capacity];
+            <span class="keyword">for</span> (<span class="keyword">int</span> i <span class="op">=</span> 0; i <span class="op">&lt;</span> count; i<span class="op">++</span>)
+                tracks[i] <span class="op">=</span> other.tracks[i];
+            <span class="keyword">return</span> <span class="op">*</span><span class="keyword">this</span>;
+        }
+
+        Playlist::<span class="func">~Playlist</span>() {
+            <span class="keyword">delete[]</span> tracks;
+        }
+
+        <span class="keyword">const</span> Track<span class="op">&amp;</span> Playlist::<span class="func">operator[]</span>(<span class="keyword">int</span> i) <span class="keyword">const</span> {
+            <span class="keyword">if</span> (i <span class="op">&lt;</span> 0 <span class="op">||</span> i <span class="op">&gt;</span> count <span class="op">-</span> 1)
+                <span class="keyword">throw</span> PlaylistException(<span class="string">"неверное значение индекса i = "</span> <span class="op">+</span> std::<span class="func">to_string</span>(i));
+            <span class="keyword">return</span> tracks[i];
+        }
+
+        Track<span class="op">&amp;</span> Playlist::<span class="func">operator[]</span>(<span class="keyword">int</span> i) {
+            <span class="keyword">if</span> (i <span class="op">&lt;</span> 0 <span class="op">||</span> i <span class="op">&gt;</span> count <span class="op">-</span> 1)
+                <span class="keyword">throw</span> PlaylistException(<span class="string">"неверное значение индекса i = "</span> <span class="op">+</span> std::<span class="func">to_string</span>(i));
+            <span class="keyword">return</span> tracks[i];
+        }
+
+        <span class="keyword">bool</span> Playlist::<span class="func">operator==</span>(<span class="keyword">const</span> Playlist<span class="op">&amp;</span> other) <span class="keyword">const</span> {
+            <span class="keyword">if</span> (count <span class="op">!=</span> other.count)
+                <span class="keyword">return</span> <span class="keyword">false</span>;
+            <span class="keyword">for</span> (<span class="keyword">int</span> i <span class="op">=</span> 0; i <span class="op">&lt;</span> count; i<span class="op">++</span>) {
+                <span class="keyword">if</span> (tracks[i] <span class="op">!=</span> other.tracks[i])
+                    <span class="keyword">return</span> <span class="keyword">false</span>;
+            }
+            <span class="keyword">return</span> <span class="keyword">true</span>;
+        }
+
+        <span class="keyword">bool</span> Playlist::<span class="func">Contains</span>(<span class="keyword">const</span> Track<span class="op">&amp;</span> track) <span class="keyword">const</span> {
+            <span class="keyword">for</span> (<span class="keyword">int</span> i <span class="op">=</span> 0; i <span class="op">&lt;</span> count; i<span class="op">++</span>) {
+                <span class="keyword">if</span> (tracks[i] <span class="op">==</span> track)
+                    <span class="keyword">return</span> <span class="keyword">true</span>;
+            }
+            <span class="keyword">return</span> <span class="keyword">false</span>;
+        }
+
+        <span class="keyword">void</span> Playlist::<span class="func">Add</span>(<span class="keyword">const</span> Track<span class="op">&amp;</span> track) {
+            <span class="keyword">if</span> (count <span class="op">&gt;=</span> capacity)
+                <span class="keyword">throw</span> PlaylistException(<span class="string">"плейлист заполнен, вместимость = "</span> <span class="op">+</span> std::<span class="func">to_string</span>(capacity));
+            <span class="keyword">if</span> (Contains(track))
+                <span class="keyword">throw</span> PlaylistException(<span class="string">"трек уже есть в плейлисте: "</span> <span class="op">+</span> track.artist <span class="op">+</span> <span class="string">" - "</span> <span class="op">+</span> track.title);
+            tracks[count] <span class="op">=</span> track;
+            count<span class="op">++</span>;
+        }
+
+        <span class="keyword">int</span> Playlist::<span class="func">TotalDuration</span>() <span class="keyword">const</span> {
+            <span class="keyword">int</span> total <span class="op">=</span> 0;
+            <span class="keyword">for</span> (<span class="keyword">int</span> i <span class="op">=</span> 0; i <span class="op">&lt;</span> count; i<span class="op">++</span>)
+                total <span class="op">+=</span> tracks[i].durationSec;
+            <span class="keyword">return</span> total;
+        }
+
+        std::<span class="type">string</span> Playlist::<span class="func">ToString</span>() <span class="keyword">const</span> {
+            std::<span class="type">ostringstream</span> out;
+            <span class="keyword">for</span> (<span class="keyword">int</span> i <span class="op">=</span> 0; i <span class="op">&lt;</span> count; i<span class="op">++</span>) {
+                <span class="keyword">int</span> m <span class="op">=</span> tracks[i].durationSec <span class="op">/</span> 60;
+                <span class="keyword">int</span> s <span class="op">=</span> tracks[i].durationSec <span class="op">%</span> 60;
+                out <span class="op">&lt;&lt;</span> tracks[i].artist <span class="op">&lt;&lt;</span> <span class="string">" - "</span> <span class="op">&lt;&lt;</span> tracks[i].title
+                    <span class="op">&lt;&lt;</span> <span class="string">" ("</span> <span class="op">&lt;&lt;</span> m <span class="op">&lt;&lt;</span> <span class="string">":"</span> <span class="op">&lt;&lt;</span> std::<span class="func">setw</span>(2) <span class="op">&lt;&lt;</span> std::<span class="func">setfill</span>(<span class="string">'0'</span>) <span class="op">&lt;&lt;</span> s <span class="op">&lt;&lt;</span> <span class="string">")\n"</span>;
+            }
+            <span class="keyword">return</span> out.<span class="func">str</span>();
+        }
+
+        <span class="comment">// Merge, RemoveTracksOf и FindByArtist оставлены как самостоятельные</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Пример модульного теста -->
+        <section id="tests" class="scroll-anchor">
+            <div class="container">
+                <div class="section-title"><span class="number">6</span> Пример модульного теста (Google Test, для ориентира)</div>
+
+                <div class="card">
+                    <pre class="code-block"><span class="keyword">#include</span> <span class="string">&lt;gtest/gtest.h&gt;</span>
+        <span class="keyword">#include</span> <span class="string">"Playlist.h"</span>
+
+        TEST(PlaylistTests, Constructor_Expected_Exception_OnZeroCapacity) {
+            EXPECT_THROW(Playlist p(0), PlaylistException);
+        }
+
+        TEST(PlaylistTests, Indexer_Expected_Exception_OnOutOfRange) {
+            Playlist p(2);
+            p.Add({<span class="string">"Song A"</span>, <span class="string">"Artist A"</span>, 200});
+            EXPECT_THROW(p[5], PlaylistException);
+        }
+
+        TEST(PlaylistTests, Add_Expected_Exception_OnDuplicate) {
+            Playlist p(2);
+            p.Add({<span class="string">"Song A"</span>, <span class="string">"Artist A"</span>, 200});
+            EXPECT_THROW(p.Add({<span class="string">"Song A"</span>, <span class="string">"Artist A"</span>, 250}), PlaylistException);
+        }
+
+        TEST(PlaylistTests, Add_Expected_Exception_OnOverflow) {
+            Playlist p(1);
+            p.Add({<span class="string">"Song A"</span>, <span class="string">"Artist A"</span>, 200});
+            EXPECT_THROW(p.Add({<span class="string">"Song B"</span>, <span class="string">"Artist B"</span>, 180}), PlaylistException);
+        }
+
+        TEST(PlaylistTests, Equal_SamePlaylists_ReturnsTrue) {
+            Playlist a(2);
+            a.Add({<span class="string">"Song A"</span>, <span class="string">"Artist A"</span>, 200});
+            Playlist b(2);
+            b.Add({<span class="string">"Song A"</span>, <span class="string">"Artist A"</span>, 200});
+            EXPECT_TRUE(a == b);
+        }
+
+        TEST(PlaylistTests, TotalDuration_ReturnsSumOfTracks) {
+            Playlist p(2);
+            p.Add({<span class="string">"Song A"</span>, <span class="string">"Artist A"</span>, 200});
+            p.Add({<span class="string">"Song B"</span>, <span class="string">"Artist B"</span>, 100});
+            EXPECT_EQ(p.TotalDuration(), 300);
+        }
+
+        <span class="comment">// Тесты для Merge, RemoveTracksOf и FindByArtist — самостоятельно</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Указания к выполнению + Таблица -->
+        <section id="report" class="scroll-anchor">
+            <div class="container">
+                <div class="section-title"><span class="number">7</span> Указания к выполнению</div>
+
+                <div class="card">
+                    <ol style="padding-left:20px;color:#334155;font-size:0.95rem;">
+                        <li>Создайте проект — консольное приложение (или библиотеку) под именем <code>PlaylistApp</code>. В его состав включите <code>Track.h</code>, <code>Playlist.h</code>, <code>Playlist.cpp</code>.</li>
+                        <li>Добавьте в проект тестовый модуль (Google Test ).</li>
+                        <li>Реализуйте класс <code>Playlist</code> полностью в соответствии со спецификацией (методы <code>Merge</code>, <code>RemoveTracksOf</code>, <code>FindByArtist</code> — реализовать самостоятельно).</li>
+                        <li>Протестируйте класс, добавляя тестовые методы, покрывающие все независимые пути каждого метода (критерий C2).</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <p>Практическая работа · Разработка и модульное тестирование класса Playlist на C++</p>
+                <p style="margin-top:8px;font-size:0.8rem;">Современные технологии программирования · 2026</p>
+            </div>
+        </footer>
+
+    </div> <!-- /main-content -->
+
+    <script>
+        (function() {
+            const overlay = document.getElementById('pin-overlay');
+            const mainContent = document.getElementById('main-content');
+            const pinInput = document.getElementById('pin-input');
+            const pinBtn = document.getElementById('pin-btn');
+            const pinError = document.getElementById('pin-error');
+
+            const CORRECT_PIN_BASE64 = 'NDMyMQ==';
+
+            if (sessionStorage.getItem('pin_verified') === 'true') {
+                overlay.classList.add('hidden');
+                mainContent.style.display = 'block';
+                return;
+            }
+
+            function verifyPin() {
+                const entered = pinInput.value.trim();
+                if (entered === '') {
+                    pinError.textContent = 'Введите PIN-код.';
+                    return;
+                }
+                const enteredBase64 = btoa(entered);
+                if (enteredBase64 === CORRECT_PIN_BASE64) {
+                    sessionStorage.setItem('pin_verified', 'true');
+                    overlay.classList.add('hidden');
+                    mainContent.style.display = 'block';
+                    pinError.textContent = '';
+                } else {
+                    pinError.textContent = 'Неверный PIN-код. Попробуйте ещё раз.';
+                    pinInput.value = '';
+                    pinInput.focus();
+                }
+            }
+
+            pinBtn.addEventListener('click', verifyPin);
+            pinInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    verifyPin();
+                }
+            });
+            pinInput.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 4);
+            });
+            pinInput.focus();
+
+            // Плавный скролл по якорям
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        const offset = 80;
+                        const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({ top, behavior: 'smooth' });
+                    }
+                });
+            });
+
+            const nav = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 20) nav.classList.add('scrolled');
+                else nav.classList.remove('scrolled');
+            });
+        })();
+    </script>
+
+</body>
+</html>
