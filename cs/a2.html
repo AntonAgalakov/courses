@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аудиторный практикум №2 · Информатика</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        #pin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        #pin-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .pin-box {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 40px 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .pin-box h2 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+        .pin-box p {
+            color: #475569;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .pin-box input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 4px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: border 0.2s;
+            font-weight: 600;
+        }
+        .pin-box input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        .pin-box .error-msg {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            height: 24px;
+            font-weight: 500;
+        }
+        .pin-box button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pin-box button:hover {
+            background: #1d4ed8;
+        }
+        .pin-box .hint {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 16px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 0;
+            transition: box-shadow 0.3s;
+        }
+        nav.scrolled {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #2563eb;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            color: #0f172a;
+            font-weight: 400;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+            transition: color 0.2s;
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-links a:hover {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        .hero {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero h1 .highlight {
+            color: #2563eb;
+        }
+        .hero p.sub {
+            font-size: 1.2rem;
+            color: #475569;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        section {
+            padding: 48px 0;
+            border-bottom: 1px solid #e9edf2;
+        }
+        section:last-of-type {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title .number {
+            background: #2563eb;
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .task-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 28px 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            border: 1px solid #eef2f6;
+            transition: box-shadow 0.2s;
+        }
+        .task-card:hover {
+            box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+        }
+        .task-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .task-card p, .task-card li {
+            font-size: 1.05rem;
+            color: #1e293b;
+            line-height: 1.7;
+        }
+        .task-card ul {
+            padding-left: 24px;
+            margin: 10px 0;
+        }
+        .task-card ul li {
+            margin-bottom: 6px;
+        }
+        .task-card .subpart {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed #d1d5db;
+        }
+        .task-card .subpart:first-of-type {
+            border-top: none;
+            margin-top: 0;
+            padding-top: 0;
+        }
+        .example-block {
+            background: #fef9e7;
+            border-left: 6px solid #f59e0b;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 16px 0 12px 0;
+        }
+        .example-block .label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #b45309;
+            margin-bottom: 8px;
+        }
+        .info-box {
+            background: #f1f5f9;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border-left: 4px solid #2563eb;
+            margin: 16px 0;
+        }
+        .info-box strong {
+            color: #0f172a;
+        }
+        .num-highlight {
+            background: #e0f2fe;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-family: monospace;
+            font-size: 1.05em;
+        }
+        .scroll-anchor {
+            scroll-margin-top: 80px;
+        }
+        .sub {
+            font-size: 0.7em;
+            vertical-align: sub;
+        }
+        .sup {
+            font-size: 0.7em;
+            vertical-align: super;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 0 24px;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9edf2;
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .nav-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .nav-links {
+                gap: 12px;
+            }
+            .section-title {
+                font-size: 1.6rem;
+            }
+            .task-card {
+                padding: 20px;
+            }
+            .task-card h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PIN-оверлей -->
+    <div id="pin-overlay">
+        <div class="pin-box">
+            <h2>Доступ к работе</h2>
+            <p>Введите пароль для просмотра материалов</p>
+            <input type="password" id="pin-input" placeholder="введите пароль" style="letter-spacing: 2px;">
+            <div class="error-msg" id="pin-error"></div>
+            <button id="pin-btn">Подтвердить</button>
+            <div class="hint">Подсказка: <strong>абсд</strong></div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div id="main-content" style="display: none;">
+
+        <nav id="navbar">
+            <div class="container nav-inner">
+                <div class="logo">Аудиторный практикум<span>№2</span></div>
+                <ul class="nav-links">
+                    <li><a href="#part-a">Часть A</a></li>
+                    <li><a href="#part-b">Часть B</a></li>
+                    <li><a href="#part-c">Часть C–E</a></li>
+                    <li><a href="#part-f">Часть F</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="container">
+                <div class="badge">Информатика</div>
+                <h1>Двоичная арифметика и <br><span class="highlight">представление чисел в ЭВМ</span></h1>
+            </div>
+        </section>
+
+        <div class="container">
+
+            <!-- ============================================================ -->
+            <!-- ЧАСТЬ A – Бинарная арифметика                                 -->
+            <!-- ============================================================ -->
+            <section id="part-a" class="scroll-anchor">
+                <div class="section-title"><span class="number">A</span> Бинарная арифметика</div>
+                <div class="task-list">
+
+                    <div class="task-card">
+                        <h3>Задание A1 – Умножение</h3>
+                        <p>Выполните умножение двоичных чисел:</p>
+                        <ol style="padding-left: 24px;">
+                            <li><strong>101₂ · 11₂</strong></li>
+                            <li><strong>1011₂ · 101₂</strong></li>
+                        </ol>
+                        <p>Результат запишите в двоичной системе, а для проверки укажите десятичный эквивалент.</p>
+                    </div>
+
+                    <div class="task-card">
+                        <h3>Задание A2 – Вычитание</h3>
+                        <p>Выполните вычитание:</p>
+                        <ol style="padding-left: 24px;">
+                            <li><strong>10111₂ − 1000₂</strong></li>
+                            <li><strong>10101₂ − 10₂</strong></li>
+                            <li><strong>101₂ − 110₂</strong> (результат отрицательный – запишите со знаком минус)</li>
+                        </ol>
+                    </div>
+
+                    <div class="task-card">
+                        <h3>Задание A3 – Деление</h3>
+                        <p>Выполните деление нацело:</p>
+                        <ol style="padding-left: 24px;">
+                            <li><strong>1111₂ ÷ 11₂</strong></li>
+                            <li><strong>11001₂ ÷ 101₂</strong></li>
+                            <li><strong>1101₂ ÷ 10₂</strong> (запишите частное и остаток)</li>
+                        </ol>
+                    </div>
+
+                    <div class="task-card">
+                        <h3>Задание A4 – Сложение с переносом и двоичные дроби</h3>
+                        <ol style="padding-left: 24px;">
+                            <li><strong>1111₂ + 0001₂</strong></li>
+                            <li><strong>0.101₂ + 0.011₂</strong></li>
+                        </ol>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ЧАСТЬ B – Дополнительный код                                  -->
+            <!-- ============================================================ -->
+            <section id="part-b" class="scroll-anchor">
+                <div class="section-title"><span class="number">B</span> 8‑битный дополнительный код</div>
+                <div class="task-list">
+
+                    <div class="task-card">
+                        <h3>Задание B1 – Операции в дополнительном коде</h3>
+                        <p>Для каждой операции переведите числа в 8‑битный дополнительный код, выполните сложение в столбик и переведите результат в десятичную систему:</p>
+                        <ol style="padding-left: 24px;">
+                            <li><strong>25 − 77</strong></li>
+                            <li><strong>−40 + 20</strong></li>
+                            <li><strong>100 − 30</strong></li>
+                            <li><strong>−125 + 1</strong></li>
+                        </ol>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ЧАСТИ C, D, E – Термометр, сравнение нуля, переполнение      -->
+            <!-- ============================================================ -->
+            <section id="part-c" class="scroll-anchor">
+                <div class="section-title"><span class="number">C–E</span> Практические задачи</div>
+                <div class="task-list">
+
+                    <div class="task-card">
+                        <h3>Задание C – Миша и термометр</h3>
+                        <p>Юный изобретатель Миша сконструировал умный термометр, использующий 8‑битный дополнительный код. При первом запуске система зафиксировала значение <span class="num-highlight">11011010</span>. Определите, какая температура в градусах Цельсия была зафиксирована.</p>
+                    </div>
+
+                    <div class="task-card">
+                        <h3>Задание D – Сравнение обратного и дополнительного кода</h3>
+                        <p>Кирилл разрабатывает систему балансировки гироскутера. Он заметил, что представление нуля в обратном и дополнительном кодах отличается.</p>
+                        <ul>
+                            <li>Как представляется ноль в <strong>8‑битном обратном коде</strong>?</li>
+                            <li>Как представляется ноль в <strong>8‑битном дополнительном коде</strong>?</li>
+                            <li>Какой код имеет преимущество и почему?</li>
+                        </ul>
+                    </div>
+
+                    <div class="task-card">
+                        <h3>Задание E – Переполнение в дополнительном коде</h3>
+                        <p>Данила забыл учесть переполнение. Система использует 8‑битный дополнительный код. В каких из следующих операций происходит переполнение, приводящее к искажению знака? Для каждого случая укажите, верный ли результат получается, и если нет – какой ошибочный десятичный результат выдаст система.</p>
+                        <ol style="padding-left: 24px;">
+                            <li><strong>20 + 15</strong></li>
+                            <li><strong>100 + 30</strong></li>
+                            <li><strong>127 + 1</strong></li>
+                            <li><strong>−89 − 89</strong></li>
+                        </ol>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ЧАСТЬ F – Вещественные числа (IEEE 754)                       -->
+            <!-- ============================================================ -->
+            <section id="part-f" class="scroll-anchor">
+                <div class="section-title"><span class="number">F</span> IEEE 754 (одинарная точность)</div>
+                <div class="task-list">
+
+                    <div class="task-card">
+                        <h3>Задание F1 – Перевод из десятичной в IEEE 754</h3>
+                        <p>Переведите следующие числа в 32‑битный формат. Для каждого покажите этапы: перевод в двоичную систему, нормализацию, вычисление смещённого порядка E, формирование мантиссы. Результат запишите в виде <strong>32‑битной двоичной строки</strong>.</p>
+                        <ol style="padding-left: 24px;">
+                            <li><strong>6.25</strong></li>
+                            <li><strong>−3.75</strong></li>
+                            <li><strong>0.125</strong></li>
+                            <li><strong>−0.5</strong></li>
+                        </ol>
+
+                    </div>
+
+                    <div class="task-card">
+                        <h3>Задание F2 – Обратный перевод из IEEE 754</h3>
+                        <p>Даны 32‑битные двоичные строки, представляющие числа в формате IEEE 754. Для каждой строки выделите знак, порядок и мантиссу, восстановите десятичное значение.</p>
+                        <ol style="padding-left: 24px;">
+                            <li><code>01000001001000000000000000000000</code></li>
+                            <li><code>11000000000000000000000000000000</code></li>
+                            <li><code>00111111100000000000000000000000</code></li>
+                            <li><code>10111111000000000000000000000000</code></li>
+                        </ol>
+                    </div>
+
+                </div>
+            </section>
+
+            <footer>
+                <p>Аудиторный практикум №2 · Двоичная арифметика и представление чисел в ЭВМ · 2026</p>
+                <p style="margin-top: 8px; font-size: 0.8rem;">Разработано в рамках учебного задания</p>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- PIN-скрипт -->
+    <script>
+        (function() {
+            const overlay = document.getElementById('pin-overlay');
+            const mainContent = document.getElementById('main-content');
+            const pinInput = document.getElementById('pin-input');
+            const pinBtn = document.getElementById('pin-btn');
+            const pinError = document.getElementById('pin-error');
+
+            const CORRECT_PASSWORD = 'абсд';
+
+            if (sessionStorage.getItem('pin_verified') === 'true') {
+                overlay.classList.add('hidden');
+                mainContent.style.display = 'block';
+                return;
+            }
+
+            function verifyPin() {
+                const entered = pinInput.value.trim();
+                if (entered === '') {
+                    pinError.textContent = 'Введите пароль.';
+                    return;
+                }
+                if (entered === CORRECT_PASSWORD) {
+                    sessionStorage.setItem('pin_verified', 'true');
+                    overlay.classList.add('hidden');
+                    mainContent.style.display = 'block';
+                    pinError.textContent = '';
+                } else {
+                    pinError.textContent = 'Неверный пароль. Попробуйте ещё раз.';
+                    pinInput.value = '';
+                    pinInput.focus();
+                }
+            }
+
+            pinBtn.addEventListener('click', verifyPin);
+            pinInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    verifyPin();
+                }
+            });
+            pinInput.focus();
+
+            // Плавный скролл по якорям
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        const offset = 80;
+                        const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({ top, behavior: 'smooth' });
+                    }
+                });
+            });
+
+            const nav = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 20) nav.classList.add('scrolled');
+                else nav.classList.remove('scrolled');
+            });
+        })();
+    </script>
+
+</body>
+</html>
