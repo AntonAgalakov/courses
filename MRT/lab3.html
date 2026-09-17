@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Практическая работа · Абстракция и шаблоны</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* ===== Основные стили ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        /* PIN-оверлей */
+        #pin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        #pin-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .pin-box {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 40px 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .pin-box h2 {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+        .pin-box p {
+            color: #475569;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .pin-box input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: border 0.2s;
+            font-weight: 600;
+        }
+        .pin-box input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        .pin-box .error-msg {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            height: 24px;
+            font-weight: 500;
+        }
+        .pin-box button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pin-box button:hover {
+            background: #1d4ed8;
+        }
+        .pin-box .hint {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 16px;
+        }
+
+        /* Контейнер и навигация */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 0;
+            transition: box-shadow 0.3s;
+        }
+        nav.scrolled {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #2563eb;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            color: #0f172a;
+            font-weight: 400;
+        }
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+            transition: color 0.2s;
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-links a:hover {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 60px 0 40px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        .hero h1 .highlight {
+            color: #2563eb;
+        }
+        .hero p.sub {
+            font-size: 1.2rem;
+            color: #475569;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1d4ed8;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        /* Секции */
+        section {
+            padding: 48px 0;
+            border-bottom: 1px solid #e9edf2;
+        }
+        section:last-of-type {
+            border-bottom: none;
+        }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title .number {
+            background: #2563eb;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+        }
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+        .card p,
+        .card li {
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        .card ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+        .card ul li {
+            margin-bottom: 4px;
+        }
+        .card-full {
+            grid-column: 1 / -1;
+        }
+
+        /* Блоки кода — теперь pre с сохранением форматирования */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin: 16px 0;
+            white-space: pre;
+            tab-size: 4;
+            -moz-tab-size: 4;
+            word-break: normal;
+        }
+        .code-block .comment {
+            color: #94a3b8;
+        }
+        .code-block .keyword {
+            color: #f472b6;
+        }
+        .code-block .func {
+            color: #60a5fa;
+        }
+        .code-block .string {
+            color: #a3e635;
+        }
+        .code-block .number {
+            color: #fbbf24;
+        }
+        .code-block .error-mark {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 3px solid #ef4444;
+            padding-left: 8px;
+        }
+        .code-block .type {
+            color: #c084fc;
+        }
+        .code-block .op {
+            color: #f472b6;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #ecf1f6;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .info-box {
+            background: #f1f5f9;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border-left: 4px solid #2563eb;
+            margin: 16px 0;
+        }
+        .info-box strong {
+            color: #0f172a;
+        }
+
+        .btn-top {
+            display: inline-block;
+            padding: 10px 24px;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-top:hover {
+            background: #1d4ed8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0 24px;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9edf2;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .nav-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .nav-links {
+                gap: 12px;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .scroll-anchor {
+            scroll-margin-top: 80px;
+        }
+
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .fw-600 {
+            font-weight: 600;
+        }
+        .text-muted {
+            color: #64748b;
+        }
+        .sub-section {
+            margin-top: 32px;
+        }
+        .sub-section h4 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+        .op-list {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+        .op-list li {
+            margin-bottom: 6px;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        .op-list li strong {
+            color: #0f172a;
+        }
+        .spec-block {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            border: 1px solid #eef2f6;
+        }
+        .spec-block .label {
+            font-weight: 600;
+            color: #2563eb;
+            display: inline-block;
+            min-width: 120px;
+        }
+        .spec-block .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+            padding: 2px 0;
+        }
+        .spec-block .row .label {
+            font-weight: 600;
+            color: #475569;
+        }
+        .inline-code {
+            background: #eef2f6;
+            padding: 0 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+    .arch{font-family:monospace;white-space:pre;background:#f8fafc;border:1px solid #eef2f6;border-radius:12px;padding:20px;overflow:auto}
+
+/* ADT operation blocks: layout follows the supplied PDF specification. */
+.spec-block {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #2563eb;
+    border-radius: 8px;
+    padding: 0;
+    margin: 20px 0;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+}
+.spec-block .row {
+    display: block;
+    padding: 10px 18px;
+    border-top: 1px solid #eef2f7;
+    line-height: 1.6;
+}
+.spec-block .row:first-child {
+    padding: 13px 18px;
+    border-top: 0;
+    background: #f8fafc;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+.spec-block .row:first-child .label {
+    color: #0f172a;
+    min-width: 0;
+    margin-right: 12px;
+}
+.spec-block .row:not(:first-child) .label {
+    display: block;
+    min-width: 0;
+    margin-bottom: 2px;
+    color: #475569;
+    font-weight: 700;
+}
+.spec-block .row:not(:first-child) {
+    color: #334155;
+}
+.spec-block code {
+    white-space: normal;
+}
+.architecture-diagram {
+    display: block;
+    max-width: 100%;
+    width: 900px;
+    height: auto;
+    margin: 24px auto;
+}
+.download-button {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #4f46e5;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.download-button:hover {
+    opacity: 0.85;
+}
+
+.class-role-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:16px; }
+.role-card { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:18px; }
+.role-card h4 { margin:0 0 9px; font-size:1.08rem; color:#0f172a; }
+.role-card p { margin:7px 0; color:#334155; line-height:1.55; }
+.role-card .muted { color:#64748b; font-size:.92rem; }
+@media (max-width: 800px) { .class-role-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<nav><div class="container nav-inner"><div class="logo">Практика <span>· СТП</span></div><ul class="nav-links"><li><a href="#goal">Цель</a></li><li><a href="#assignment">Задание</a></li><li><a href="#idea">Идея проекта</a></li><li><a href="#order">Порядок выполнения</a></li><li><a href="#task">Task</a></li><li><a href="#repository">Repository</a></li><li><a href="#manager">TaskManager</a></li><li><a href="#questions">Вопросы</a></li></ul></div></nav>
+<header class="hero"><div class="container"><div class="badge">Современные технологии программирования</div><h1>Абстракция и шаблоны<br/></h1><p class="sub">Менеджер задач</p></div></header>
+<div class="info-box">
+    <strong>Готовый проект</strong>
+
+    <p class="mt-16">
+        Скачайте подготовленный проект Task Manager.
+    </p>
+
+    <p class="mt-16">
+        <a href="TaskManager_FLTK.zip" download class="download-button">
+            Скачать проект
+        </a>
+    </p>
+</div>
+<section class="scroll-anchor" id="goal"><div class="container"><div class="section-title"><span class="number">1</span> Цель</div><div class="card"><p>Сформировать практические навыки реализации абстрактных типов данных в соответствии с заданной спецификацией с помощью классов C++ и шаблонов классов</p></div></div></section>
+
+<section class="scroll-anchor" id="assignment"><div class="container"><div class="section-title"><span class="number">2</span> Задание</div><div class="card"><ol>
+<li>Реализовать абстрактный тип данных «задача» (<code>Task</code>).</li>
+<li>Реализовать обобщённый тип данных «хранилище» (<code>Repository&lt;T&gt;</code>) с использованием шаблона класса C++.</li>
+<li>Реализовать класс <code>TaskManager</code>, обеспечивающий управление задачами и проектами.</li>
+</ol></div></div></section>
+
+<section class="scroll-anchor" id="idea"><div class="container">
+<div class="section-title"><span class="number">3</span> Идея проекта и назначение классов</div>
+<div class="card">
+<h3>Идея проекта</h3>
+<p>В лабораторной работе разрабатывается приложение <strong>Task Manager</strong> — небольшая система для управления задачами и проектами. Пользователь может создавать задачи, изменять их название, описание, статус и приоритет, удалять задачи, а также работать со списком проектов.</p>
+<p>Графический интерфейс уже подготовлен. Вам не требуется разрабатывать окна, кнопки, поля ввода или таблицы интерфейса. Основная работа выполняется в классах предметной области и в их модульных тестах.</p>
+<h3 class="mt-16">Какие классы вам предстоит реализовать</h3>
+<div class="class-role-grid">
+<div class="role-card"><h4><code>Task</code></h4><p>Описывает одну задачу. Хранит её данные и предоставляет операции для получения и изменения этих данных.</p><p class="muted">Отвечает за: <strong>данные одной задачи</strong>.</p></div>
+<div class="role-card"><h4><code>Repository&lt;T&gt;</code></h4><p>Обобщённое хранилище объектов одного типа. Реализует добавление, удаление, изменение, получение всех объектов, подсчёт количества и очистку.</p><p class="muted">Отвечает за: <strong>хранение объектов</strong>.</p></div>
+<div class="role-card"><h4><code>TaskManager</code></h4><p>Класс верхнего уровня предметной области. Управляет задачами и проектами, создаёт объекты с идентификаторами и обращается к соответствующим репозиториям.</p><p class="muted">Отвечает за: <strong>управление задачами и проектами</strong>.</p></div>
+</div>
+</div></div></section>
+<section class="scroll-anchor" id="structure"><div class="container"><div class="section-title"><span class="number">4</span> Структура проекта и размещение реализации</div>
+<div class="card">
+<p>Вам предоставляется готовый проект с графическим интерфейсом. Интерфейс и класс <code>Project</code> уже реализованы. Вам необходимо самостоятельно реализовать только <code>Task</code>, <code>Repository&lt;T&gt;</code> и <code>TaskManager</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Файл</th><th>Содержание</th></tr></thead><tbody>
+<tr><td><code>Task.h</code></td><td>Поля класса <code>Task</code> и объявления методов по приведённому каркасу.</td></tr>
+<tr><td><code>Task.cpp</code></td><td>Реализация конструктора, методов получения и методов изменения данных.</td></tr>
+<tr><td><code>Repository.h</code></td><td>Шаблон класса <code>Repository&lt;T&gt;</code>, поле <code>items</code> и реализация всех методов.</td></tr>
+<tr><td><code>TaskManager.h</code></td><td>Поля <code>TaskManager</code> и объявления методов управления.</td></tr>
+<tr><td><code>TaskManager.cpp</code></td><td>Реализация конструктора и методов управления задачами и проектами.</td></tr>
+<tr><td><code>Project.h/.cpp</code></td><td>Готовый тип <code>Project</code>. Реализовывать и изменять его не требуется.</td></tr>
+</tbody></table></div>
+</div>
+<div class="card mt-16"><h3>Взаимодействие классов</h3>
+    <div class="diagram">
+    <img src="img_lab3_1.png"
+         alt="Архитектура TaskManager"
+         class="architecture-diagram">
+</div>
+<p>Графический интерфейс взаимодействует с <code>TaskManager</code>. <code>TaskManager</code> использует два экземпляра одного шаблона <code>Repository&lt;T&gt;</code>.</p></div>
+</div></section>
+<section class="scroll-anchor" id="order"><div class="container"><div class="section-title"><span class="number">5</span> Порядок выполнения</div>
+<div class="card">
+<ol>
+<li>Реализовать <code>Task</code> в <code>Task.h</code> и <code>Task.cpp</code> по приведённому каркасу и спецификации.</li>
+<li>Реализовать шаблон <code>Repository&lt;T&gt;</code> в <code>Repository.h</code>. Для проверки использовать как минимум <code>Repository&lt;Task&gt;</code> и <code>Repository&lt;Project&gt;</code>.</li>
+<li>Реализовать <code>TaskManager</code> в <code>TaskManager.h</code> и <code>TaskManager.cpp</code>, используя <code>Repository&lt;Task&gt;</code> и <code>Repository&lt;Project&gt;</code>.</li>
+</ol>
+</div>
+</div></section>
+
+<section class="scroll-anchor" id="build">
+    <div class="container">
+
+        <div class="section-title">
+            <span class="number">6</span>
+            Сборка и запуск проекта
+        </div>
+
+        <div class="card">
+
+            <h3>Система сборки — CMake</h3>
+
+            <p>
+                Для сборки проекта используется
+                <strong>CMake</strong>.
+                Все необходимые настройки находятся в файле
+                <code>CMakeLists.txt</code>.
+            </p>
+
+            <p class="mt-16">
+                Для сборки проекта требуется:
+            </p>
+
+            <ul>
+                <li>компилятор C++ с поддержкой стандарта <strong>C++17</strong>;</li>
+                <li><strong>CMake 3.15</strong> или более новая версия;</li>
+                <li>подключение к Интернету при первой настройке проекта.</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>Важно:</strong>
+                библиотека графического интерфейса
+                <strong>FLTK</strong> подключается автоматически
+                средствами CMake. Отдельно устанавливать FLTK
+                не требуется.
+            </div>
+
+            <h3 class="mt-16">Графический интерфейс</h3>
+
+            <p>
+                Проект содержит готовый графический интерфейс пользователя,
+                реализованный с использованием библиотеки
+                <strong>FLTK (Fast Light Toolkit)</strong>.
+            </p>
+
+            <p class="mt-16">
+                Графический интерфейс позволяет работать с задачами
+                и проектами: просматривать списки, добавлять, изменять
+                и удалять объекты.
+            </p>
+
+    
+
+            <h3 class="mt-16">Сборка из командной строки</h3>
+
+            <p>
+                Откройте терминал в корневой папке проекта и выполните:
+            </p>
+
+            <pre class="code-block">cmake -S . -B build
+cmake --build build</pre>
+
+            <p class="mt-16">
+                Первая команда выполняет настройку проекта и создаёт
+                каталог <code>build</code>.
+            </p>
+
+            <p class="mt-16">
+                Вторая команда выполняет компиляцию исходного кода.
+            </p>
+
+            <p class="mt-16">
+                После успешной сборки запустите приложение
+                <code>TaskManager_FLTK</code>.
+            </p>
+
+            <div class="info-box">
+                <strong>Примечание:</strong>
+                при первой настройке проекта CMake может загрузить
+                необходимые файлы библиотеки FLTK из Интернета.
+                Поэтому первый запуск настройки может занять больше времени.
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<section class="scroll-anchor" id="task"><div class="container"><div class="section-title"><span class="number">7</span> Спецификация типа данных Task</div>
+<div class="card">
+<h3>ADT <code>Task</code></h3>
+<p>Тип <code>Task</code> описывает одну задачу. Вам необходимо самостоятельно объявить и реализовать этот класс.</p>
+<h3 class="mt-16">Данные класса</h3>
+<p>Класс <code>Task</code> должен содержать следующие <strong>приватные поля</strong>:</p>
+<ul>
+<li><code>id</code> — идентификатор задачи, целое число;</li>
+<li><code>title</code> — название задачи, строка;</li>
+<li><code>description</code> — описание задачи, строка;</li>
+<li><code>status</code> — статус задачи, строка;</li>
+<li><code>priority</code> — приоритет задачи, строка.</li>
+</ul>
+<p class="mt-16"><code>status</code> может принимать только значения <code>"Todo"</code>, <code>"In Progress"</code>, <code>"Done"</code>.</p>
+<p><code>priority</code> может принимать только значения <code>"Low"</code>, <code>"Medium"</code>, <code>"High"</code>.</p>
+<h3 class="mt-16">Набросок файла <code>Task.h</code></h3>
+<p>Ниже приведён <strong>только каркас класса</strong>. Реализацию методов необходимо написать самостоятельно.</p>
+<pre class="code-block">#ifndef TASK_H
+#define TASK_H
+
+#include &lt;string&gt;
+
+class Task
+{
+private:
+    int id;
+    std::string title;
+    std::string description;
+    std::string status;
+    std::string priority;
+
+public:
+    Task(int id, std::string title);
+
+    int GetId();
+    std::string GetTitle();
+    std::string GetDescription();
+    std::string GetStatus();
+    std::string GetPriority();
+
+    void SetTitle(std::string title);
+    void SetDescription(std::string description);
+    void SetStatus(std::string status);
+    void SetPriority(std::string priority);
+};
+
+#endif</pre>
+<h3 class="mt-16">Операции</h3>
+<div class="spec-block"><div class="row"><span class="label">Конструктор</span><code>Task(int id, string title)</code></div>
+<div class="row"><span class="label">Вход:</span> идентификатор и название.</div>
+<div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> присвоить <code>id</code> переданный идентификатор; присвоить <code>title</code> переданное название; установить <code>description</code> в пустую строку; установить <code>status</code> в <code>"Todo"</code>; установить <code>priority</code> в <code>"Medium"</code>.</div>
+<div class="row"><span class="label">Выход:</span> созданный объект <code>Task</code>.</div>
+<div class="row"><span class="label">Постусловия:</span> все пять полей объекта имеют определённые значения.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьИдентификатор</span><code>GetId()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> объект <code>Task</code> существует.</div>
+<div class="row"><span class="label">Процесс:</span> вернуть значение приватного поля <code>id</code>.</div>
+<div class="row"><span class="label">Выход:</span> целое число.</div><div class="row"><span class="label">Постусловия:</span> данные объекта не изменены.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьНазвание</span><code>GetTitle()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> объект <code>Task</code> существует.</div>
+<div class="row"><span class="label">Процесс:</span> вернуть значение поля <code>title</code> .</div>
+<div class="row"><span class="label">Выход:</span> строка.</div><div class="row"><span class="label">Постусловия:</span> данные объекта не изменены.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьОписание</span><code>GetDescription()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> объект <code>Task</code> существует.</div>
+<div class="row"><span class="label">Процесс:</span> вернуть значение поля <code>description</code>.</div>
+<div class="row"><span class="label">Выход:</span> строка.</div><div class="row"><span class="label">Постусловия:</span> данные объекта не изменены.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьСтатус</span><code>GetStatus()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> объект <code>Task</code> существует.</div>
+<div class="row"><span class="label">Процесс:</span> вернуть значение поля <code>status</code>.</div>
+<div class="row"><span class="label">Выход:</span> строка.</div><div class="row"><span class="label">Постусловия:</span> данные объекта не изменены.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьПриоритет</span><code>GetPriority()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> объект <code>Task</code> существует.</div>
+<div class="row"><span class="label">Процесс:</span> вернуть значение поля <code>priority</code> .</div>
+<div class="row"><span class="label">Выход:</span> строка.</div><div class="row"><span class="label">Постусловия:</span> данные объекта не изменены.</div></div>
+<div class="spec-block"><div class="row"><span class="label">УстановитьНазвание</span><code>SetTitle(string title)</code></div>
+<div class="row"><span class="label">Вход:</span> новое название.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> заменить текущее значение поля <code>title</code> переданным значением.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> <code>GetTitle()</code> возвращает новое название.</div></div>
+<div class="spec-block"><div class="row"><span class="label">УстановитьОписание</span><code>SetDescription(string description)</code></div>
+<div class="row"><span class="label">Вход:</span> новое описание.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> заменить текущее значение поля <code>description</code> переданным значением.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> <code>GetDescription()</code> возвращает новое описание.</div></div>
+<div class="spec-block"><div class="row"><span class="label">УстановитьСтатус</span><code>SetStatus(string status)</code></div>
+<div class="row"><span class="label">Вход:</span> новый статус.</div><div class="row"><span class="label">Предусловия:</span> значение равно <code>"Todo"</code>, <code>"In Progress"</code> или <code>"Done"</code>.</div>
+<div class="row"><span class="label">Процесс:</span> проверить допустимость значения; если оно допустимо, заменить поле <code>status</code> новым значением.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> <code>GetStatus()</code> возвращает переданный статус.</div></div>
+<div class="spec-block"><div class="row"><span class="label">УстановитьПриоритет</span><code>SetPriority(string priority)</code></div>
+<div class="row"><span class="label">Вход:</span> новый приоритет.</div><div class="row"><span class="label">Предусловия:</span> значение равно <code>"Low"</code>, <code>"Medium"</code> или <code>"High"</code>.</div>
+<div class="row"><span class="label">Процесс:</span> проверить допустимость значения; если оно допустимо, заменить поле <code>priority</code> новым значением.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> <code>GetPriority()</code> возвращает переданный приоритет.</div></div>
+</div>
+</div></section>
+<section class="scroll-anchor" id="repository"><div class="container"><div class="section-title"><span class="number">8</span> Спецификация типа данных Repository&lt;T&gt;</div>
+<div class="card">
+<h3>ADT <code>Repository&lt;T&gt;</code></h3>
+<p>Шаблонный класс <code>Repository&lt;T&gt;</code> хранит последовательность объектов одного выбранного типа <code>T</code>. Вам необходимо самостоятельно объявить и реализовать этот шаблонный класс.</p>
+<h3 class="mt-16">Данные класса</h3>
+<p>Класс должен содержать следующее <strong>приватное поле</strong>:</p>
+<ul><li><code>items</code> — объект типа <code>std::vector&lt;T&gt;</code>, содержащий объекты репозитория.</li></ul>
+<p class="mt-16">Конкретный тип <code>T</code> определяется при создании объекта. Например, <code>Repository&lt;Task&gt;</code> хранит задачи, а <code>Repository&lt;Project&gt;</code> — проекты.</p>
+<h3 class="mt-16">Набросок файла <code>Repository.h</code></h3>
+<p>Шаблон полностью реализуется в заголовочном файле. Ниже приведён каркас без реализации методов.</p>
+<pre class="code-block">#ifndef REPOSITORY_H
+#define REPOSITORY_H
+
+#include &lt;vector&gt;
+
+template &lt;class T&gt;
+class Repository
+{
+private:
+    std::vector&lt;T&gt; items;
+
+public:
+    void Add(T item);
+    void Remove(int index);
+    void Update(int index, T item);
+    int Size();
+    std::vector&lt;T&gt; GetAll();
+    void Clear();
+};
+
+#endif</pre>
+<h3 class="mt-16">Операции</h3>
+<div class="spec-block"><div class="row"><span class="label">Добавить</span><code>Add(T item)</code></div>
+<div class="row"><span class="label">Вход:</span> объект <code>item</code> типа <code>T</code>.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> добавить <code>item</code> в конец вектора <code>items</code> с помощью операции <code>push_back</code>.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> новый объект находится в конце репозитория; количество объектов увеличилось на 1.</div></div>
+<div class="spec-block"><div class="row"><span class="label">Удалить</span><code>Remove(int index)</code></div>
+<div class="row"><span class="label">Вход:</span> индекс объекта <code>index</code>.</div><div class="row"><span class="label">Предусловия:</span> <code>index</code> находится в диапазоне от 0 до <code>Size()-1</code>.</div>
+<div class="row"><span class="label">Процесс:</span> удалить элемент вектора <code>items</code> с указанным индексом. Для удаления элемента из <code>std::vector</code> использовать <code>erase</code>.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> объект с указанным индексом удалён; количество объектов уменьшилось на 1.</div></div>
+<div class="spec-block"><div class="row"><span class="label">Изменить</span><code>Update(int index, T item)</code></div>
+<div class="row"><span class="label">Вход:</span> индекс <code>index</code> и новый объект <code>item</code> типа <code>T</code>.</div><div class="row"><span class="label">Предусловия:</span> <code>index</code> находится в диапазоне от 0 до <code>Size()-1</code>.</div>
+<div class="row"><span class="label">Процесс:</span> заменить элемент <code>items[index]</code> переданным объектом <code>item</code>.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> объект с индексом <code>index</code> заменён; количество объектов не изменилось.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьКоличество</span><code>Size()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> получить количество элементов вектора <code>items</code> с помощью <code>size()</code> и вернуть это значение.</div>
+<div class="row"><span class="label">Выход:</span> целое число.</div><div class="row"><span class="label">Постусловия:</span> данные репозитория не изменены.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьВсе</span><code>GetAll()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> вернуть копию вектора <code>items</code>.</div>
+<div class="row"><span class="label">Выход:</span> <code>std::vector&lt;T&gt;</code>, содержащий все объекты репозитория в текущем порядке.</div><div class="row"><span class="label">Постусловия:</span> данные репозитория не изменены.</div></div>
+<div class="spec-block"><div class="row"><span class="label">Очистить</span><code>Clear()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> удалить все элементы из <code>items</code> с помощью <code>clear()</code>.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> репозиторий пуст; <code>Size()</code> возвращает 0.</div></div>
+</div>
+</div></section>
+<section class="scroll-anchor" id="manager"><div class="container"><div class="section-title"><span class="number">9</span> Спецификация класса TaskManager</div>
+<div class="card">
+<h3>Назначение</h3>
+<p><code>TaskManager</code> является классом, через который графический интерфейс работает с задачами и проектами. Он не хранит объекты непосредственно в <code>std::vector</code>, а использует два экземпляра шаблонного репозитория.</p>
+<h3 class="mt-16">Данные класса</h3>
+<p>Вам необходимо самостоятельно объявить следующие <strong>приватные поля</strong>:</p>
+<ul>
+<li><code>taskRepository</code> — объект типа <code>Repository&lt;Task&gt;</code> для хранения задач;</li>
+<li><code>projectRepository</code> — объект типа <code>Repository&lt;Project&gt;</code> для хранения проектов;</li>
+<li><code>nextTaskId</code> — целое число для идентификатора следующей задачи;</li>
+<li><code>nextProjectId</code> — целое число для идентификатора следующего проекта.</li>
+</ul>
+<div class="info-box"><strong>Важно:</strong>Класс <code>Project</code> уже предоставляется в готовом проекте; реализовывать его не требуется.</div>
+<h3 class="mt-16">Набросок файла <code>TaskManager.h</code></h3>
+<p>Ниже приведён каркас заголовочного файла. Реализацию методов необходимо написать в <code>TaskManager.cpp</code>.</p>
+<pre class="code-block">#ifndef TASKMANAGER_H
+#define TASKMANAGER_H
+
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+#include "task.h"
+#include "project.h"
+#include "repository.h"
+
+class TaskManager
+{
+private:
+    Repository&lt;Task&gt; taskRepository;
+    Repository&lt;Project&gt; projectRepository;
+
+    int nextTaskId;
+    int nextProjectId;
+
+public:
+    TaskManager();
+
+    void AddTask(std::string title,
+                 std::string description,
+                 std::string priority,
+                 std::string status);
+
+    void UpdateTask(int index,
+                    std::string title,
+                    std::string description,
+                    std::string priority,
+                    std::string status);
+
+    void DeleteTask(int index);
+    std::vector&lt;Task&gt; GetTasks();
+
+    void AddProject(std::string name);
+    void DeleteProject(int index);
+    std::vector&lt;Project&gt; GetProjects();
+};
+
+#endif</pre>
+<div class="info-box"><strong>Порядок работы:</strong> сначала реализуйте <code>Task</code>, затем <code>Repository&lt;T&gt;</code>, и только после этого <code>TaskManager</code>. Методы <code>TaskManager</code> должны использовать уже готовые операции репозитория.</div>
+<h3 class="mt-16">Операции</h3>
+<div class="spec-block"><div class="row"><span class="label">Конструктор</span><code>TaskManager()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> установить <code>nextTaskId</code> и <code>nextProjectId</code> в 1. Репозитории должны быть пустыми. Если в предоставленном проекте предусмотрены начальные демонстрационные задачи и проекты, добавить их после инициализации счётчиков.</div>
+<div class="row"><span class="label">Выход:</span> созданный объект <code>TaskManager</code>.</div><div class="row"><span class="label">Постусловия:</span> объект готов к добавлению задач и проектов; следующий создаваемый объект получает корректный идентификатор.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ДобавитьЗадачу</span><code>AddTask(string title, string description, string priority, string status)</code></div>
+<div class="row"><span class="label">Вход:</span> название, описание, приоритет и статус новой задачи.</div>
+<div class="row"><span class="label">Предусловия:</span> <code>priority</code> — <code>"Low"</code>, <code>"Medium"</code> или <code>"High"</code>; <code>status</code> — <code>"Todo"</code>, <code>"In Progress"</code> или <code>"Done"</code>.</div>
+<div class="row"><span class="label">Процесс:</span> 1) взять текущее значение <code>nextTaskId</code> как идентификатор новой задачи; 2) создать <code>Task</code> с этим идентификатором и <code>title</code>; 3) установить описание, приоритет и статус; 4) добавить задачу в <code>taskRepository</code> с помощью <code>Add</code>; 5) увеличить <code>nextTaskId</code> на 1.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> новая задача находится в <code>taskRepository</code>; её идентификатор равен старому значению <code>nextTaskId</code>; <code>nextTaskId</code> увеличен на 1.</div></div>
+<div class="info-box">
+
+    <strong>Подсказка к реализации:</strong>
+    <p class="mt-16">
+        Один из возможных вариантов реализации:
+    </p>
+
+    <pre class="code-block">void TaskManager::AddTask(std::string title,
+                          std::string description,
+                          std::string priority,
+                          std::string status)
+{
+    Task task(nextTaskId, title);
+
+    nextTaskId++;
+
+    task.SetDescription(description);
+    task.SetPriority(priority);
+    task.SetStatus(status);
+
+    taskRepository.Add(task);
+}</pre>
+
+</div>
+<div class="spec-block"><div class="row"><span class="label">ИзменитьЗадачу</span><code>UpdateTask(int index, string title, string description, string priority, string status)</code></div>
+<div class="row"><span class="label">Вход:</span> индекс задачи и новые значения названия, описания, приоритета и статуса.</div>
+<div class="row"><span class="label">Предусловия:</span> <code>index</code> находится в диапазоне от 0 до <code>GetTasks().size()-1</code>; приоритет и статус имеют допустимые значения.</div>
+<div class="row"><span class="label">Процесс:</span> 1) получить список задач из <code>taskRepository</code>; 2) взять задачу с индексом <code>index</code>; 3) изменить у этой задачи название, описание, приоритет и статус с помощью методов <code>Task</code>; 4) передать изменённую задачу в <code>taskRepository.Update(index, task)</code>.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> задача с указанным индексом содержит новые данные; её идентификатор не изменён; количество задач не изменилось.</div></div>
+<div class="spec-block"><div class="row"><span class="label">УдалитьЗадачу</span><code>DeleteTask(int index)</code></div>
+<div class="row"><span class="label">Вход:</span> индекс удаляемой задачи.</div>
+<div class="row"><span class="label">Предусловия:</span> <code>index</code> находится в диапазоне от 0 до <code>GetTasks().size()-1</code>.</div>
+<div class="row"><span class="label">Процесс:</span> вызвать <code>Remove(index)</code> для <code>taskRepository</code>.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> задача с указанным индексом удалена; количество задач уменьшилось на 1.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьЗадачи</span><code>GetTasks()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> вызвать <code>GetAll()</code> у <code>taskRepository</code> и вернуть полученный вектор.</div>
+<div class="row"><span class="label">Выход:</span> <code>std::vector&lt;Task&gt;</code> со всеми задачами в текущем порядке.</div><div class="row"><span class="label">Постусловия:</span> репозиторий не изменён.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ДобавитьПроект</span><code>AddProject(string name)</code></div>
+<div class="row"><span class="label">Вход:</span> название нового проекта.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> 1) взять текущее значение <code>nextProjectId</code>; 2) создать <code>Project</code> с этим идентификатором и названием <code>name</code>; 3) добавить проект в <code>projectRepository</code> с помощью <code>Add</code>; 4) увеличить <code>nextProjectId</code> на 1.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> новый проект находится в <code>projectRepository</code>; <code>nextProjectId</code> увеличен на 1.</div></div>
+<div class="spec-block"><div class="row"><span class="label">УдалитьПроект</span><code>DeleteProject(int index)</code></div>
+<div class="row"><span class="label">Вход:</span> индекс удаляемого проекта.</div><div class="row"><span class="label">Предусловия:</span> <code>index</code> находится в диапазоне от 0 до <code>GetProjects().size()-1</code>.</div>
+<div class="row"><span class="label">Процесс:</span> вызвать <code>Remove(index)</code> для <code>projectRepository</code>.</div>
+<div class="row"><span class="label">Выход:</span> нет.</div><div class="row"><span class="label">Постусловия:</span> проект с указанным индексом удалён; количество проектов уменьшилось на 1.</div></div>
+<div class="spec-block"><div class="row"><span class="label">ПолучитьПроекты</span><code>GetProjects()</code></div>
+<div class="row"><span class="label">Вход:</span> нет.</div><div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span> вызвать <code>GetAll()</code> у <code>projectRepository</code> и вернуть полученный вектор.</div>
+<div class="row"><span class="label">Выход:</span> <code>std::vector&lt;Project&gt;</code> со всеми проектами в текущем порядке.</div><div class="row"><span class="label">Постусловия:</span> репозиторий не изменён.</div></div>
+</div>
+</div></section>
+<section class="scroll-anchor" id="questions"><div class="container"><div class="section-title"><span class="number">10</span> Контрольные вопросы</div><div class="card-grid"><div class="card"><ol><li>Что такое абстрактный тип данных?</li><li>Что такое инкапсуляция?</li><li>Для чего используются <code>private</code> и <code>public</code>?</li><li>Что такое класс и конструктор в C++?</li><li>Что такое шаблон класса?</li><li>Что обозначает <code>T</code>?</li><li>Когда определяется конкретный тип <code>T</code>?</li></ol></div></div></section>
+<footer><div class="container"><p>Практическая работа · Абстракция и шаблоны C++</p><p style="margin-top:8px;font-size:.8rem">Современные технологии программирования · 2026</p></div></footer>
+<script>document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}));</script>
+</body></html>
