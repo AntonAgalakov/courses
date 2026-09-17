@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторная работа №3 · Кодирование информации</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ===== Основные стили ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+        #pin-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.5s ease;
+        }
+        #pin-overlay.hidden { opacity: 0; pointer-events: none; }
+        .pin-box {
+            background: #ffffff; border-radius: 24px; padding: 40px 32px;
+            max-width: 400px; width: 90%; box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .pin-box h2 { font-weight: 700; font-size: 1.5rem; margin-bottom: 8px; color: #0f172a; }
+        .pin-box p { color: #475569; margin-bottom: 24px; font-size: 0.95rem; }
+        .pin-box input {
+            width: 100%; padding: 14px 16px; font-size: 1.2rem; text-align: center;
+            letter-spacing: 8px; border: 2px solid #e2e8f0; border-radius: 12px;
+            outline: none; transition: border 0.2s; font-weight: 600;
+        }
+        .pin-box input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
+        .pin-box .error-msg { color: #ef4444; font-size: 0.9rem; margin-top: 12px; height: 24px; font-weight: 500; }
+        .pin-box button {
+            margin-top: 20px; width: 100%; padding: 14px; background: #2563eb;
+            color: #fff; border: none; border-radius: 12px; font-size: 1rem;
+            font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
+        .pin-box button:hover { background: #1d4ed8; }
+        .pin-box .hint { font-size: 0.75rem; color: #94a3b8; margin-top: 16px; }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e2e8f0; padding: 12px 0; transition: box-shadow 0.3s;
+        }
+        nav.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .nav-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .logo { font-weight: 700; font-size: 1.2rem; color: #2563eb; letter-spacing: -0.5px; }
+        .logo span { color: #0f172a; font-weight: 400; }
+        .nav-links { display: flex; flex-wrap: wrap; gap: 8px 20px; list-style: none; }
+        .nav-links a {
+            text-decoration: none; font-size: 0.9rem; font-weight: 500; color: #334155;
+            transition: color 0.2s; padding: 4px 0; border-bottom: 2px solid transparent;
+        }
+        .nav-links a:hover { color: #2563eb; border-bottom-color: #2563eb; }
+        
+        .hero { padding: 60px 0 40px; text-align: center; }
+        .hero h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -1px; line-height: 1.2; margin-bottom: 8px; }
+        .hero h1 .highlight { color: #2563eb; }
+        .hero p.sub { font-size: 1.2rem; color: #475569; max-width: 700px; margin: 0 auto 20px; }
+        .badge {
+            display: inline-block; background: #dbeafe; color: #1d4ed8;
+            padding: 6px 18px; border-radius: 40px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px;
+        }
+        
+        section { padding: 48px 0; border-bottom: 1px solid #e9edf2; }
+        section:last-of-type { border-bottom: none; }
+        .section-title {
+            font-size: 2rem; font-weight: 700; margin-bottom: 30px; letter-spacing: -0.5px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .section-title .number {
+            background: #2563eb; color: #fff; width: 42px; height: 42px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: 600; flex-shrink: 0;
+        }
+        
+        .task-list { display: flex; flex-direction: column; gap: 32px; }
+        .task-card {
+            background: #ffffff; border-radius: 20px; padding: 28px 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05); border: 1px solid #eef2f6; transition: box-shadow 0.2s;
+        }
+        .task-card:hover { box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+        .task-card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; color: #0f172a; }
+        .task-card p, .task-card li { font-size: 1.05rem; color: #1e293b; line-height: 1.7; }
+        .task-card ul { padding-left: 24px; margin: 10px 0; }
+        .task-card ul li { margin-bottom: 6px; }
+        
+        /* Стили для примеров решений */
+        .example-card {
+            border-left: 6px solid #22c55e;
+            background: linear-gradient(to right, #f0fdf4, #ffffff 15%);
+            position: relative;
+        }
+        .example-card::before {
+            content: "РАЗБОР";
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .example-block {
+            background: #f8fafc; border-left: 4px solid #2563eb;
+            padding: 16px 20px; border-radius: 12px; margin: 16px 0;
+        }
+        .example-block .label { font-weight: 600; font-size: 0.95rem; color: #2563eb; margin-bottom: 8px; }
+        
+        /* Стили для кода */
+        pre {
+            background: #0f172a; color: #e2e8f0; padding: 16px; border-radius: 12px;
+            overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+            margin: 12px 0; line-height: 1.5;
+        }
+        code { font-family: 'JetBrains Mono', monospace; }
+        .inline-code {
+            background: #f1f5f9; color: #0f172a; padding: 2px 6px; border-radius: 6px;
+            font-size: 0.9em; font-family: 'JetBrains Mono', monospace;
+        }
+
+        .info-box {
+            background: #eff6ff; padding: 16px 20px; border-radius: 12px;
+            border-left: 4px solid #2563eb; margin: 16px 0;
+        }
+        .info-box strong { color: #0f172a; }
+        
+        footer { text-align: center; padding: 40px 0 24px; color: #64748b; font-size: 0.9rem; border-top: 1px solid #e9edf2; }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .section-title { font-size: 1.6rem; }
+            .task-card { padding: 20px; }
+            .example-card::before { top: 16px; right: 16px; }
+        }
+        .scroll-anchor { scroll-margin-top: 80px; }
+        .sub { font-size: 0.7em; vertical-align: sub; }
+        
+        .python-required {
+            background: #f0fdf4; border-left: 4px solid #22c55e;
+            padding: 12px 16px; border-radius: 12px; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .python-required .icon { font-size: 1.5rem; }
+        .python-required .text { font-weight: 600; color: #15803d; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+<!-- PIN-оверлей -->
+<div id="pin-overlay">
+    <div class="pin-box">
+        <h2>Доступ к работе</h2>
+        <p>Введите PIN-код для просмотра материалов</p>
+        <input type="password" id="pin-input" maxlength="4" placeholder="— — — —" inputmode="numeric">
+        <div class="error-msg" id="pin-error"></div>
+        <button id="pin-btn">Подтвердить</button>
+        <div class="hint">Подсказка: 4321</div>
+    </div>
+</div>
+
+<!-- Основной контент -->
+<div id="main-content" style="display: none;">
+
+    <!-- Навигация -->
+    <nav id="navbar">
+        <div class="container nav-inner">
+            <div class="logo">Лабораторная <span>№3</span></div>
+            <ul class="nav-links">
+                <li><a href="#goal">Цель</a></li>
+                <li><a href="#theory">Теория</a></li>
+                <li><a href="#tasks">Задания</a></li>
+                <li><a href="#control">Контроль</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <div class="badge">Информатика · 1 курс</div>
+            <h1>Кодирование <br><span class="highlight">текстовой информации</span></h1>
+            <p class="sub">Практическое изучение Unicode, UTF-8, CP1251 и инструментов Python для работы с байтами</p>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <!-- Цель -->
+        <section id="goal" class="scroll-anchor">
+            <div class="section-title"><span class="number">1</span> Цель работы</div>
+            <div class="task-card" style="border-left: 4px solid #2563eb;">
+                <p style="font-size: 1.1rem;">Изучить принципы кодирования символов, освоить основные функции Python для работы с символами и байтами (<code class="inline-code">ord</code>, <code class="inline-code">chr</code>, <code class="inline-code">encode</code>, <code class="inline-code">decode</code>), получить практические навыки преобразования текста между различными кодировками и анализа ошибок интерпретации данных (mojibake).</p>
+            </div>
+        </section>
+
+        <!-- Теория -->
+        <section id="theory" class="scroll-anchor">
+            <div class="section-title"><span class="number">2</span> Теоретические сведения</div>
+            <div class="task-card">
+                <div class="example-block">
+                    <div class="label">Основные операции в Python:</div>
+                    <pre><code># 1. Получить числовой код символа
+print(ord('A'))          # Вывод: 65
+
+# 2. Получить символ по коду
+print(chr(65))           # Вывод: A
+
+# 3. Кодирование строки в байты
+print('Привет'.encode('utf-8'))  
+# Вывод: b'\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82'
+
+# 4. Декодирование байтов в строку
+print(b'\xd0\x9f\xd1\x80'.decode('utf-8')) 
+# Вывод: Пр
+
+# 5. Определение длины (символы vs байты)
+print(len('Привет'))                     # Вывод: 6
+print(len(b'\xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82')) # Вывод: 12</code></pre>
+                </div>
+                <div class="info-box">
+                    <strong>Важно:</strong> Префикс <code class="inline-code">b</code> перед строкой (например, <code class="inline-code">b'...'</code>) означает, что это объект типа <em>bytes</em> (байты), а не текстовая строка <em>str</em>. Запись <code class="inline-code">\xd0</code> представляет один байт в шестнадцатеричной системе счисления.
+                </div>
+            </div>
+        </section>
+
+        <!-- Задания -->
+        <section id="tasks" class="scroll-anchor">
+            <div class="section-title"><span class="number">3</span> Ход работы</div>
+            
+            <div class="python-required">
+                <span class="icon">🐍</span>
+                <span class="text">Для выполнения заданий требуется среда выполнения Python (IDLE, Jupyter, VS Code или онлайн-компилятор)</span>
+            </div>
+
+            <div class="task-list">
+
+                <!-- ПРИМЕРЫ РЕШЕНИЙ (Перенесены в начало) -->
+                <div class="task-card example-card" id="task-ex1"></div>
+                <div class="task-card example-card" id="task-ex2"></div>
+
+                <!-- ОСНОВНЫЕ ЗАДАНИЯ -->
+                <div class="task-card" id="task-z1"></div>
+                <div class="task-card" id="task-z2"></div>
+                <div class="task-card" id="task-z3"></div>
+                <div class="task-card" id="task-z4"></div>
+                <div class="task-card" id="task-z5"></div>
+                <div class="task-card" id="task-z6"></div>
+                <div class="task-card" id="task-z7"></div>
+                <div class="task-card" id="task-z8"></div>
+                <div class="task-card" id="task-z9"></div>
+
+            </div>
+        </section>
+        
+
+    </div> <!-- /container -->
+
+    <footer>
+        <p>Лабораторная работа №3 · Кодирование текстовой информации · 2026</p>
+        <p style="margin-top: 8px; font-size: 0.8rem;">Кафедра информатики и вычислительной техники</p>
+    </footer>
+
+</div> <!-- /main-content -->
+
+<!-- JavaScript -->
+<script>
+    // ===== Данные для единственного варианта =====
+    const taskData = {
+        z2_word: "Информатика",
+        z4_a: "b'\\xd0\\x9a\\xd0\\xbe\\xd0\\xb4\\xd0\\xb8\\xd1\\x80\\xd0\\xbe\\xd0\\xb2\\xd0\\xba\\xd0\\xb8'", // Кодировки (UTF-8)
+        z4_b: "b'\\xd1\\x88\\xd0\\xbf\\xd0\\xb0\\xd1\\x80\\xd0\\xb3\\xd0\\xb0\\xd0\\xbb\\xd0\\xba\\xd0\\xb0'", // шпаргалка (UTF-8)
+        z4_c: "b'\\xca\\xee\\xe4\\xe8\\xf0\\xee\\xe2\\xea\\xe8'", // Кодировки (CP1251)
+        z6_word: "Сообщение"
+    };
+
+    // ===== Функции рендеринга заданий =====
+    
+    // --- ПРИМЕРЫ РЕШЕНИЙ ---
+    function renderEx1() {
+        return `
+            <h3>Пример решения 1. Временной промежуток</h3>
+            <p>Напишите программу, в которой пользователь сможет ввести временной промежуток в виде количества дней, часов, минут и секунд и узнать общее количество секунд, составляющее введенный отрезок.</p>
+            
+            <div class="example-block">
+                <div class="label">Входные данные:</div>
+                <p>Четыре целых числа (дни, часы, минуты, секунды). По одному числу в строке.</p>
+            </div>
+
+            <div class="example-block">
+                <div class="label">Выходные данные:</div>
+                <p>Одно целое число — общее количество секунд.</p>
+            </div>
+
+            <div class="example-block">
+                <div class="label">Пример:</div>
+                <pre><code>Входные данные:
+8
+18
+46
+32
+
+Выходные данные:
+758792</code></pre>
+            </div>
+
+            <div class="example-block" style="border-left-color: #22c55e; background: #f0fdf4;">
+                <div class="label" style="color: #15803d;">💡 Пример решения на Python:</div>
+                <pre><code># Считываем входные данные
+days = int(input())
+hours = int(input())
+minutes = int(input())
+seconds = int(input())
+
+# Переводим всё в секунды
+total_seconds = (days * 24 * 60 * 60) + (hours * 60 * 60) + (minutes * 60) + seconds
+
+# Выводим результат
+print(total_seconds)</code></pre>
+                <p style="margin-top: 12px; font-size: 0.95rem; color: #166534;">
+                    <strong>Пояснение:</strong><br>
+                    • 1 день = 24 часа = 24 × 60 × 60 = 86400 секунд<br>
+                    • 1 час = 60 минут = 60 × 60 = 3600 секунд<br>
+                    • 1 минута = 60 секунд<br>
+                    • Для примера: (8 × 86400) + (18 × 3600) + (46 × 60) + 32 = 758792
+                </p>
+            </div>
+        `;
+    }
+
+    function renderEx2() {
+        return `
+            <h3>Пример решения 2. Перевод температуры</h3>
+            <p>Напишите программу, которая будет запрашивать у пользователя значение температуры в градусах Цельсия и отображать эквивалентный показатель по шкалам Фаренгейта и Кельвина. Необходимые коэффициенты и формулы для проведения расчетов нетрудно найти на просторах интернета.</p>
+            
+            <div class="example-block">
+                <div class="label">Входные данные:</div>
+                <p>Одно вещественное число — температура в градусах Цельсия.</p>
+            </div>
+
+            <div class="example-block">
+                <div class="label">Выходные данные:</div>
+                <p>Две строки с результатами:</p>
+                <pre><code>Температура в Фаренгейтах: {значение}
+Температура в Кельвинах: {значение}</code></pre>
+            </div>
+
+            <div class="example-block">
+                <div class="label">Пример:</div>
+                <pre><code>Входные данные:
+-2.5
+
+Выходные данные:
+Температура в Фаренгейтах: 27.5
+Температура в Кельвинах: 270.65</code></pre>
+            </div>
+
+            <div class="example-block" style="border-left-color: #22c55e; background: #f0fdf4;">
+                <div class="label" style="color: #15803d;">💡 Пример решения на Python:</div>
+                <pre><code># Считываем температуру в Цельсиях
+celsius = float(input())
+
+# Формулы перевода
+fahrenheit = celsius * 9 / 5 + 32
+kelvin = celsius + 273.15
+
+# Выводим результат
+print(f"Температура в Фаренгейтах: {fahrenheit}")
+print(f"Температура в Кельвинах: {kelvin}")</code></pre>
+                <p style="margin-top: 12px; font-size: 0.95rem; color: #166534;">
+                    <strong>Пояснение:</strong><br>
+                    • Формула перевода в Фаренгейты: <code>°F = °C × 9/5 + 32</code><br>
+                    • Формула перевода в Кельвины: <code>K = °C + 273.15</code><br>
+                    • Для примера: <br>
+                    &nbsp;&nbsp;F = -2.5 × 1.8 + 32 = -4.5 + 32 = <strong>27.5</strong><br>
+                    &nbsp;&nbsp;K = -2.5 + 273.15 = <strong>270.65</strong>
+                </p>
+            </div>
+        `;
+    }
+
+    // --- ОСНОВНЫЕ ЗАДАНИЯ ---
+    function renderZ1() {
+        return `
+            <h3>Задание 1. Определение кодов символов</h3>
+            <p>Используя функцию <code class="inline-code">ord()</code>, определите числовые коды первых букв вашей фамилии, имени и отчества в таблице Unicode. Выведите на экран саму букву и её код.</p>
+            <div class="example-block">
+                <div class="label">Пример (для ФИО "Иванов Иван Иванович"):</div>
+                <pre><code>print("И", ord("И"))
+</pre>
+                <div style="margin-top:8px; font-size:0.9rem; color:#475569;">Ожидаемый вывод: <code class="inline-code">И 1048</code></div>
+            </div>
+        `;
+    }
+
+    function renderZ2() {
+        return `
+            <h3>Задание 2. Сравнение кодировок</h3>
+            <p>Выполните кодирование слова <strong>«${taskData.z2_word}»</strong> в кодировках UTF-8 и CP1251. Сравните полученные последовательности байтов.</p>
+            <p style="margin-top:16px;"><strong>Вопрос:</strong> почему длина последовательности байтов в UTF-8 превышает длину в CP1251 для этого русского текста?</p>
+        `;
+    }
+
+    function renderZ3() {
+        return `
+            <h3>Задание 3. Анализ размера данных</h3>
+            <p>Разработайте программу, которая:</p>
+            <ol style="padding-left:24px; margin:12px 0;">
+                <li>Запрашивает у пользователя ввод строки.</li>
+                <li>Определяет количество символов в строке.</li>
+                <li>Вычисляет количество байтов для хранения этой строки в UTF-8 и CP1251.</li>
+                <li>Выводит результаты в указанном формате.</li>
+            </ol>
+            <div class="example-block">
+                <div class="label">Ожидаемый вывод программы:</div>
+                <pre><code>Введите строку: Привет
+Символов в строке: 6
+Байтов в UTF-8: 12
+Байтов в CP1251: 6</code></pre>
+            </div>
+            <p><em>Выполните программу дважды: с русским и английским текстом. </em></p>
+        `;
+    }
+
+    function renderZ4() {
+        return `
+            <h3>Задание 4. Декодирование байтовых последовательностей</h3>
+            <p>Даны следующие последовательности байтов. Определите, в какой кодировке (UTF-8 или CP1251) они записаны, и восстановите исходный текст с помощью метода <code class="inline-code">.decode()</code>.</p>
+            <div class="example-block">
+                <div class="label">Данные для анализа:</div>
+                <pre><code>a = ${taskData.z4_a}
+b = ${taskData.z4_b}
+c = ${taskData.z4_c}</code></pre>
+            </div>
+            
+        `;
+    }
+
+    function renderZ5() {
+        return `
+            <h3>Задание 5. «Иероглифы и смайлы» (Возможности Unicode)</h3>
+            <p>В отличие от CP1251, кодировка UTF-8 поддерживает больший объем символов. Проверим, как это работает на практике.</p>
+            <div class="example-block">
+                <div class="label">Пример:</div>
+                <pre><code>print("こんにちは")  # Японский
+print("你好")        # Китайский
+print("🚀🌟🎉")       # Эмодзи</code></pre>
+            </div>
+            <p><strong>Задание:</strong> Найдите и выберите 5 различных символов из разных письменностей или наборов (например: арабский, греческий, иероглиф, математический символ, эмодзи). Напишите программу, которая для каждого из этих 5 символов выводит:</p>
+            <ul>
+                <li>Сам символ.</li>
+                <li>Его десятичный код в Unicode (функция <code class="inline-code">ord()</code>).</li>
+                <li>Количество байт, которое он занимает в UTF-8 (функции <code class="inline-code">len()</code> и <code class="inline-code">.encode()</code>).</li>
+            </ul>
+            <p><em>Сделайте вывод о том, как длина символа в UTF-8 зависит от его числового кода.</em></p>
+        `;
+    }
+
+    function renderZ6() {
+        return `
+            <h3>Задание 6. «Испорченная СМСка»</h3>
+            <p>Что происходит, если сообщение, закодированное в одной кодировке, пытаются прочитать в другой? Возникают «кракозябры» (mojibake).</p>
+            <p><strong>Шаг 1. Создание ошибки.</strong> Смоделируйте ситуацию: закодируйте слово <strong>«${taskData.z6_word}»</strong> в <code class="inline-code">utf-8</code>, а затем декодируйте полученные байты как <code class="inline-code">cp1251</code>.</p>
+            <p><strong>Шаг 2. Восстановление данных.</strong> Напишите код, который «починит» переменную <code class="inline-code">broken_text</code>, превратив её обратно в читаемый русский текст.</p>
+
+        `;
+    }
+
+    function renderZ7() {
+        return `
+            <h3>Задание 7. Обновление ПО</h3>
+            <p>Кате пришло оповещение об обновлении программного обеспечения. Она планирует запустить его во время обеденного перерыва (ровно 60 минут), чтобы не тратить рабочее время. Процесс обновления состоит из двух этапов: загрузка и установка. Катя знает:</p>
+            <ul>
+                <li>Размер обновления в Гб.</li>
+                <li>Скорость интернета: Мбит/с (мегабиты в секунду, стабильная).</li>
+                <li>Ориентировочное время установки в минутах.</li>
+            </ul>
+            <p>Ваша задача — написать программу, которая рассчитывает время загрузки и установки обновления в формате ММ:СС.</p>
+            
+            <div class="example-block">
+                <div class="label">Входные данные:</div>
+                <p>Три положительных числа: размер обновления в ГБ, скорость интернета в Мбит/с и время установки в минутах. По одному числу в строке.</p>
+            </div>
+            
+            <div class="example-block">
+                <div class="label">Выходные данные:</div>
+                <p>Три строки с результатами:</p>
+                <pre><code>Время скачивания: {ММ:СС}
+Общее время: {ММ:СС}</code></pre>
+                <p style="margin-top: 8px; font-size: 0.9rem; color: #64748b;">*Примечание: 1 ГБ = 1024 МБ, 1 МБ = 8 Мбит. Округление секунд производится в меньшую сторону (отбрасывание дробной части).</p>
+            </div>
+
+            <div class="example-block">
+                <div class="label">Пример 1:</div>
+                <pre><code>Входные данные:
+2
+50
+15
+
+Выходные данные:
+Время скачивания: 05:27
+Общее время: 20:27</code></pre>
+            </div>
+
+            <div class="example-block">
+                <div class="label">Пример 2:</div>
+                <pre><code>Входные данные:
+10
+20
+30
+
+Выходные данные:
+Время скачивания: 68:16
+Общее время: 98:16</code></pre>
+            </div>
+        `;
+    }
+
+    function renderZ8() {
+        return `
+            <h3>Задание 8. Упаковка товаров</h3>
+            <p>Миша работает в логистической компании и занимается оптимизацией упаковки товаров в контейнеры фиксированной вместимости. Ему необходимо определить, сколько полностью заполненных контейнеров можно отправить и какой объём (или количество единиц) товара останется без упаковки, чтобы минимизировать транспортные расходы.</p>
+            <p>Ваша задача — написать программу, которая рассчитывает количество полных контейнеров, определяет количество оставшихся не погруженных товаров и вычисляет эффективность упаковки по формуле:</p>
+            
+            <div class="example-block" style="text-align: center; font-size: 1.1rem; font-weight: 600;">
+                эффективность = (1 - (остаток / общий объем)) × 100%
+            </div>
+
+            <div class="example-block">
+                <div class="label">Входные данные:</div>
+                <p>Два целых положительных числа: общее количество товаров и вместимость одного контейнера. По одному числу в строке.</p>
+            </div>
+
+            <div class="example-block">
+                <div class="label">Выходные данные:</div>
+                <p>Три строки с результатами:</p>
+                <pre><code>Полных контейнеров: {количество}
+Оставшийся товар: {единицы}
+Эффективность упаковки: {процент}%</code></pre>
+            </div>
+
+            <div class="example-block">
+                <div class="label">Пример:</div>
+                <pre><code>Входные данные:
+12085430
+2842
+
+Выходные данные:
+Полных контейнеров: 4252
+Оставшийся товар: 1246
+Эффективность упаковки: 99.99%</code></pre>
+            </div>
+        `;
+    }
+
+    function renderZ9() {
+        return `
+            <h3>Задание 9. Номерной знак автомобиля (для продвинутых)</h3>
+            <p>Действительный номерной знак машины? Допустим, в нашей стране старый формат номерных знаков автомобилей состоял из трех заглавных букв, следом за которыми шли три цифры. После того как все возможные номера были использованы, формат был изменен на четыре цифры, предшествующие трем заглавным буквам. Напишите программу, запрашивающую у пользователя номерной знак машины и оповещающую о том, для какого формата подходит данная последовательность символов: для старого или нового. Если введенная последовательность не соответствует ни одному из двух форматов, укажите это в сообщении.</p>
+            
+            <div class="example-block">
+                <div class="label">💡 Подсказка:</div>
+                <p>Строка - это набор символов. Например <code class="inline-code">s = "a7b"</code>. В этой строке на нулевой позиции находится буква 'a', на первой позиции цифра '7', и на второй буква 'b'. Чтобы проверить, что находится на нулевой позиции данной строки, можно сделать следующее:</p>
+                <pre><code>s = "a7b"
+
+if s[0].isdigit():
+    print("Это цифра")
+else:
+    print("Это буква")</code></pre>
+                <p><code class="inline-code">isdigit()</code> - проверяет символ в строке и определяет, является ли он цифрой от 0 до 9.</p>
+            </div>
+        `;
+    }
+
+    // ===== Инициализация =====
+    document.addEventListener('DOMContentLoaded', function() {
+        // Примеры решений
+        document.getElementById('task-ex1').innerHTML = renderEx1();
+        document.getElementById('task-ex2').innerHTML = renderEx2();
+        
+        // Основные задания
+        document.getElementById('task-z1').innerHTML = renderZ1();
+        document.getElementById('task-z2').innerHTML = renderZ2();
+        document.getElementById('task-z3').innerHTML = renderZ3();
+        document.getElementById('task-z4').innerHTML = renderZ4();
+        document.getElementById('task-z5').innerHTML = renderZ5();
+        document.getElementById('task-z6').innerHTML = renderZ6();
+        document.getElementById('task-z7').innerHTML = renderZ7();
+        document.getElementById('task-z8').innerHTML = renderZ8();
+        document.getElementById('task-z9').innerHTML = renderZ9(); // Задача на номерные знаки
+    });
+
+    // ===== PIN-защита =====
+    (function() {
+        const overlay = document.getElementById('pin-overlay');
+        const mainContent = document.getElementById('main-content');
+        const pinInput = document.getElementById('pin-input');
+        const pinBtn = document.getElementById('pin-btn');
+        const pinError = document.getElementById('pin-error');
+        const CORRECT_PIN_BASE64 = 'NDMyMQ=='; // 4321
+
+        if (sessionStorage.getItem('pin_verified') === 'true') {
+            overlay.classList.add('hidden');
+            mainContent.style.display = 'block';
+            return;
+        }
+
+        function verifyPin() {
+            const entered = pinInput.value.trim();
+            if (entered === '') {
+                pinError.textContent = 'Введите PIN-код.';
+                return;
+            }
+            if (btoa(entered) === CORRECT_PIN_BASE64) {
+                sessionStorage.setItem('pin_verified', 'true');
+                overlay.classList.add('hidden');
+                mainContent.style.display = 'block';
+                pinError.textContent = '';
+            } else {
+                pinError.textContent = 'Неверный PIN-код.';
+                pinInput.value = '';
+                pinInput.focus();
+            }
+        }
+
+        pinBtn.addEventListener('click', verifyPin);
+        pinInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); verifyPin(); }
+        });
+        pinInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 4);
+        });
+        pinInput.focus();
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'smooth' });
+                }
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 20) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+    })();
+</script>
+
+</body>
+</html>
