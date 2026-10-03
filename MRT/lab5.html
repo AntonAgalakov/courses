@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Практическая работа · ПВЗ</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&amp;display=swap" rel="stylesheet"/>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #f8fafc;
+        color: #0f172a;
+        line-height: 1.6;
+        scroll-behavior: smooth;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    nav {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+        border-bottom: 1px solid #e2e8f0; padding: 12px 0; transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .logo { font-weight: 700; font-size: 1.2rem; color: #2563eb; letter-spacing: -0.5px; }
+    .logo span { color: #0f172a; font-weight: 400; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 8px 20px; list-style: none; }
+    .nav-links a {
+        text-decoration: none; font-size: 0.9rem; font-weight: 500;
+        color: #334155; transition: color 0.2s; padding: 4px 0;
+        border-bottom: 2px solid transparent;
+    }
+    .nav-links a:hover { color: #2563eb; border-bottom-color: #2563eb; }
+
+    .hero { padding: 60px 0 40px; text-align: center; }
+    .hero h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -1px; line-height: 1.2; margin-bottom: 8px; }
+    .hero h1 .highlight { color: #2563eb; }
+    .hero p.sub { font-size: 1.2rem; color: #475569; max-width: 700px; margin: 0 auto 20px; }
+    .badge {
+        display: inline-block; background: #dbeafe; color: #1d4ed8;
+        padding: 6px 18px; border-radius: 40px;
+        font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px;
+    }
+
+    section { padding: 48px 0; border-bottom: 1px solid #e9edf2; }
+    section:last-of-type { border-bottom: none; }
+    .section-title {
+        font-size: 1.8rem; font-weight: 700; margin-bottom: 24px;
+        letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px;
+    }
+    .section-title .number {
+        background: #2563eb; color: #fff; width: 36px; height: 36px;
+        border-radius: 50%; display: inline-flex; align-items: center;
+        justify-content: center; font-size: 1rem; font-weight: 600; flex-shrink: 0;
+    }
+
+    .card-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px; margin-top: 20px;
+    }
+    .card {
+        background: #ffffff; border-radius: 16px; padding: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        border: 1px solid #eef2f6;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+    .card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; color: #0f172a; }
+    .card p, .card li { color: #334155; font-size: 0.95rem; }
+    .card ul, .card ol { padding-left: 20px; margin: 8px 0; }
+    .card ul li, .card ol li { margin-bottom: 4px; }
+    .card-full { grid-column: 1 / -1; }
+
+    .code-block {
+        background: #1e293b; color: #e2e8f0; padding: 16px 20px;
+        border-radius: 12px; overflow-x: auto;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.85rem; line-height: 1.5; margin: 16px 0;
+        white-space: pre; tab-size: 4; -moz-tab-size: 4; word-break: normal;
+    }
+    .code-block .comment { color: #94a3b8; }
+    .code-block .keyword { color: #f472b6; }
+    .code-block .func { color: #60a5fa; }
+    .code-block .string { color: #a3e635; }
+    .code-block .number { color: #fbbf24; }
+    .code-block .error-mark { background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; padding-left: 8px; }
+    .code-block .type { color: #c084fc; }
+    .code-block .op { color: #f472b6; }
+
+    .code-block .new-line {
+        background: rgba(34, 197, 94, 0.15);
+        display: inline-block;
+        width: 100%;
+        border-left: 3px solid #22c55e;
+        margin-left: -3px;
+        padding-left: 3px;
+    }
+    .code-block .old-line { opacity: 0.45; }
+    .code-block .new-tag {
+        background: #22c55e; color: #052e16;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 1px 6px; border-radius: 4px; margin-left: 8px;
+        letter-spacing: 0.5px; vertical-align: middle;
+    }
+
+    .table-wrap { overflow-x: auto; margin: 20px 0; }
+    table {
+        width: 100%; border-collapse: collapse; font-size: 0.9rem;
+        background: #fff; border-radius: 12px; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    th {
+        background: #f1f5f9; font-weight: 600; padding: 12px 16px;
+        text-align: left; border-bottom: 2px solid #e2e8f0;
+    }
+    td { padding: 10px 16px; border-bottom: 1px solid #ecf1f6; }
+    tr:last-child td { border-bottom: none; }
+
+    .info-box {
+        background: #f1f5f9; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #2563eb; margin: 16px 0;
+    }
+    .info-box strong { color: #0f172a; }
+
+    .new-box {
+        background: #f0fdf4; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #22c55e; margin: 16px 0;
+    }
+    .new-box strong { color: #14532d; }
+
+    .warn-box {
+        background: #fffbeb; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #f59e0b; margin: 16px 0;
+    }
+    .warn-box strong { color: #78350f; }
+
+    .btn-top {
+        display: inline-block; padding: 10px 24px; background: #2563eb;
+        color: #fff; border-radius: 40px; text-decoration: none;
+        font-weight: 500; transition: background 0.2s; border: none;
+        cursor: pointer; font-size: 0.9rem;
+    }
+    .btn-top:hover { background: #1d4ed8; }
+
+    footer {
+        text-align: center; padding: 40px 0 24px;
+        color: #64748b; font-size: 0.9rem;
+        border-top: 1px solid #e9edf2;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 { font-size: 2rem; }
+        .nav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .nav-links { gap: 12px; }
+        .section-title { font-size: 1.4rem; }
+        .card-grid { grid-template-columns: 1fr; }
+    }
+
+    .scroll-anchor { scroll-margin-top: 80px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-8 { margin-bottom: 8px; }
+    .fw-600 { font-weight: 600; }
+    .text-muted { color: #64748b; }
+    .sub-section { margin-top: 32px; }
+    .sub-section h4 { font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #0f172a; }
+
+    .spec-block {
+        background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb;
+        border-radius: 8px; padding: 0; margin: 20px 0; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+    }
+    .spec-block.is-new { border-left-color: #22c55e; }
+    .spec-block.is-given { border-left-color: #94a3b8; opacity: 0.9; }
+    .spec-block .row { display: block; padding: 10px 18px; border-top: 1px solid #eef2f7; line-height: 1.6; }
+    .spec-block .row:first-child {
+        padding: 13px 18px; border-top: 0; background: #f8fafc;
+        font-size: 1.05rem; font-weight: 700; color: #0f172a;
+    }
+    .spec-block.is-new .row:first-child { background: #f0fdf4; }
+    .spec-block.is-given .row:first-child { background: #f1f5f9; }
+    .spec-block .row:first-child .label { color: #0f172a; min-width: 0; margin-right: 12px; }
+    .spec-block .row:not(:first-child) .label {
+        display: block; min-width: 0; margin-bottom: 2px;
+        color: #475569; font-weight: 700;
+    }
+    .spec-block .row:not(:first-child) { color: #334155; }
+    .spec-block code { white-space: normal; }
+
+    /* Список шагов внутри спецификации */
+    .spec-steps { list-style: none; padding-left: 0; margin: 6px 0 0; counter-reset: step; }
+    .spec-steps li {
+        position: relative; padding-left: 30px; margin-bottom: 6px;
+        counter-increment: step; line-height: 1.55;
+    }
+    .spec-steps li::before {
+        content: counter(step);
+        position: absolute; left: 0; top: 1px;
+        width: 20px; height: 20px;
+        background: #e0edff; color: #1d4ed8;
+        border-radius: 50%; font-size: 0.75rem; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .spec-block .hint { color: #475569; font-style: italic; font-size: 0.92rem; }
+
+    .spec-block .new-badge {
+        display: inline-block; background: #22c55e; color: #052e16;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 4px; margin-left: 10px;
+        letter-spacing: 0.5px; vertical-align: middle;
+    }
+    .spec-block .given-badge {
+        display: inline-block; background: #94a3b8; color: #0f172a;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 4px; margin-left: 10px;
+        letter-spacing: 0.5px; vertical-align: middle;
+    }
+
+    .architecture-diagram {
+        display: block; max-width: 100%; width: 900px;
+        height: auto; margin: 24px auto;
+    }
+    .download-button {
+        display: inline-block; padding: 12px 20px;
+        background: #4f46e5; color: white;
+        text-decoration: none; border-radius: 8px;
+        font-weight: 600; transition: opacity 0.2s;
+    }
+    .download-button:hover { opacity: 0.85; }
+
+    .class-role-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:16px; }
+    .role-card { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:18px; }
+    .role-card h4 { margin:0 0 9px; font-size:1.08rem; color:#0f172a; }
+    .role-card p { margin:7px 0; color:#334155; line-height:1.55; }
+    .role-card .muted { color:#64748b; font-size:.92rem; }
+    @media (max-width: 800px) { .class-role-grid { grid-template-columns:1fr; } }
+
+    .legend {
+        display: flex; flex-wrap: wrap; gap: 18px;
+        background: #fff; border: 1px solid #e2e8f0;
+        border-radius: 12px; padding: 14px 20px; margin: 20px 0;
+        font-size: 0.9rem;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-swatch {
+        width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+    }
+    .legend-swatch.green { background: #22c55e; }
+    .legend-swatch.gray { background: #94a3b8; }
+
+    /* === Тестовые примеры в чек-листе === */
+    .test-intro {
+        background: #eff6ff;
+        border-left: 4px solid #2563eb;
+        padding: 14px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        color: #1e3a8a;
+        font-size: 0.95rem;
+    }
+
+    .test-item {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    }
+
+    .test-item .head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .test-item .num {
+        background: #2563eb;
+        color: #fff;
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .test-item .title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #0f172a;
+        flex: 1;
+    }
+
+    .test-item .method {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 0.72rem;
+        padding: 3px 9px;
+        border-radius: 5px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .test-item .body {
+        font-size: 0.93rem;
+        color: #334155;
+        line-height: 1.55;
+    }
+
+    .test-item .body .row {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 10px;
+        padding: 4px 0;
+    }
+
+    .test-item .body .row .lbl {
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .test-item .body .row .val {
+        color: #0f172a;
+    }
+
+    .test-item .body .row .val.expected {
+        color: #166534;
+        font-weight: 500;
+    }
+
+    .test-item .body code {
+        background: #f1f5f9;
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.85em;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        color: #1e293b;
+    }
+
+    .test-item .body .expected code {
+        background: #dcfce7;
+        color: #14532d;
+    }
+
+    @media (max-width: 600px) {
+        .test-item .body .row {
+            grid-template-columns: 1fr;
+            gap: 2px;
+        }
+        .test-item .body .row .lbl {
+            font-size: 0.82rem;
+        }
+    }
+</style>
+</head>
+<body>
+<nav><div class="container nav-inner"><div class="logo">Практика <span>· СТП</span></div><ul class="nav-links"><li><a href="#assignment">Задание</a></li><li><a href="#idea">Идея</a></li><li><a href="#structure">Структура</a></li><li><a href="#order">Порядок</a></li><li><a href="#build">Сборка</a></li><li><a href="#data">Данные</a></li><li><a href="#database">Database</a></li><li><a href="#checklist">Чек-лист</a></li></ul></div></nav>
+
+<header class="hero"><div class="container"><div class="badge">Современные технологии программирования</div><h1>Пункт выдачи заказов<br/><span class="highlight">libpqxx + PostgreSQL</span></h1></div></header>
+
+<div class="container">
+    <div class="info-box">
+        <strong>Готовый проект</strong>
+        <p class="mt-16">
+            Скачайте подготовленный проект «Пункт выдачи заказов». Графический интерфейс,
+            схема БД, сборка и заголовочный файл <code>db.h</code> готовы.
+            Методы класса <code>Database</code> в файле <code>src/db.cpp</code> содержат заглушки
+            и требуют реализации.
+        </p>
+        <p class="mt-16">
+            <a href="PVZ_lab5.zip" download class="download-button">Скачать проект</a>
+        </p>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><span class="legend-swatch green"></span> Методы, которые нужно реализовать самостоятельно</div>
+        <div class="legend-item"><span class="legend-swatch gray"></span> Готовый код, изменению не подлежит</div>
+    </div>
+</div>
+
+<section class="scroll-anchor" id="assignment"><div class="container"><div class="section-title"><span class="number">1</span> Задание</div><div class="card"><ol>
+<li>Реализовать методы класса <code>Database</code> в файле <code>src/db.cpp</code> по приведённой ниже спецификации.</li>
+<li>Освоить базовые операции библиотеки <strong>libpqxx</strong>: открытие соединения, транзакции, параметризованные запросы, чтение результата.</li>
+<li>Реализовать приёмку заказа по телефону или артикулу, с указанием ячейки хранения и авто-генерацией кода.</li>
+<li>Реализовать поиск заказов, выдачу и отмену.</li>
+<li>Реализовать отчёт по заказам для трёх вкладок интерфейса.</li>
+<li>Реализовать очистку истории — удаление выданных и отменённых заказов.</li>
+<li>Не изменять <code>db.h</code>, схему БД, файлы интерфейса и сборки.</li>
+</ol></div></div></section>
+
+<section class="scroll-anchor" id="idea"><div class="container">
+<div class="section-title"><span class="number">2</span> Идея проекта</div>
+<div class="card">
+<h3>Идея проекта</h3>
+<p>Приложение <strong>«Пункт выдачи заказов»</strong> — рабочий инструмент оператора ПВЗ. Оператор принимает коробки от курьера, кладёт их в ячейки, выдаёт клиентам по телефону или коду заказа, отмечает отказы. Вечером смотрит отчёт за смену.</p>
+<p>Графический интерфейс подготовлен. Основная работа выполняется в классе <code>Database</code> — единственном месте, где приложение общается с PostgreSQL.</p>
+
+<h3 class="mt-16">Что важно понять в этой работе</h3>
+<p>Класс <code>Database</code> — это <strong>слой доступа к данным</strong>. Он не знает о FLTK и окнах. Он умеет только одно: превращать вызовы методов C++ в SQL-запросы к PostgreSQL и возвращать типизированный результат. Такой дизайн позволяет:</p>
+<ul>
+<li>тестировать работу с БД отдельно от интерфейса;</li>
+<li>менять UI, не трогая запросы;</li>
+<li>сосредоточиться на <strong>libpqxx</strong>, а не на вёрстке.</li>
+</ul>
+
+<h3 class="mt-16">Какие классы участвуют</h3>
+<div class="class-role-grid">
+<div class="role-card"><h4><code>Order</code></h4><p>Простая структура данных. Описывает одну строку списка заказов для интерфейса.</p><p class="muted">Отвечает за: <strong>данные одного заказа</strong>.</p></div>
+<div class="role-card"><h4><code>Database</code></h4><p>Класс доступа к PostgreSQL. Содержит <code>pqxx::connection</code> и реализует все операции.</p><p class="muted">Отвечает за: <strong>работу с базой данных</strong>.</p></div>
+<div class="role-card"><h4><code>MainWindow</code>, <code>AddOrderWindow</code>, <code>ReportWindow</code></h4><p>Готовые окна FLTK. Вызывают методы <code>Database</code> и показывают результат.</p><p class="muted">Отвечает за: <strong>интерфейс</strong>.</p></div>
+</div>
+</div></div></section>
+
+<section class="scroll-anchor">
+<div class="container">
+    <strong>Почему FLTK?</strong>
+    Графический интерфейс здесь — не предмет изучения, а фон. Задача лабораторной — работа
+    с <strong>libpqxx</strong> и PostgreSQL, поэтому для интерфейса выбрана самая простая
+    и небольшая библиотека из доступных. <strong>FLTK</strong> — это лёгкий
+    кроссплатформенный GUI-фреймворк на C++: собирается без зависимостей, весит меньше
+    мегабайта, компилируется за секунды и требует минимум кода для окна с кнопками и
+    таблицей. Альтернативы (Qt, GTK, wxWidgets) дают больше возможностей, но и тянут
+    за собой зависимостb, долгую сборку и дополнительный слой
+    абстракций, который в этой работе только отвлекал бы от сути.
+</div>
+</section>
+
+<section class="scroll-anchor" id="structure"><div class="container"><div class="section-title"><span class="number">3</span> Структура проекта</div>
+<div class="card">
+<p>Проект содержит готовые интерфейс, схему БД и сборку. Реализации методов <code>Database</code> отсутствуют.</p>
+<div class="table-wrap"><table><thead><tr><th>Файл</th><th>Содержание</th></tr></thead><tbody>
+<tr><td><code>schema.sql</code></td><td>SQL-схема БД: одна таблица <code>orders</code>. Готово.</td></tr>
+<tr><td><code>CMakeLists.txt</code></td><td>Сборка FLTK + libpqxx + PostgreSQL. Готово.</td></tr>
+<tr><td><code>run.sh</code></td><td>Обёртка для запуска с заданной строкой подключения. Готово.</td></tr>
+<tr><td><code>src/db.h</code></td><td>Объявления класса <code>Database</code>, структуры <code>Order</code> и <code>Report</code>. <strong>Изменению не подлежит.</strong></td></tr>
+<tr><td><code>src/db.cpp</code></td><td><strong>Реализуется студентом.</strong> Содержит заглушки методов.</td></tr>
+<tr><td><code>src/main.cpp</code></td><td>Точка входа, чтение переменной <code>PICKUP_DB</code>. Готово.</td></tr>
+<tr><td><code>src/main_window.h/.cpp</code></td><td>Главное окно: список, поиск, фильтр, кнопки. Готово.</td></tr>
+<tr><td><code>src/dialogs.h/.cpp</code></td><td>Окно приёмки и окно отчёта с тремя вкладками. Готово.</td></tr>
+<tr><td><code>src/theme.h</code></td><td>Палитра и вспомогательные функции оформления. Готово.</td></tr>
+</tbody></table></div>
+</div>
+
+<div class="card mt-16"><h3>Взаимодействие классов</h3>
+<svg class="architecture-diagram" viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect x="200" y="20" width="500" height="70" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="450" y="52" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">UI (FLTK)</text>
+  <text x="450" y="74" text-anchor="middle" font-size="13" fill="#475569">MainWindow · AddOrderWindow · ReportWindow</text>
+
+  <line x1="450" y1="90" x2="450" y2="130" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="470" y="118" font-size="12" fill="#64748b" font-style="italic">вызовы методов</text>
+
+  <rect x="200" y="140" width="500" height="90" rx="12" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+  <text x="450" y="172" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">Database</text>
+  <text x="450" y="194" text-anchor="middle" font-size="13" fill="#475569">listOrders · addOrder · issueOrder · cancelOrder</text>
+  <text x="450" y="214" text-anchor="middle" font-size="13" fill="#475569">listByStatus · buildReport · countClosedOrders · deleteClosedOrders</text>
+
+  <line x1="450" y1="230" x2="450" y2="280" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="470" y="262" font-size="12" fill="#64748b" font-style="italic">SQL через libpqxx</text>
+
+  <rect x="200" y="290" width="500" height="100" rx="12" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  <text x="450" y="322" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">PostgreSQL</text>
+  <text x="450" y="346" text-anchor="middle" font-size="13" fill="#475569">orders (id, order_code, phone, parcel_article,</text>
+  <text x="450" y="366" text-anchor="middle" font-size="13" fill="#475569">cell, status, created_at, issued_at)</text>
+</svg>
+<p>Графический интерфейс вызывает методы <code>Database</code>. <code>Database</code> преобразует их в SQL и отправляет в PostgreSQL через <code>pqxx::connection</code>. Все данные хранятся в одной таблице <code>orders</code>.</p>
+</div>
+</div></section>
+
+<section class="scroll-anchor" id="order"><div class="container"><div class="section-title"><span class="number">4</span> Порядок выполнения</div>
+<div class="card">
+<ol>
+<li>Установить PostgreSQL, создать базу данных <code>pickup</code> и применить <code>schema.sql</code>.</li>
+<li>Создать пользователя БД <code>pickup_user</code> и выдать ему права (см. раздел 5).</li>
+<li>Собрать проект командой <code>cmake</code> и проверить, что окно открывается.</li>
+<li>Реализовать <code>issueOrder</code> и <code>cancelOrder</code> — самые простые методы.</li>
+<li>Реализовать <code>listOrders</code> и <code>listByStatus</code> — списки с поиском.</li>
+<li>Реализовать <code>buildReport</code>, <code>countClosedOrders</code>, <code>deleteClosedOrders</code>.</li>
+<li>Реализовать <code>addOrder</code> — последний по порядку, объединяющий INSERT и UPDATE.</li>
+<li>Пройти чек-лист приёмки из раздела 8 — все 17 тестов.</li>
+</ol>
+
+</div></div></section>
+
+<section class="scroll-anchor" id="build">
+    <div class="container">
+        <div class="section-title"><span class="number">5</span> Сборка и запуск</div>
+
+        <div class="card">
+            <h3>Зависимости</h3>
+            <p>Для сборки проекта требуются:</p>
+            <ul>
+                <li>компилятор C++ с поддержкой <strong>C++17</strong>;</li>
+                <li><strong>CMake 3.16</strong> или новее;</li>
+                <li><strong>FLTK 1.3</strong> — графический интерфейс;</li>
+                <li><strong>libpqxx</strong> и <strong>libpq</strong> — работа с PostgreSQL;</li>
+            </ul>
+            <p class="mt-16">Установка на Ubuntu / Debian:</p>
+            <pre class="code-block">sudo apt install build-essential cmake libfltk1.3-dev libpqxx-dev libpq-dev postgresql</pre>
+
+            <h3 class="mt-16">Настройка PostgreSQL</h3>
+            <p>Убедитесь, что сервер запущен:</p>
+            <pre class="code-block">sudo systemctl status postgresql</pre>
+
+            <p class="mt-16">Создайте базу данных:</p>
+            <pre class="code-block">sudo -i -u postgres createdb pickup</pre>
+
+            <p class="mt-16">Скопируйте <code>schema.sql</code> в <code>/tmp</code> (у пользователя <code>postgres</code> нет доступа к домашней папке) и примените схему:</p>
+            <pre class="code-block">cp ~/PVZ/schema.sql /tmp/schema.sql
+head -3 /tmp/schema.sql
+sudo -i -u postgres psql pickup -f /tmp/schema.sql</pre>
+
+            <p class="mt-16">Создайте пользователя <code>pickup_user</code> и выдайте права:</p>
+            <pre class="code-block">sudo -i -u postgres psql pickup</pre>
+            <p>Внутри <code>psql</code>:</p>
+            <pre class="code-block">CREATE USER pickup_user WITH PASSWORD 'pickup_pass';
+GRANT ALL PRIVILEGES ON DATABASE pickup TO pickup_user;
+GRANT ALL ON SCHEMA public TO pickup_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO pickup_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pickup_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO pickup_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO pickup_user;
+\q</pre>
+
+            <h3 class="mt-16">Сборка проекта</h3>
+            <pre class="code-block">cd ~/PVZ
+mkdir build &amp;&amp; cd build
+cmake ..
+make</pre>
+
+            <h3 class="mt-16">Запуск</h3>
+            <p>Строка подключения передаётся <strong>только через переменную окружения</strong> <code>PICKUP_DB</code>. В коде дефолтных значений нет — если переменная не задана, приложение выведет подсказку и завершится.</p>
+            <p class="mt-16">Два способа запустить:</p>
+            <p class="fw-600">Через скрипт (рекомендуется):</p>
+            <pre class="code-block">./run.sh</pre>
+            <p class="fw-600">Вручную:</p>
+            <pre class="code-block">PICKUP_DB="host=localhost dbname=pickup user=pickup_user password=pickup_pass" ./pickup_point</pre>
+
+            <div class="info-box">
+                <strong>Проверка подключения:</strong> если БД настроена верно, окно откроется и покажет статус «Готово». Если переменная не задана или БД недоступна — увидите сообщение в терминале и приложение завершится.
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="scroll-anchor" id="data"><div class="container"><div class="section-title"><span class="number">6</span> Структуры данных</div>
+<div class="card">
+<p>Структуры описаны в файле <code>db.h</code> и изменению не подлежат. Их задача — передать данные между слоем БД и интерфейсом.</p>
+
+<h3 class="mt-16">Структура <code>Order</code></h3>
+<p>Описывает одну строку списка заказов.</p>
+<div class="table-wrap"><table><thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead><tbody>
+<tr><td><code>id</code></td><td><code>int</code></td><td>Первичный ключ в БД</td></tr>
+<tr><td><code>code</code></td><td><code>std::string</code></td><td>Код заказа вида <code>PVZ-000001</code></td></tr>
+<tr><td><code>phone</code></td><td><code>std::string</code></td><td>Телефон. Пустая строка, если заказ принят по артикулу</td></tr>
+<tr><td><code>article</code></td><td><code>std::string</code></td><td>Артикул посылки. Пустая строка, если заказ принят по телефону</td></tr>
+<tr><td><code>cell</code></td><td><code>std::string</code></td><td>Код ячейки хранения. Может быть пустым</td></tr>
+<tr><td><code>status</code></td><td><code>std::string</code></td><td><code>ready</code> · <code>issued</code> · <code>cancelled</code></td></tr>
+<tr><td><code>created_at</code></td><td><code>std::string</code></td><td>Дата поступления в формате <code>YYYY-MM-DD HH:MM</code></td></tr>
+</tbody></table></div>
+
+<h3 class="mt-16">Структура <code>Report</code></h3>
+<p>Сводка по статусам для окна отчёта.</p>
+<div class="table-wrap"><table><thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead><tbody>
+<tr><td><code>ready_count</code></td><td><code>int</code></td><td>Количество заказов со статусом <code>ready</code></td></tr>
+<tr><td><code>issued_count</code></td><td><code>int</code></td><td>Количество выданных заказов</td></tr>
+<tr><td><code>cancelled_count</code></td><td><code>int</code></td><td>Количество отменённых заказов</td></tr>
+</tbody></table></div>
+
+<h3 class="mt-16">Схема БД (файл <code>schema.sql</code>)</h3>
+<pre class="code-block"><span class="keyword">DROP TABLE IF EXISTS</span> orders;
+
+<span class="keyword">CREATE TABLE</span> orders (
+    id              <span class="type">SERIAL PRIMARY KEY</span>,
+    order_code      <span class="type">VARCHAR</span>(30) <span class="keyword">UNIQUE NOT NULL</span>,
+    phone           <span class="type">VARCHAR</span>(20),
+    parcel_article  <span class="type">VARCHAR</span>(50),
+    cell            <span class="type">VARCHAR</span>(30),
+    status          <span class="type">VARCHAR</span>(20) <span class="keyword">NOT NULL DEFAULT</span> <span class="string">'ready'</span>,
+    created_at      <span class="type">TIMESTAMP NOT NULL DEFAULT</span> NOW(),
+    issued_at       <span class="type">TIMESTAMP</span>
+);</pre>
+
+<div class="info-box">
+<strong>Обратите внимание:</strong> поля <code>phone</code> и <code>parcel_article</code> взаимоисключающие. Если заказ принят по телефону, заполнено только <code>phone</code>; если по артикулу — только <code>parcel_article</code>. Поле <code>cell</code> — необязательное, может быть пустым. Все три поля в C++ приходят как пустые строки благодаря <code>COALESCE</code>.
+</div>
+</div></div></section>
+
+<section class="scroll-anchor" id="database"><div class="container"><div class="section-title"><span class="number">7</span> Спецификация класса Database (src/db.cpp)</div>
+<div class="card">
+<h3>Назначение</h3>
+<p><code>Database</code> — единственный класс, который общается с PostgreSQL. Все методы принимают простые аргументы (<code>std::string</code>, <code>int</code>) и возвращают простые значения (<code>bool</code>, <code>int</code>, <code>std::vector&lt;Order&gt;</code>, <code>Report</code>). Никаких типов libpqxx наружу не выходит.</p>
+<p>Каждый метод реализуется через <strong>запросы к базе данных</strong> средствами библиотеки <strong>libpqxx</strong>. Никаких промежуточных контейнеров в памяти: класс только формирует SQL-запрос, выполняет его и преобразует ответ в объекты C++.</p>
+
+<h3 class="mt-16">Данные класса</h3>
+<ul>
+<li><code>conn_</code> — объект <code>pqxx::connection</code>, хранит открытое соединение с БД.</li>
+</ul>
+
+<h3 class="mt-16">Готовый код</h3>
+<p>В файле <code>db.cpp</code> уже реализованы:</p>
+<ul>
+<li><strong>Конструктор</strong> — открывает соединение и бросает исключение, если оно не открылось.</li>
+<li><strong>Функция <code>looksLikePhone</code></strong> в анонимном namespace — определяет, что ввёл оператор: телефон или артикул. К работе с БД отношения не имеет.</li>
+</ul>
+
+<div class="spec-block is-given"><div class="row"><span class="label">Конструктор</span><code>Database(const std::string&amp; conn_str)</code><span class="given-badge">ГОТОВО</span></div>
+<div class="row"><span class="label">Вход:</span> строка подключения в формате libpq (<code>host=... dbname=... user=... password=...</code>).</div>
+<div class="row"><span class="label">Процесс:</span> инициализировать <code>conn_</code> переданной строкой; проверить, что соединение открыто.</div>
+<div class="row"><span class="label">Выход:</span> созданный объект <code>Database</code>.</div>
+<div class="row"><span class="label">Исключения:</span> <code>std::runtime_error</code>, если соединение не открылось.</div></div>
+
+<h3 class="mt-16">Методы для реализации</h3>
+
+<div class="info-box">
+    <strong>Где реализовывать:</strong>
+    все методы ниже пишутся в файле <code>src/db.cpp</code>. Каждый метод должен выполнять
+    <strong>запросы к базе данных</strong> через объект транзакции <code>pqxx::work</code>.
+    Заголовочный файл <code>src/db.h</code>, схему БД и файлы интерфейса изменять не нужно.
+</div>
+
+<div class="spec-block is-new"><div class="row"><span class="label">Выдать заказ</span><code>bool issueOrder(const std::string&amp; code)</code><span class="new-badge">РЕАЛИЗОВАТЬ</span></div>
+<div class="row"><span class="label">Вход:</span> код заказа, например <code>"PVZ-000001"</code>.</div>
+<div class="row"><span class="label">Предусловия:</span> заказ с таким кодом существует.</div>
+<div class="row"><span class="label">Процесс:</span>
+    <ol class="spec-steps">
+        <li>Выполнить запрос к базе данных: получить текущий статус заказа с указанным кодом.</li>
+        <li>Если заказ не найден или его статус уже не <code>ready</code> — вернуть <code>false</code>.</li>
+        <li>Иначе выполнить запрос к базе данных: перевести заказ в статус <code>issued</code> и записать дату выдачи.</li>
+    </ol>
+</div>
+<div class="row"><span class="label">Выход:</span> <code>true</code>, если заказ выдан; <code>false</code> — иначе.</div>
+<div class="row"><span class="label">Постусловия:</span> у заказа изменены <code>status</code> и <code>issued_at</code>. Поле <code>cell</code> не изменяется.</div>
+<div class="row"><span class="label">Подсказка:</span> используйте параметризованный запрос, чтобы подставить код заказа. Не склеивайте SQL-строку вручную.</div></div>
+
+<div class="spec-block is-new"><div class="row"><span class="label">Отменить заказ</span><code>bool cancelOrder(const std::string&amp; code)</code><span class="new-badge">РЕАЛИЗОВАТЬ</span></div>
+<div class="row"><span class="label">Вход:</span> код заказа.</div>
+<div class="row"><span class="label">Предусловия:</span> заказ существует.</div>
+<div class="row"><span class="label">Процесс:</span>
+    <ol class="spec-steps">
+        <li>Выполнить запрос к базе данных: получить текущий статус заказа с указанным кодом.</li>
+        <li>Если заказ не найден или его статус уже не <code>ready</code> — вернуть <code>false</code>.</li>
+        <li>Иначе выполнить запрос к базе данных: перевести заказ в статус <code>cancelled</code>.</li>
+    </ol>
+</div>
+<div class="row"><span class="label">Выход:</span> <code>true</code> при успехе, <code>false</code> — иначе.</div>
+<div class="row"><span class="label">Постусловия:</span> у заказа изменён только <code>status</code>; <code>issued_at</code> не заполняется.</div></div>
+
+<div class="spec-block is-new"><div class="row"><span class="label">Сводка по статусам</span><code>Report buildReport()</code><span class="new-badge">РЕАЛИЗОВАТЬ</span></div>
+<div class="row"><span class="label">Вход:</span> нет.</div>
+<div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span>
+    <ol class="spec-steps">
+        <li>Для каждого из трёх статусов — <code>ready</code>, <code>issued</code>, <code>cancelled</code> — выполнить запрос к базе данных: посчитать, сколько заказов находится в этом статусе.</li>
+        <li>Записать три получившихся числа в соответствующие поля структуры <code>Report</code>.</li>
+    </ol>
+</div>
+<div class="row"><span class="label">Выход:</span> заполненная структура <code>Report</code>.</div>
+<div class="row"><span class="label">Постусловия:</span> данные в БД не изменены.</div></div>
+
+<div class="spec-block is-new"><div class="row"><span class="label">Список заказов с поиском</span><code>std::vector&lt;Order&gt; listOrders(const std::string&amp; filter)</code><span class="new-badge">РЕАЛИЗОВАТЬ</span></div>
+<div class="row"><span class="label">Вход:</span> строка поиска. Пустая строка — вернуть все заказы.</div>
+<div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span>
+    <ol class="spec-steps">
+        <li>Выполнить запрос к базе данных: получить список заказов со всеми полями структуры <code>Order</code> — идентификатор, код, телефон, артикул, ячейка, статус и дата создания.</li>
+        <li>Поля <code>phone</code>, <code>parcel_article</code> и <code>cell</code> в базе могут быть пустыми — в этом случае заменить их пустой строкой, чтобы не получить ошибку при чтении.</li>
+        <li>Если фильтр непустой — добавить в запрос условие: код, телефон или артикул содержат подстроку без учёта регистра.</li>
+        <li>Отсортировать результат: сначала самые свежие заказы.</li>
+    </ol>
+</div>
+<div class="row"><span class="label">Выход:</span> <code>std::vector&lt;Order&gt;</code>.</div>
+<div class="row"><span class="label">Постусловия:</span> данные не изменены.</div>
+<div class="row"><span class="label">Подсказка:</span> количество параметров в условии зависит от того, задан фильтр или нет. Для поиска по подстроке используйте <code>txn.quote(...)</code>, чтобы экранировать значение.</div></div>
+
+<div class="spec-block is-new"><div class="row"><span class="label">Список по статусу</span><code>std::vector&lt;Order&gt; listByStatus(const std::string&amp; status)</code><span class="new-badge">РЕАЛИЗОВАТЬ</span></div>
+<div class="row"><span class="label">Вход:</span> статус (<code>"ready"</code>, <code>"issued"</code>, <code>"cancelled"</code>) или пустая строка.</div>
+<div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span>
+    <ol class="spec-steps">
+        <li>Выполнить запрос к базе данных: получить список заказов с теми же полями, что и в <code>listOrders</code>.</li>
+        <li>Если переданный статус непустой — добавить в запрос условие: статус заказа равен переданному.</li>
+        <li>Отсортировать результат по дате создания, свежие сверху.</li>
+    </ol>
+</div>
+<div class="row"><span class="label">Выход:</span> <code>std::vector&lt;Order&gt;</code>.</div>
+<div class="row"><span class="label">Постусловия:</span> данные не изменены.</div>
+<div class="row"><span class="label">Назначение:</span> используется в окне отчёта для вкладок «Принято / Выдано / Отменено».</div></div>
+
+<div class="spec-block is-new"><div class="row"><span class="label">Сколько закрытых заказов</span><code>int countClosedOrders()</code><span class="new-badge">РЕАЛИЗОВАТЬ</span></div>
+<div class="row"><span class="label">Вход:</span> нет.</div>
+<div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span>
+    <ol class="spec-steps">
+        <li>Выполнить запрос к базе данных: посчитать, сколько заказов находится в статусе <code>issued</code> или <code>cancelled</code>.</li>
+    </ol>
+</div>
+<div class="row"><span class="label">Выход:</span> целое число — количество таких заказов.</div>
+<div class="row"><span class="label">Постусловия:</span> данные не изменены.</div>
+<div class="row"><span class="label">Назначение:</span> показать пользователю в диалоге подтверждения, сколько строк будет удалено перед очисткой истории.</div></div>
+
+<div class="spec-block is-new"><div class="row"><span class="label">Очистить историю</span><code>int deleteClosedOrders()</code><span class="new-badge">РЕАЛИЗОВАТЬ</span></div>
+<div class="row"><span class="label">Вход:</span> нет.</div>
+<div class="row"><span class="label">Предусловия:</span> нет.</div>
+<div class="row"><span class="label">Процесс:</span>
+    <ol class="spec-steps">
+        <li>Выполнить запрос к базе данных: удалить все заказы со статусом <code>issued</code> или <code>cancelled</code>.</li>
+        <li>Узнать, сколько строк было удалено.</li>
+        <li>Зафиксировать изменения.</li>
+    </ol>
+</div>
+<div class="row"><span class="label">Выход:</span> число удалённых заказов.</div>
+<div class="row"><span class="label">Постусловия:</span> заказы с указанными статусами отсутствуют в БД. Заказы <code>ready</code> не тронуты.</div>
+<div class="row"><span class="label">Подсказка:</span> после выполнения запроса используйте <code>affected_rows()</code>, а не <code>size()</code>. Для операций изменения это разные числа.</div></div>
+
+<div class="spec-block is-new"><div class="row"><span class="label">Принять заказ</span><code>std::string addOrder(const std::string&amp; contact, const std::string&amp; cell)</code><span class="new-badge">РЕАЛИЗОВАТЬ</span></div>
+<div class="row"><span class="label">Вход:</span> <code>contact</code> — строка, которая может быть телефоном или артикулом. <code>cell</code> — код ячейки хранения, может быть пустой.</div>
+<div class="row"><span class="label">Предусловия:</span> <code>contact</code> непустой, длина ≥ 5. <code>cell</code> не длиннее 30 символов.</div>
+<div class="row"><span class="label">Процесс:</span>
+    <ol class="spec-steps">
+        <li>Определить по виду строки <code>contact</code>, что это — телефон или артикул.</li>
+        <li>Если телефон — заполнить только поле <code>phone</code>, поле <code>parcel_article</code> оставить пустым. Если артикул — наоборот.</li>
+        <li>Выполнить запрос к базе данных: вставить новую строку в таблицу заказов, передав телефон, артикул и ячейку. В качестве кода пока использовать временное значение. Запрос должен вернуть идентификатор, который база присвоила новой строке, — он понадобится на следующем шаге.</li>
+        <li>Сформировать окончательный код заказа вида <code>PVZ-000042</code>: префикс <code>PVZ-</code> и номер из шести цифр, дополненный нулями слева. Номер взять из идентификатора, полученного на предыдущем шаге.</li>
+        <li>Выполнить запрос к базе данных: обновить строку заказа — заменить временный код на сформированный.</li>
+        <li>Зафиксировать изменения.</li>
+    </ol>
+</div>
+<div class="row"><span class="label">Выход:</span> строка — сгенерированный код заказа, например <code>"PVZ-000042"</code>.</div>
+<div class="row"><span class="label">Постусловия:</span> в БД создан заказ со статусом <code>ready</code>, уникальным кодом и заполненным ровно одним из полей — <code>phone</code> или <code>parcel_article</code>. Поле <code>cell</code> содержит переданное значение (или пусто).</div>
+<div class="row"><span class="label">Исключения:</span> ошибка БД при нарушении ограничений (например, дубликат кода).</div>
+<div class="row"><span class="label">Вопрос на защите:</span> зачем нужен <code>RETURNING id</code>? Почему нельзя обойтись запросом «получить максимальный id»?</div></div>
+
+<h3 class="mt-16">Ключевые понятия libpqxx</h3>
+<div class="table-wrap"><table><thead><tr><th>Понятие</th><th>Назначение</th></tr></thead><tbody>
+<tr><td><code>pqxx::connection</code></td><td>Открытое соединение с PostgreSQL. Создаётся один раз в конструкторе.</td></tr>
+<tr><td><code>pqxx::work</code></td><td>Транзакция. Создаётся в каждом методе. Автоматически откатывается при разрушении без <code>commit()</code>.</td></tr>
+<tr><td><code>txn.exec(sql)</code></td><td>Выполнить SQL без параметров.</td></tr>
+<tr><td><code>txn.exec_params(sql, args...)</code></td><td>Выполнить SQL с параметрами <code>$1, $2, ...</code>. Защищает от SQL-инъекций.</td></tr>
+<tr><td><code>txn.quote(str)</code></td><td>Экранировать строку для подстановки в SQL, если параметры не используются.</td></tr>
+<tr><td><code>row[i].as&lt;T&gt;()</code></td><td>Прочитать колонку <code>i</code> как тип <code>T</code>.</td></tr>
+<tr><td><code>r.empty()</code></td><td>Пустой ли результат <code>SELECT</code>.</td></tr>
+<tr><td><code>r.affected_rows()</code></td><td>Сколько строк затронуто <code>UPDATE</code> или <code>DELETE</code>.</td></tr>
+<tr><td><code>txn.commit()</code></td><td>Зафиксировать изменения. Без него всё откатится.</td></tr>
+</tbody></table></div>
+</div></div></section>
+
+<section class="scroll-anchor" id="checklist"><div class="container"><div class="section-title"><span class="number">8</span> Чек-лист приёмки</div>
+
+<div class="test-intro">
+    Перед сдачей прогоните все 18 тестов на вашей сборке. Если все проходят — работа готова.
+    Рядом с каждым тестом указан метод, который он проверяет, — удобно для отладки.
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">1</span><span class="title">Сборка проекта</span><span class="method">—</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val"><code>cd build &amp;&amp; make</code></span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Сборка без ошибок и без предупреждений компилятора.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">2</span><span class="title">Запуск без переменной окружения</span><span class="method">main</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Запустить <code>./pickup_point</code> без <code>PICKUP_DB</code>.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Приложение печатает в stderr подсказку про <code>PICKUP_DB</code> и завершается с кодом 1. Окно не открывается.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">3</span><span class="title">Запуск и подключение к БД</span><span class="method">Database::Database</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Запустить <code>./run.sh</code> (или с явным <code>PICKUP_DB=...</code>).</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Окно открывается, в статус-баре «Готово». В терминале никаких ошибок. Если БД недоступна — сообщение <code>DB error: ...</code>.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">4</span><span class="title">Приёмка по телефону с ячейкой</span><span class="method">Database::addOrder</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">«+ Принять» → телефон <code>+79990001122</code>, ячейка <code>A1</code> → «Принять».</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">В списке появился <code>PVZ-000001</code>, телефон <code>+79990001122</code>, артикул <code>—</code>, ячейка <code>A1</code>, статус «К выдаче».</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">5</span><span class="title">Приёмка по артикулу без ячейки</span><span class="method">Database::addOrder</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">«+ Принять» → артикул <code>ART-123456789</code>, ячейку оставить пустой → «Принять».</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected"><code>PVZ-000002</code>, телефон <code>—</code>, артикул <code>ART-123456789</code>, ячейка <code>—</code>.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">6</span><span class="title">Второй заказ на тот же телефон</span><span class="method">Database::addOrder</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">«+ Принять» → телефон <code>+79990001122</code>, ячейка <code>B12</code> → «Принять».</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected"><code>PVZ-000003</code> с тем же телефоном и ячейкой <code>B12</code>.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">7</span><span class="title">Слишком короткий ввод</span><span class="method">валидация формы</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">«+ Принять» → ввести <code>abc</code> → «Принять».</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">В форме появляется ошибка «Введите телефон или артикул посылки». Заказ не создаётся, окно не закрывается.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">8</span><span class="title">Поиск по телефону</span><span class="method">Database::listOrders</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">В поле поиска ввести <code>+7999</code>.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Два заказа — <code>PVZ-000001</code> и <code>PVZ-000003</code>.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">9</span><span class="title">Поиск по артикулу</span><span class="method">Database::listOrders</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">В поле поиска ввести <code>ART-</code>.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Один заказ — <code>PVZ-000002</code>.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">10</span><span class="title">Поиск по подстроке кода</span><span class="method">Database::listOrders</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Очистить поиск, ввести <code>000002</code>.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Один заказ — <code>PVZ-000002</code>.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">11</span><span class="title">Фильтр по статусу</span><span class="method">клиентская фильтрация</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Очистить поиск. Выбрать фильтр «К выдаче», затем «Выдан».</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">«К выдаче» — три заказа. «Выдан» — пусто. «Отменён» — пусто. «Все» — три заказа.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">12</span><span class="title">Выдача заказа</span><span class="method">Database::issueOrder</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Выбрать <code>PVZ-000001</code> → «Выдать» → подтвердить.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Строка стала зелёной, статус «Выдан». В диалоге подтверждения рядом с телефоном показана ячейка <code>A1</code>.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">13</span><span class="title">Повторная выдача — защита от дурака</span><span class="method">Database::issueOrder</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Снова выбрать <code>PVZ-000001</code> → «Выдать».</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Alert «Заказ нельзя выдать (статус: Выдан)». Никаких изменений в БД.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">14</span><span class="title">Отмена ready-заказа</span><span class="method">Database::cancelOrder</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Выбрать <code>PVZ-000002</code> → «Отменить» → «Да».</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Строка стала красной, статус «Отменён».</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">15</span><span class="title">Отмена выданного — защита от дурака</span><span class="method">Database::cancelOrder</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Выбрать <code>PVZ-000001</code> (уже выдан) → «Отменить».</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Alert «Отменить можно только заказ "К выдаче"». Никаких изменений в БД.</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">16</span><span class="title">Отчёт — три вкладки и сводка</span><span class="method">Database::listByStatus</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Нажать «Отчёт». Переключиться по всем трём вкладкам.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">«Принято» — 3 заказа, «Выдано» — 1 (<code>000001</code>), «Отменено» — 1 (<code>000002</code>). Внизу сводка: <em>Принято: 3 • Выдано: 1 • Отменено: 1</em>. В каждой вкладке есть колонка «Ячейка».</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">17</span><span class="title">Очистка истории</span><span class="method">Database::countClosedOrders, deleteClosedOrders</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия:</span><span class="val">Нажать «Очистить историю» → согласиться.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">В диалоге число «2». После подтверждения остался только <code>PVZ-000003</code> со статусом «К выдаче». В статус-баре «Удалено заказов: 2».</span></div>
+    </div>
+</div>
+
+<div class="test-item">
+    <div class="head"><span class="num">18</span><span class="title">Персистентность и защита от SQL-инъекции</span><span class="method">проверка commit() и quote()</span></div>
+    <div class="body">
+        <div class="row"><span class="lbl">Действия 1:</span><span class="val">Закрыть приложение, запустить заново. <code>PVZ-000003</code> должен остаться.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Заказ на месте. Если пусто — где-то забыт <code>commit()</code>.</span></div>
+        <div class="row"><span class="lbl">Действия 2:</span><span class="val">Ввести в поиск <code>' OR '1'='1</code>.</span></div>
+        <div class="row"><span class="lbl">Ожидаемо:</span><span class="val expected">Список пуст. Если показались все заказы — в <code>listOrders</code> конкатенация строк вместо <code>txn.quote()</code>.</span></div>
+    </div>
+</div>
+
+</div></section>
+
+
+<footer><div class="container"><p>Практическая работа · Работа с PostgreSQL через libpqxx</p><p style="margin-top:8px;font-size:.8rem">Современные технологии программирования · 2026</p></div></footer>
+
+<script>document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}));</script>
+</body>
+</html>
