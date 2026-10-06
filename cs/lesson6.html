@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лабораторная работа №6 · Списки в Python</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #f5f7fb; --card: #ffffff; --border: #e4e8ef; --border-soft: #eef1f6;
+    --text: #0f172a; --muted: #64748b; --accent: #2563eb; --accent-soft: #eff6ff; --accent-line: #bfdbfe;
+    --green: #16a34a; --green-soft: #f0fdf4; --green-line: #bbf7d0;
+    --amber: #d97706; --amber-soft: #fffbeb; --amber-line: #fcd34d;
+    --red: #dc2626; --red-soft: #fef2f2; --red-line: #fecaca;
+    --violet: #7c3aed; --violet-soft: #f5f3ff; --violet-line: #ddd6fe;
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.04);
+    --shadow: 0 6px 20px rgba(15,23,42,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+#pin-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity .4s; }
+#pin-overlay.hidden { opacity: 0; pointer-events: none; }
+.pin-box { background:#fff; border-radius:20px; padding:36px 32px; max-width:380px; width:90%; box-shadow: 0 24px 64px rgba(0,0,0,.25); text-align:center; }
+.pin-box h2 { font-weight: 700; font-size: 1.4rem; margin-bottom: 6px; }
+.pin-box p { color: var(--muted); font-size: .95rem; margin-bottom: 20px; }
+.pin-box input { width: 100%; padding: 13px 16px; font-size: 1.15rem; text-align: center; letter-spacing: 8px; border: 2px solid var(--border); border-radius: 12px; outline: none; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+.pin-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+.pin-box .error-msg { color: var(--red); font-size: .88rem; margin-top: 10px; height: 20px; }
+.pin-box button { margin-top: 16px; width: 100%; padding: 13px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+.pin-box button:hover { background: #1d4ed8; }
+.container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+nav { position: sticky; top: 0; z-index: 90; background: rgba(255,255,255,0.9); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+nav.scrolled { box-shadow: var(--shadow-sm); }
+.nav-inner { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; flex-wrap: wrap; gap: 10px; }
+.logo { font-weight: 700; font-size: 1.05rem; color: var(--accent); }
+.logo span { color: var(--text); font-weight: 500; }
+.nav-links { display: flex; gap: 4px; list-style: none; flex-wrap: wrap; }
+.nav-links a { text-decoration: none; font-size: .88rem; font-weight: 500; color: var(--muted); padding: 6px 12px; border-radius: 8px; }
+.nav-links a:hover { color: var(--accent); background: var(--accent-soft); }
+.hero { padding: 56px 0 40px; text-align: center; }
+.hero .badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 5px 14px; border-radius: 30px; font-size: .8rem; font-weight: 600; margin-bottom: 16px; }
+.hero h1 { font-size: 2.6rem; font-weight: 800; letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 14px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .sub { font-size: 1.1rem; color: var(--muted); max-width: 660px; margin: 0 auto; }
+section { padding: 44px 0; }
+.section-head { margin-bottom: 24px; }
+.section-head .kicker { font-size: .78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.section-head h2 { font-size: 1.75rem; font-weight: 700; letter-spacing: -.6px; }
+.section-head p { color: var(--muted); margin-top: 6px; font-size: .98rem; }
+.card { background: var(--card); border-radius: 16px; padding: 24px 28px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); }
+.card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.card p, .card li { color: #334155; font-size: .98rem; }
+.card ul, .card ol { padding-left: 22px; margin: 8px 0; }
+.card ul li, .card ol li { margin-bottom: 4px; }
+pre { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: .86rem; overflow-x: auto; line-height: 1.55; margin: 10px 0; }
+code { font-family: 'JetBrains Mono', monospace; }
+.inline-code { background: #eef2f7; color: #0f172a; padding: 2px 6px; border-radius: 5px; font-size: .88em; font-family: 'JetBrains Mono', monospace; }
+.task-nav-wrap { position: sticky; top: 55px; z-index: 80; background: linear-gradient(to bottom, var(--bg) 70%, rgba(245,247,251,0)); padding: 12px 0 8px; margin-bottom: 4px; }
+.task-nav { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.task-nav::-webkit-scrollbar { height: 6px; }
+.task-nav::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.task-chip { flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; font-family: inherit; font-size: .88rem; font-weight: 500; color: #334155; cursor: pointer; white-space: nowrap; }
+.task-chip:hover { border-color: var(--accent-line); color: var(--accent); }
+.task-chip .chip-num { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 6px; padding: 0 5px; background: #eef2f7; color: #475569; font-size: .72rem; font-weight: 700; }
+.task-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.25); }
+.task-chip.active .chip-num { background: rgba(255,255,255,.22); color: #fff; }
+.task-chip.solved .chip-num { background: var(--green-soft); color: var(--green); }
+.task-chip.solved.active .chip-num { background: rgba(255,255,255,.22); color: #fff; }
+.carousel-outer { position: relative; background: var(--card); border-radius: 20px; border: 1px solid var(--border-soft); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 24px; }
+.carousel-outer:last-child { margin-bottom: 0; }
+.carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
+.carousel::-webkit-scrollbar { display: none; }
+.slide { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; padding: 32px 40px 28px; min-height: 560px; display: flex; flex-direction: column; }
+.slide-head { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--border-soft); }
+.task-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; padding: 6px 12px; border-radius: 8px; flex-shrink: 0; }
+.task-badge.solved { background: var(--green-soft); color: var(--green); }
+.slide-head h3 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.4px; line-height: 1.25; }
+.slide-body { display: flex; flex-direction: column; gap: 20px; flex: 1; }
+.block h4 { font-size: .78rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.block p { font-size: 1rem; color: #1e293b; }
+.block ul, .block ol { padding-left: 22px; }
+.block ul li, .block ol li { font-size: 1rem; color: #1e293b; margin-bottom: 4px; }
+.story-block { background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%); border: 1px solid var(--violet-line); border-left: 4px solid var(--violet); border-radius: 12px; padding: 16px 20px; font-size: 1rem; color: #312e81; }
+.story-block p { color: #312e81; }
+.story-block p + p { margin-top: 10px; }
+.story-block ul, .story-block ol { padding-left: 22px; margin: 8px 0; color: #312e81; }
+.story-block li { color: #312e81; margin-bottom: 4px; }
+.task-statement { background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); border: 1px solid var(--accent-line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 18px 20px; }
+.task-statement .ts-label { display: inline-flex; align-items: center; gap: 6px; font-size: .72rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.task-statement .ts-text { font-size: 1.05rem; font-weight: 600; color: #1e293b; line-height: 1.55; }
+.task-statement .ts-text strong { color: var(--accent); font-weight: 700; }
+.solution-block { border-radius: 12px; overflow: hidden; border: 1px solid var(--green-line); background: #fbfefb; }
+.solution-block .sol-head { background: var(--green-soft); color: var(--green); padding: 10px 16px; font-size: .72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--green-line); }
+.solution-block .sol-head::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.solution-block pre { margin: 0; border-radius: 0; background: #0f172a; }
+.io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.io-card { border-radius: 12px; border: 1px solid var(--border-soft); overflow: hidden; background: #fbfcfe; }
+.io-card .io-head { padding: 10px 14px; font-size: .72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.io-card.input .io-head { background: var(--accent-soft); color: var(--accent); border-bottom: 1px solid var(--accent-line); }
+.io-card.output .io-head { background: var(--green-soft); color: var(--green); border-bottom: 1px solid var(--green-line); }
+.io-card .io-head::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+.io-card.input .io-head::before { background: var(--accent); }
+.io-card.output .io-head::before { background: var(--green); }
+.io-card table { width: 100%; border-collapse: collapse; }
+.io-card th, .io-card td { text-align: left; padding: 9px 14px; font-size: .88rem; border-bottom: 1px solid var(--border-soft); }
+.io-card th { font-weight: 600; color: var(--muted); font-size: .72rem; letter-spacing: .6px; text-transform: uppercase; background: #f7f9fc; }
+.io-card tr:last-child td { border-bottom: none; }
+.io-card td:first-child { font-family: 'JetBrains Mono', monospace; font-size: .85rem; }
+.io-card td.mono { font-family: 'JetBrains Mono', monospace; font-size: .85rem; color: #334155; }
+.ref-table { width: 100%; border-collapse: collapse; background: #fbfcfe; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-soft); font-size: .9rem; }
+.ref-table th, .ref-table td { padding: 8px 14px; text-align: left; border-bottom: 1px solid var(--border-soft); }
+.ref-table th { background: #f7f9fc; font-weight: 600; color: var(--muted); font-size: .72rem; letter-spacing: .5px; text-transform: uppercase; }
+.ref-table tr:last-child td { border-bottom: none; }
+.ref-table .num { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: .85rem; }
+
+/* === Таблица критериев === */
+.grade-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: .95rem; }
+.grade-table thead th {
+    background: transparent; color: var(--muted);
+    font-size: .72rem; font-weight: 700; letter-spacing: .8px;
+    text-transform: uppercase; padding: 0 16px 8px;
+    border: none; text-align: left;
+}
+.grade-table tbody tr {
+    background: #fbfcfe;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.grade-table tbody tr:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(15,23,42,.06); }
+.grade-table tbody td {
+    padding: 14px 16px;
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: middle;
+}
+.grade-table tbody td:first-child {
+    border-left: 1px solid var(--border-soft);
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: .92rem;
+}
+.grade-table tbody td:last-child {
+    border-right: 1px solid var(--border-soft);
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+}
+.grade-mark { display: inline-flex; align-items: center; gap: 10px; }
+.grade-mark .mark-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 34px; height: 34px; border-radius: 9px;
+    font-weight: 800; font-size: .95rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+.grade-mark .mark-label { font-weight: 500; color: #334155; font-size: .95rem; }
+.grade-row-3 .mark-num { background: #fef3c7; color: #92400e; }
+.grade-row-4 .mark-num { background: #dbeafe; color: #1e40af; }
+.grade-row-5 .mark-num { background: #d1fae5; color: #065f46; }
+.grade-row-5p .mark-num { background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff; }
+.grade-row-5p { border: 1px solid var(--violet-line); }
+.grade-pct {
+    display: inline-block; min-width: 56px; padding: 4px 10px;
+    border-radius: 8px; font-size: .82rem;
+    background: #eef2f7; color: #475569;
+}
+.grade-row-5p .grade-pct { background: var(--violet-soft); color: var(--violet); }
+.criteria-note {
+    margin-top: 16px; padding-top: 16px;
+    border-top: 1px dashed var(--border);
+    display: flex; align-items: center; gap: 10px;
+    font-size: .9rem; color: var(--muted);
+}
+.criteria-note .ico {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    font-size: .85rem; flex-shrink: 0;
+}
+
+.examples { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.example { background: #fbfcfe; border: 1px solid var(--border-soft); border-radius: 10px; padding: 12px 14px; }
+.example .ex-label { font-size: .7rem; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.example pre { background: #0f172a; padding: 8px 10px; font-size: .8rem; margin: 6px 0; border-radius: 6px; }
+.example .ex-result { font-size: .88rem; font-weight: 600; color: var(--green); padding-top: 4px; font-family: 'JetBrains Mono', monospace; }
+.example .ex-result::before { content: '→ '; opacity: .6; }
+.callout { border-radius: 10px; padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; font-size: .95rem; }
+.callout .ico { font-size: 1.1rem; line-height: 1.3; flex-shrink: 0; }
+.callout.hint { background: var(--amber-soft); border-left: 3px solid var(--amber); color: #78350f; }
+.callout.warn { background: var(--red-soft); border-left: 3px solid var(--red); color: #7f1d1d; }
+.callout.info { background: var(--accent-soft); border-left: 3px solid var(--accent); color: #1e3a8a; }
+.callout.success { background: var(--green-soft); border-left: 3px solid var(--green); color: #14532d; }
+.callout strong { font-weight: 700; }
+.callout pre { background: rgba(15,23,42,.9); margin: 8px 0 0; }
+.str-visual { display: flex; gap: 4px; flex-wrap: wrap; font-family: 'JetBrains Mono', monospace; margin: 12px 0; }
+.str-visual .cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.str-visual .idx { font-size: .68rem; color: var(--muted); font-weight: 600; }
+.str-visual .ch { width: 32px; height: 36px; display: flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-line); border-radius: 8px; font-size: 1rem; font-weight: 700; }
+.str-visual .neg { font-size: .68rem; color: var(--violet); font-weight: 600; }
+.list-visual .ch { width: auto; min-width: 42px; padding: 0 10px; font-size: .9rem; }
+.tree-visual { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 14px 16px; font-family: 'JetBrains Mono', monospace; font-size: .9rem; line-height: 1.15; white-space: pre; overflow-x: auto; }
+.carousel-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: #fafbfd; border-top: 1px solid var(--border-soft); gap: 12px; }
+.nav-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: #334155; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.nav-btn:hover:not(:disabled) { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+.counter { font-size: .85rem; font-weight: 600; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.counter .cur { color: var(--text); font-size: 1rem; }
+.progress-track { height: 3px; background: var(--border-soft); position: relative; }
+.progress-fill { height: 100%; background: var(--accent); width: 25%; transition: width .3s ease; }
+.progress-fill.green { background: var(--green); }
+footer { text-align: center; padding: 32px 0 24px; color: var(--muted); font-size: .88rem; border-top: 1px solid var(--border-soft); margin-top: 20px; }
+@media (max-width: 720px) {
+    .hero h1 { font-size: 1.9rem; }
+    .nav-links a { font-size: .82rem; padding: 5px 9px; }
+    .section-head h2 { font-size: 1.4rem; }
+    .card { padding: 18px 20px; }
+    .slide { padding: 22px 20px; min-height: auto; }
+    .slide-head h3 { font-size: 1.15rem; }
+    .io-grid { grid-template-columns: 1fr; }
+    .task-nav-wrap { top: 0; }
+    .carousel-bar { padding: 10px 12px; }
+    .nav-btn { padding: 8px 12px; font-size: .84rem; }
+    .grade-table tbody td { padding: 10px 12px; }
+    .grade-table thead th { padding: 0 12px 6px; }
+}
+</style>
+</head>
+<body>
+
+<div id="pin-overlay">
+    <div class="pin-box">
+        <h2>Доступ к работе</h2>
+        <p>Введите PIN-код для просмотра</p>
+        <input type="password" id="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
+        <div class="error-msg" id="pin-error"></div>
+        <button id="pin-btn">Подтвердить</button>
+    </div>
+</div>
+
+<div id="main-content" style="display: none;">
+
+<nav id="navbar">
+    <div class="container nav-inner">
+        <div class="logo">Лабораторная <span>№6</span></div>
+        <ul class="nav-links">
+            <li><a href="#theory">Списки</a></li>
+            <li><a href="#methods">Методы</a></li>
+            <li><a href="#samples">Разбор задач</a></li>
+            <li><a href="#tasks">Задания</a></li>
+        </ul>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <div class="badge">Информатика · 1 курс</div>
+        <h1>Списки<br>в <em>Python</em></h1>
+        <p class="sub">Учимся хранить и обрабатывать коллекции: индексация, срезы, методы списков, вложенные структуры и типовые приёмы работы с массивами данных.</p>
+    </div>
+</header>
+
+<div class="container">
+
+<!-- ===================== СПИСКИ ===================== -->
+<section id="theory">
+    <div class="section-head">
+        <div class="kicker">Раздел 01</div>
+        <h2>Списки в Python</h2>
+        <p>Что такое список, как обращаться к элементам, перебирать их и хранить вложенные структуры</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>1.1. Что такое список</h4>
+        <p><strong>Список (list)</strong> — упорядоченная, изменяемая коллекция элементов. Можно представить его как контейнер, в котором хранятся объекты в определённом порядке. Элементы могут быть разных типов.</p>
+        <pre><code>fruits = ["яблоко", "банан", "вишня"]
+mixed = [1, "два", 3.14, True]</code></pre>
+        <div class="callout info">
+            <span class="ico">ℹ️</span>
+            <div><strong>Список изменяем.</strong> В отличие от строки, элемент можно заменить: <code class="inline-code">fruits[0] = "груша"</code>.</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>1.2. Создание списка</h4>
+        <pre><code>empty = []                      # пустой список
+nums = [1, 2, 3, 4, 5]          # числа
+words = list("abc")             # ['a', 'b', 'c']
+zeros = [0] * 5                 # [0, 0, 0, 0, 0]
+rng = list(range(5))            # [0, 1, 2, 3, 4]</code></pre>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>1.3. Индексы и срезы</h4>
+        <p>Нумерация начинается с <strong>нуля</strong>. Отрицательные индексы считают с конца.</p>
+        <div class="str-visual list-visual">
+            <div class="cell"><span class="idx">0</span><span class="ch">10</span><span class="neg">-5</span></div>
+            <div class="cell"><span class="idx">1</span><span class="ch">20</span><span class="neg">-4</span></div>
+            <div class="cell"><span class="idx">2</span><span class="ch">30</span><span class="neg">-3</span></div>
+            <div class="cell"><span class="idx">3</span><span class="ch">40</span><span class="neg">-2</span></div>
+            <div class="cell"><span class="idx">4</span><span class="ch">50</span><span class="neg">-1</span></div>
+        </div>
+        <pre><code>a = [10, 20, 30, 40, 50]
+print(a[0])       # 10
+print(a[-1])      # 50
+print(a[1:4])     # [20, 30, 40]
+print(a[:3])      # [10, 20, 30]
+print(a[3:])      # [40, 50]
+print(a[::2])     # [10, 30, 50]
+print(a[::-1])    # [50, 40, 30, 20, 10]</code></pre>
+        <div class="callout hint">
+            <span class="ico">💡</span>
+            <div>Правая граница среза <strong>не включается</strong>, как и в <code class="inline-code">range()</code>.</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>1.4. Длина и проверки</h4>
+        <pre><code>a = [1, 2, 3]
+print(len(a))       # 3
+print(2 in a)       # True
+print(5 not in a)   # True</code></pre>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>1.5. Перебор списка</h4>
+        <pre><code>for x in [10, 20, 30]:
+    print(x)
+
+for i in range(len(a)):
+    print(i, a[i])
+
+for i, x in enumerate(a, start=1):
+    print(i, x)</code></pre>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>1.6. Вложенные списки</h4>
+        <p>Элементом списка может быть другой список — получается «список списков» или матрица.</p>
+        <pre><code>matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+print(matrix[0])       # [1, 2, 3]
+print(matrix[1][2])    # 6
+
+lst = [[1, 2, ['Ok!', 3]], ['list', 4], 5]
+print(lst[0][2][0])    # Ok!</code></pre>
+    </div>
+
+    <div class="card">
+        <h4>1.7. Типичные ошибки</h4>
+        <ul>
+            <li><strong>IndexError:</strong> обращение к несуществующему индексу.</li>
+            <li><strong>Ссылка, а не копия:</strong> <code class="inline-code">b = a</code> — это тот же список. Нужна копия — <code class="inline-code">b = a.copy()</code> или <code class="inline-code">b = a[:]</code>.</li>
+            <li>Изменение списка прямо во время перебора — можно пропустить элементы.</li>
+            <li>Забыли, что <code class="inline-code">.append()</code> ничего не возвращает (возвращает <code class="inline-code">None</code>).</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ===================== МЕТОДЫ ===================== -->
+<section id="methods">
+    <div class="section-head">
+        <div class="kicker">Раздел 02</div>
+        <h2>Методы и операции со списками</h2>
+        <p>Добавление, удаление, поиск, сортировка и преобразование списков</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>2.1. Добавление элементов</h4>
+        <table class="ref-table">
+            <thead><tr><th>Метод</th><th>Что делает</th><th>Пример</th></tr></thead>
+            <tbody>
+                <tr><td class="mono">.append(x)</td><td>добавить в конец</td><td class="mono">[1,2].append(3) → [1,2,3]</td></tr>
+                <tr><td class="mono">.insert(i, x)</td><td>вставить на позицию i</td><td class="mono">[1,3].insert(1,2) → [1,2,3]</td></tr>
+                <tr><td class="mono">.extend(other)</td><td>дописать другой список</td><td class="mono">[1,2].extend([3,4]) → [1,2,3,4]</td></tr>
+                <tr><td class="mono">a + b</td><td>новый список из двух</td><td class="mono">[1] + [2] → [1,2]</td></tr>
+                <tr><td class="mono">a * n</td><td>повторить n раз</td><td class="mono">[0]*3 → [0,0,0]</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>2.2. Удаление элементов</h4>
+        <table class="ref-table">
+            <thead><tr><th>Метод</th><th>Что делает</th><th>Пример</th></tr></thead>
+            <tbody>
+                <tr><td class="mono">.remove(x)</td><td>удалить первое вхождение значения x</td><td class="mono">[1,2,3,2].remove(2) → [1,3,2]</td></tr>
+                <tr><td class="mono">.pop(i)</td><td>удалить по индексу и вернуть</td><td class="mono">[1,2,3].pop() → 3</td></tr>
+                <tr><td class="mono">del a[i]</td><td>удалить по индексу</td><td class="mono">del a[0]</td></tr>
+                <tr><td class="mono">.clear()</td><td>очистить весь список</td><td class="mono">a.clear()</td></tr>
+            </tbody>
+        </table>
+        <div class="callout warn" style="margin-top:14px;">
+            <span class="ico">⚠️</span>
+            <div><strong>remove и pop отличаются:</strong> <code class="inline-code">remove</code> ищет по <em>значению</em>, <code class="inline-code">pop</code> — по <em>индексу</em>. Если значения нет, <code class="inline-code">remove</code> бросает <code class="inline-code">ValueError</code>.</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>2.3. Поиск и подсчёт</h4>
+        <table class="ref-table">
+            <thead><tr><th>Метод</th><th>Что делает</th><th>Пример</th></tr></thead>
+            <tbody>
+                <tr><td class="mono">.index(x)</td><td>индекс первого вхождения</td><td class="mono">[1,2,3].index(2) → 1</td></tr>
+                <tr><td class="mono">.count(x)</td><td>сколько раз встречается</td><td class="mono">[1,2,2,3].count(2) → 2</td></tr>
+                <tr><td class="mono">x in a</td><td>есть ли элемент</td><td class="mono">2 in [1,2,3] → True</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>2.4. Сортировка и разворот</h4>
+        <pre><code>a = [3, 1, 4, 1, 5, 9, 2]
+
+a.sort()                # [1, 1, 2, 3, 4, 5, 9] — меняет сам список
+a.sort(reverse=True)    # [9, 5, 4, 3, 2, 1, 1]
+
+b = sorted(a)           # новый список, a не меняется
+a.reverse()             # развернуть на месте
+c = a[::-1]             # новый развёрнутый список</code></pre>
+        <div class="callout info">
+            <span class="ico">ℹ️</span>
+            <div><code class="inline-code">.sort()</code> меняет список и возвращает <code class="inline-code">None</code>. <code class="inline-code">sorted()</code> возвращает новый список и не трогает исходный.</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>2.5. Строки ↔ списки</h4>
+        <pre><code>s = "яблоко груша банан"
+words = s.split()           # ['яблоко', 'груша', 'банан']
+nums = list(map(int, "1 2 3".split()))   # [1, 2, 3]
+
+joined = " ".join(words)    # 'яблоко груша банан'
+chars = list("abc")         # ['a', 'b', 'c']</code></pre>
+        <div class="callout hint">
+            <span class="ico">💡</span>
+            <div><code class="inline-code">input().split()</code> — стандартный способ прочитать строку чисел в список.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h4>2.6. Три шаблона работы со списками</h4>
+        <p><strong>Накопление:</strong> собрать новый список.</p>
+        <pre><code>result = []
+for x in [1, 2, 3, 4, 5]:
+    if x % 2 == 0:
+        result.append(x)
+# [2, 4]</code></pre>
+        <p><strong>Преобразование:</strong> получить новый список из старого.</p>
+        <pre><code>squares = []
+for x in range(5):
+    squares.append(x ** 2)
+# [0, 1, 4, 9, 16]</code></pre>
+        <p><strong>Поиск и замена:</strong> обойти и заменить.</p>
+        <pre><code>a = [1, -2, 3, -4]
+for i in range(len(a)):
+    if a[i] < 0:
+        a[i] = 0
+# [1, 0, 3, 0]</code></pre>
+    </div>
+</section>
+
+<!-- ===================== РАЗБОР ЗАДАЧ A1–A4 ===================== -->
+<section id="samples">
+    <div class="section-head">
+        <div class="kicker">Раздел 03</div>
+        <h2>Разбор задач A1–A4</h2>
+        <p>Четыре задачи с готовыми решениями — разберите их перед самостоятельной работой</p>
+    </div>
+
+    <div class="task-nav-wrap">
+        <div class="task-nav" id="samples-nav">
+            <button class="task-chip solved active" data-idx="0"><span class="chip-num">A1</span>Команды</button>
+            <button class="task-chip solved" data-idx="1"><span class="chip-num">A2</span>Вложенный доступ</button>
+            <button class="task-chip solved" data-idx="2"><span class="chip-num">A3</span>Самый жаркий день</button>
+            <button class="task-chip solved" data-idx="3"><span class="chip-num">A4</span>Уникальные слова</button>
+        </div>
+    </div>
+
+    <div class="carousel-outer">
+        <div class="progress-track"><div class="progress-fill green" id="samples-progress"></div></div>
+        <div class="carousel" id="samples-carousel">
+
+            <!-- ========== A1 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge solved">Задача A1</span>
+                    <h3>Команды</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Однажды трое лучших друзей Петя, Вася и Тоня решили создать команду и участвовать в соревновании по программированию. Обычно на соревнованиях по программированию участникам предлагается несколько задач. Ещё перед началом друзья договорились, что они будут реализовывать задачу, если как минимум двое из них придумали и уверены в решении, в противном случае ребята не будут писать решение этой задачи.</p>
+                        <p>На этом соревновании организаторы предложили <em>n</em> задач. Для каждой задачи известно, кто из друзей придумал и уверен в её решении. Помогите друзьям найти количество задач, по которым они будут писать решение.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Имя</th><th>Тип</th><th>Описание</th></tr></thead>
+                                <tbody>
+                                    <tr><td>n</td><td>int</td><td>Количество задач (1 ≤ n ≤ 1000)</td></tr>
+                                    <tr><td>a b c</td><td>int</td><td>Три числа (0 или 1) — мнения Пети, Васи и Тони</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Количество задач</td><td class="mono">int</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <div class="examples">
+                            <div class="example">
+                                <div class="ex-label">Пример 1</div>
+                                <pre><code>3
+1 1 0
+1 1 1
+1 0 0</code></pre>
+                                <div class="ex-result">2</div>
+                            </div>
+                            <div class="example">
+                                <div class="ex-label">Пример 2</div>
+                                <pre><code>2
+1 0 0
+0 1 1</code></pre>
+                                <div class="ex-result">1</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="solution-block">
+                        <div class="sol-head">Решение 1</div>
+                        <pre><code>n = int(input())
+count = 0
+for _ in range(n):
+    a, b, c = map(int, input().split())
+    if a + b + c &gt;= 2:
+        count += 1
+print(count)</code></pre>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== A2 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge solved">Задача A2</span>
+                    <h3>Доступ к вложенному элементу</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="task-statement">
+                        <div class="ts-label">◆ Задание</div>
+                        <div class="ts-text">
+                            Дан следующий список: <code class="inline-code">lst = [[1, 2, ['Ok!', 3]], ['list', 4], 5]</code>. <strong>Выведите единственную строку</strong> <code class="inline-code">Ok!</code>
+                        </div>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Описание</th></tr></thead>
+                                <tbody><tr><td>—</td><td>Входные данные отсутствуют</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Строка</td><td class="mono">Ok!</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="solution-block">
+                        <div class="sol-head">Решение</div>
+                        <pre><code># Входные данные уже заданы — просто обращаемся к нужному элементу по индексам
+lst = [[1, 2, ['Ok!', 3]], ['list', 4], 5]
+
+# Доступ по индексам:
+# lst[0]       → [1, 2, ['Ok!', 3]]
+# lst[0][2]    → ['Ok!', 3]
+# lst[0][2][0] → 'Ok!'
+
+print(lst[0][2][0])</code></pre>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== A3 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge solved">Задача A3</span>
+                    <h3>Самый жаркий день в месяце</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>В данном упражнении вам предстоит разработать программу, в которой у пользователя будет запрошен список слов, пока он не оставит строку ввода пустой. После этого на экране должны быть показаны слова, введённые пользователем, но без повторов — каждое по одному разу. При этом слова должны быть отображены в том же порядке, в каком их вводили с клавиатуры.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Описание</th></tr></thead>
+                                <tbody><tr><td>строки</td><td>Пользователь вводит строки по одной, каждая — с новой строки. Ввод прекращается, когда пользователь вводит пустую строку (т.е. просто нажимает Enter).</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Уникальные слова</td><td class="mono">каждое по одному разу, в порядке первого появления</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Пример</h4>
+                        <div class="examples" style="grid-template-columns: 1fr;">
+                            <div class="example">
+                                <div class="ex-label">Ввод и вывод</div>
+                                <pre><code>first
+second
+first
+third
+second
+(пустая строка)</code></pre>
+                                <div class="ex-result">first / second / third</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="solution-block">
+                        <div class="sol-head">Решение</div>
+                        <pre><code>words = []
+while True:
+    word = input().strip()
+    if not word:
+        break
+    if word not in words:
+        words.append(word)
+
+for w in words:
+    print(w)</code></pre>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== A4 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge solved">Задача A4</span>
+                    <h3>Уникальные слова</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Дан список слов. Требуется создать новый список, в котором удалены все дубликаты, но порядок первых вхождений слов сохранён.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Описание</th></tr></thead>
+                                <tbody><tr><td>строка</td><td>В строке через пробел перечислены слова. Длина каждого слова не превышает 20 символов.</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Уникальные слова</td><td class="mono">в том же порядке, через пробел</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">яблоко груша яблоко банан груша</td><td class="mono">яблоко груша банан</td></tr>
+                                <tr><td class="mono">кот кот кот</td><td class="mono">кот</td></tr>
+                                <tr><td class="mono">a b c d</td><td class="mono">a b c d</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="solution-block">
+                        <div class="sol-head">Решение</div>
+                        <pre><code># Считываем строку со словами и разбиваем её на список
+words = input().split()
+
+# Создаём пустой список для результата — сюда будем добавлять слова
+# в порядке первого вхождения
+unique_words = []
+
+# Проходим по каждому слову во входном списке
+for word in words:
+    # Если слово ещё не встречалось...
+    if word not in unique_words:
+        # ...добавляем его в результат
+        unique_words.append(word)
+
+# Выводим уникальные слова через пробел
+print(" ".join(unique_words))</code></pre>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+        <div class="carousel-bar">
+            <button class="nav-btn" id="samples-prev" disabled>← Назад</button>
+            <span class="counter"><span class="cur" id="samples-cur">1</span> / <span id="samples-total">4</span></span>
+            <button class="nav-btn" id="samples-next">Вперёд →</button>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== ЗАДАНИЯ ===================== -->
+<section id="tasks">
+    <div class="section-head">
+        <div class="kicker">Раздел 04</div>
+        <h2>Ход работы · 12 заданий</h2>
+        <p>Самостоятельные задания по спискам. Решения не приводятся — используйте теорию, разборы A1–A4 и подсказки.</p>
+    </div>
+
+    <!-- ======== ТАБЛИЦА КРИТЕРИЕВ ОЦЕНКИ ======== -->
+    <div class="card" style="margin-bottom: 24px;">
+        <h4>Критерии оценки</h4>
+        <p style="margin-bottom: 14px; color: var(--muted); font-size: .95rem;">Оценка за лабораторную работу выставляется по объёму выполненных заданий:</p>
+        <table class="grade-table">
+            <thead>
+                <tr>
+                    <th>Номера заданий</th>
+                    <th>Оценка</th>
+                    <th style="text-align: right;">Процент выполнения</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="grade-row-3">
+                    <td>A – F</td>
+                    <td>
+                        <span class="grade-mark">
+                            <span class="mark-num">3</span>
+                            <span class="mark-label">удовлетворительно</span>
+                        </span>
+                    </td>
+                    <td><span class="grade-pct">60%</span></td>
+                </tr>
+                <tr class="grade-row-4">
+                    <td>A – H</td>
+                    <td>
+                        <span class="grade-mark">
+                            <span class="mark-num">4</span>
+                            <span class="mark-label">хорошо</span>
+                        </span>
+                    </td>
+                    <td><span class="grade-pct">80%</span></td>
+                </tr>
+                <tr class="grade-row-5">
+                    <td>A – L</td>
+                    <td>
+                        <span class="grade-mark">
+                            <span class="mark-num">5</span>
+                            <span class="mark-label">отлично</span>
+                        </span>
+                    </td>
+                    <td><span class="grade-pct">90%</span></td>
+                </tr>
+                <tr class="grade-row-5p">
+                    <td>A – Q</td>
+                    <td>
+                        <span class="grade-mark">
+                            <span class="mark-num">5+</span>
+                            <span class="mark-label">отлично с плюсом</span>
+                        </span>
+                    </td>
+                    <td><span class="grade-pct">100%</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="task-nav-wrap">
+        <div class="task-nav" id="tasks-nav">
+            <button class="task-chip active" data-idx="0"><span class="chip-num">A</span>Лотерея</button>
+            <button class="task-chip" data-idx="1"><span class="chip-num">B</span>Динамика продаж</button>
+            <button class="task-chip" data-idx="2"><span class="chip-num">C</span>Андрей</button>
+            <button class="task-chip" data-idx="3"><span class="chip-num">D</span>Монетка</button>
+            <button class="task-chip" data-idx="4"><span class="chip-num">E</span>Сокровища</button>
+            <button class="task-chip" data-idx="5"><span class="chip-num">F</span>Алгоритм Луна</button>
+            <button class="task-chip" data-idx="6"><span class="chip-num">G</span>Аббревиатура</button>
+            <button class="task-chip" data-idx="7"><span class="chip-num">H</span>Общежитие</button>
+            <button class="task-chip" data-idx="8"><span class="chip-num">I</span>Циклический сдвиг</button>
+            <button class="task-chip" data-idx="9"><span class="chip-num">L</span>Круговое выбывание</button>
+            <button class="task-chip" data-idx="10"><span class="chip-num">M</span>«Грязные» данные</button>
+            <button class="task-chip" data-idx="11"><span class="chip-num">Q</span>Робот</button>
+        </div>
+    </div>
+
+    <div class="carousel-outer">
+        <div class="progress-track"><div class="progress-fill" id="tasks-progress"></div></div>
+        <div class="carousel" id="tasks-carousel">
+
+            <!-- ========== A ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание A</span>
+                    <h3>Лотерея</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Для выигрыша главного приза необходимо, чтобы шесть номеров на лотерейном билете совпали с шестью числами, выпавшими случайным образом в диапазоне от 1 до 49 во время очередного тиража.</p>
+                        <p>Напишите программу, которая будет случайным образом генерировать лотерейный билет — то есть шесть уникальных чисел в диапазоне от 1 до 49.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Описание</th></tr></thead>
+                                <tbody><tr><td>—</td><td>Нет</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>6 чисел</td><td class="mono">разделённых пробелами, в произвольном порядке (но без повторов)</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Пример вывода</h4>
+                        <pre><code>1 45 34 23 31 7</code></pre>
+                    </div>
+                    <div class="callout hint">
+                        <span class="ico">💡</span>
+                        <div><strong>Подсказка.</strong> Используйте <code class="inline-code">import random</code>.</div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== B ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание B</span>
+                    <h3>Анализ динамики продаж</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Вы работаете аналитиком в розничной сети и отслеживаете ежедневные продажи товара за неделю. У вас есть список количества проданных единиц по дням (в порядке следования дней): <code class="inline-code">1, 5, 2, 4, 3</code>. Ваша задача — выявить дни, когда продажи выросли по сравнению с предыдущим днём. Эти дни могут указывать на успешные акции, удачный день недели или другие позитивные факторы.</p>
+                        <p>Выведите объёмы продаж, которые оказались выше, чем в предыдущий день. То есть из списка продаж <code class="inline-code">[1, 5, 2, 4, 3]</code> выбираются только те значения, которые больше предыдущего элемента: <code class="inline-code">5 &gt; 1</code>, <code class="inline-code">4 &gt; 2</code> ⇒ Ответ: <code class="inline-code">5 4</code>.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Описание</th></tr></thead>
+                                <tbody><tr><td>числа</td><td>В строке через пробел перечислены целые числа — объёмы продаж по дням.</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Значения роста</td><td class="mono">через пробел значения продаж, которые больше предыдущего</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">1 5 2 4 3</td><td class="mono">5 4</td></tr>
+                                <tr><td class="mono">10 20 30 40</td><td class="mono">20 30 40</td></tr>
+                                <tr><td class="mono">5 4 3 2 1</td><td class="mono">(пустая строка)</td></tr>
+                                <tr><td class="mono">7</td><td class="mono">(пустая строка)</td></tr>
+                                <tr><td class="mono">3 3 3 3</td><td class="mono">(пустая строка)</td></tr>
+                                <tr><td class="mono">2 5 5 6</td><td class="mono">5 6</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="callout hint">
+                        <span class="ico">💡</span>
+                        <div><strong>Подсказка.</strong> Идите с индекса 1 и сравнивайте <code class="inline-code">a[i]</code> с <code class="inline-code">a[i-1]</code>.</div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== C ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание C</span>
+                    <h3>Андрей</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Андрей перешёл в другую школу. На уроке физкультуры ему понадобилось определить своё место в строю. Помогите ему это сделать. Программа получает на вход невозрастающую последовательность натуральных чисел, означающих рост каждого человека в строю. После этого вводится число <em>X</em> — рост Андрея. Все числа во входных данных натуральные и не превышают 230. Выведите номер, под которым Андрей должен встать в строй. Если в строю есть люди с одинаковым ростом, таким же, как у Андрея, то он должен встать после них.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Имя</th><th>Тип</th><th>Описание</th></tr></thead>
+                                <tbody>
+                                    <tr><td>X</td><td>int</td><td>Рост Андрея (натуральное, ≤ 230)</td></tr>
+                                    <tr><td>heights</td><td>int</td><td>Росты учащихся в строю (в порядке невозрастания), длина ≤ 100</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Позиция</td><td class="mono">int (нумерация с 1)</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">176 / 215 207 196 176 168 166</td><td class="mono">5</td></tr>
+                                <tr><td class="mono">176 / 215 210 207</td><td class="mono">4</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== D ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание D</span>
+                    <h3>Монетка</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Вы подбрасываете правильную монетку, где орёл (О) и решка (Р) выпадают с равной вероятностью. Ваша цель — получить три одинаковых результата подряд (либо три орла, либо три решки). Напишите программу, которая симулирует этот процесс.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Описание</th></tr></thead>
+                                <tbody><tr><td>—</td><td>Отсутствуют. Программа использует генератор случайных чисел.</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Последовательность</td><td class="mono">стороны через пробел + (попыток: N)</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Пример вывода</h4>
+                        <pre><code>О Р Р Р (попыток: 4)
+Р О Р О О О (попыток: 6)</code></pre>
+                    </div>
+                    <div class="callout hint">
+                        <span class="ico">💡</span>
+                        <div><strong>Подсказка.</strong> <code class="inline-code">random.choice(['О', 'Р'])</code>, накапливайте в список и проверяйте три последних элемента.</div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== E ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание E</span>
+                    <h3>Карта сокровищ</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Ты — искатель сокровищ, и у тебя есть карта в виде списка целых чисел. Каждое число — это глубина залегания клада в определённой точке острова.</p>
+                        <pre><code>depths = [1, 3, 2, 5, 4, 6, 1]</code></pre>
+                        <p>Настоящее сокровище находится только в тех позициях, которые удовлетворяют двум условиям:</p>
+                        <ol>
+                            <li>Позиция не является крайней (то есть не первый и не последний элемент списка).</li>
+                            <li>Значение в этой позиции строго больше обоих своих соседей.</li>
+                        </ol>
+                        <p><strong>Ваша задача:</strong></p>
+                        <ol>
+                            <li>Найдите все индексы настоящих сокровищ.</li>
+                            <li>Среди значений в этих позициях определите самое большое (самое глубокое сокровище).</li>
+                            <li>Удалите из исходного списка <code class="inline-code">depths</code> первое вхождение этого максимального значения (не по индексу сокровища, а просто первое вхождение числа в списке!).</li>
+                            <li>Выведите получившийся список.</li>
+                        </ol>
+                    </div>
+                    <div class="block">
+                        <h4>Пример разбора</h4>
+                        <pre><code>Исходный список: depths = [1, 3, 2, 5, 4, 6, 1]
+
+Проверка элементов (кроме крайних):
+1. Индекс 1: 3 &gt; 1 и 3 &gt; 2 → сокровище.
+2. Индекс 2: 2 &lt; 3 или 2 &lt; 5 → не сокровище.
+3. Индекс 3: 5 &gt; 2 и 5 &gt; 4 → сокровище.
+4. Индекс 4: 4 &lt; 5 или 4 &lt; 6 → не сокровище.
+5. Индекс 5: 6 &gt; 4 и 6 &gt; 1 → сокровище.
+
+Сокровища на индексах 1, 3, 5 со значениями 3, 5, 6.
+Самое глубокое — 6.
+Удаляем первое вхождение числа 6 из списка:
+[1, 3, 2, 5, 4, 1] — это и есть ответ.</code></pre>
+                    </div>
+                    <div class="callout warn">
+                        <span class="ico">⚠️</span>
+                        <div><strong>Особые случаи.</strong> Если настоящих сокровищ нет — ничего не удаляйте, выведите исходный список. Если самое глубокое сокровище встречается несколько раз — удалите только первое его вхождение в списке.</div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== F ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание F</span>
+                    <h3>Алгоритм Луна</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Алгоритм Луна (англ. Luhn algorithm), также известный как алгоритм «модуля 10» или «mod 10» — алгоритм вычисления контрольной цифры номера пластиковой карты в соответствии со стандартом ISO/IEC 7812. Назван в честь его создателя, учёного из IBM Ханса Питера Луна. Алгоритм описан в 1954 году, патент получен в 1960 году.</p>
+                        <p>Сам алгоритм не является криптографическим средством, а предназначен в первую очередь для выявления ошибок, вызванных непреднамеренным искажением данных (например, при ручном вводе номера карты, при приёме данных о номере социального страхования по телефону). Позволяет лишь с некоторой степенью достоверности судить об отсутствии ошибок в блоке цифр, но не даёт возможности нахождения и исправления обнаруженной неточности.</p>
+                        <p>Напишите программу для проверки номера банковской карты по алгоритму Луна (необходимо просуммировать все чётные по номеру цифры последовательности, далее прибавить к сумме все нечётные по номеру цифры, помноженные на 2, при этом если произведение получается больше 9, то из него вычитается 9. Сумма должна быть кратной 10).</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Описание</th></tr></thead>
+                                <tbody><tr><td>card</td><td>Строка цифр — номер карты</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Вердикт</td><td class="mono">Корректный / Некорректный номер</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">4276440013361511</td><td class="mono">Корректный номер</td></tr>
+                                <tr><td class="mono">4276440013361512</td><td class="mono">Некорректный номер</td></tr>
+                                <tr><td class="mono">42761336512</td><td class="mono">Некорректный номер</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="callout hint">
+                        <span class="ico">💡</span>
+                        <div><strong>Подсказка.</strong> Преобразуйте строку в список цифр: <code class="inline-code">digits = [int(d) for d in card]</code>.</div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== G ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание G</span>
+                    <h3>Аббревиатура</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Иногда некоторые слова вроде «localization» или «internationalization» настолько длинны, что их весьма утомительно писать много раз в каком-либо тексте.</p>
+                        <p>Будем считать слово слишком длинным, если его длина строго больше 10 символов. Все слишком длинные слова можно заменить специальной аббревиатурой. Эта аббревиатура строится следующим образом: записывается первая и последняя буква слова, а между ними — количество букв между первой и последней буквой (в десятичной системе счисления и без ведущих нулей).</p>
+                        <p>Таким образом, «localization» запишется как «l10n», а «internationalization» как «i18n».</p>
+                        <p>Вам предлагается автоматизировать процесс замены слов на аббревиатуры. При этом все слишком длинные слова должны быть заменены аббревиатурой, а слова, не являющиеся слишком длинными, должны остаться без изменений.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Имя</th><th>Тип</th><th>Описание</th></tr></thead>
+                                <tbody>
+                                    <tr><td>n</td><td>int</td><td>Количество слов (1 ≤ n ≤ 100)</td></tr>
+                                    <tr><td>word</td><td>str</td><td>Слова из малых латинских букв, длина от 1 до 100</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>n строк</td><td class="mono">результат замены i-го слова</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Пример</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">3 / word / localization / internationalization</td><td class="mono">word / l10n / i18n</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== H ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание H</span>
+                    <h3>Общежитие</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Недавно Юра поступил в университет. У Юры есть друг Лёша, который поступил вместе с ним, и теперь они заселяются в общежитие. Юра и Лёша хотят жить в одной комнате. Всего в общежитии есть <em>n</em> комнат. В данный момент в комнате с номером <em>i</em> живут <em>p<sub>i</sub></em> человек, когда всего в этой комнате может жить <em>q<sub>i</sub></em> человек (<em>p<sub>i</sub></em> ≤ <em>q<sub>i</sub></em>). Посчитайте, сколько комнат общежития смогут вместить Юру и Лёшу вместе?</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Имя</th><th>Тип</th><th>Описание</th></tr></thead>
+                                <tbody>
+                                    <tr><td>n</td><td>int</td><td>Количество комнат (1 ≤ n ≤ 100)</td></tr>
+                                    <tr><td>p q</td><td>int</td><td>Занято и максимум (0 ≤ p ≤ q ≤ 100)</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Количество</td><td class="mono">int — сколько комнат смогут вместить Юру и Лёшу</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">3 / 1 1 / 2 2 / 3 3</td><td class="mono">0</td></tr>
+                                <tr><td class="mono">3 / 1 10 / 0 10 / 10 10</td><td class="mono">2</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block">
+                        <h4>Объяснение примеров</h4>
+                        <p><strong>Пример 1:</strong></p>
+                        <ul>
+                            <li>Комната 1: p₁ = 1, q₁ = 1 — свободных мест: 1 − 1 = 0</li>
+                            <li>Комната 2: p₂ = 2, q₂ = 2 — свободных мест: 2 − 2 = 0</li>
+                            <li>Комната 3: p₃ = 3, q₃ = 3 — свободных мест: 3 − 3 = 0</li>
+                            <li>Нет комнат, где есть хотя бы 2 свободных места. Ответ: 0</li>
+                        </ul>
+                        <p><strong>Пример 2:</strong></p>
+                        <ul>
+                            <li>Комната 1: p₁ = 1, q₁ = 10 — свободных мест: 10 − 1 = 9</li>
+                            <li>Комната 2: p₂ = 0, q₂ = 10 — свободных мест: 10 − 0 = 10</li>
+                            <li>Комната 3: p₃ = 10, q₃ = 10 — свободных мест: 10 − 10 = 0</li>
+                            <li>Комнаты 1 и 2 имеют как минимум 2 свободных места. Ответ: 2</li>
+                        </ul>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== I ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание I</span>
+                    <h3>Циклический сдвиг</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Дан список из <em>n</em> целых чисел. Выполните циклический сдвиг элементов списка вправо на <em>k</em> позиций. При циклическом сдвиге последние <em>k</em> элементов списка перемещаются в его начало, сохраняя свой порядок, а остальные элементы сдвигаются вправо.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Имя</th><th>Тип</th><th>Описание</th></tr></thead>
+                                <tbody>
+                                    <tr><td>n k</td><td>int</td><td>1 ≤ n ≤ 1000, 0 ≤ k ≤ 10⁹</td></tr>
+                                    <tr><td>a</td><td>int</td><td>n целых чисел — элементы списка</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Список</td><td class="mono">после сдвига, через пробел</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">5 2 / 1 2 3 4 5</td><td class="mono">4 5 1 2 3</td></tr>
+                                <tr><td class="mono">4 1 / 10 20 30 40</td><td class="mono">40 10 20 30</td></tr>
+                                <tr><td class="mono">6 8 / 1 2 3 4 5 6</td><td class="mono">5 6 1 2 3 4</td></tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top:10px;"><em>Пояснение к примеру 3:</em> При <em>k</em> = 8 и <em>n</em> = 6 эффективный сдвиг равен 8 mod 6 = 2.</p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== L ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание L</span>
+                    <h3>Круговое выбывание (задача Иосифа Флавия в миниатюре)</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p><em>N</em> человек стоят по кругу и пронумерованы числами от 1 до <em>N</em>. Начиная с первого, они начинают отсчёт по кругу. Каждый <em>K</em>-й человек выбывает из круга. Процесс продолжается до тех пор, пока не останется один человек.</p>
+                        <p>Ваша задача — определить порядок выбывания участников и номер оставшегося в живых.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Имя</th><th>Тип</th><th>Описание</th></tr></thead>
+                                <tbody><tr><td>N K</td><td>int</td><td>1 ≤ N ≤ 1000, 1 ≤ K ≤ 100</td></tr></tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Порядок выбывания</td><td class="mono">через пробел</td></tr>
+                                    <tr><td>Последний</td><td class="mono">int — номер оставшегося</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">5 2</td><td class="mono">2 4 1 5 / 3</td></tr>
+                                <tr><td class="mono">7 3</td><td class="mono">3 6 2 7 5 1 / 4</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block">
+                        <h4>Пояснение к примеру 1</h4>
+                        <p>Круг: <code class="inline-code">1 2 3 4 5</code>. Отсчёт с 1, шаг 2.</p>
+                        <ol>
+                            <li>Выбывает 2-й (остаются 1, 3, 4, 5).</li>
+                            <li>Отсчёт продолжается с 3. Выбывает 4-й (остаются 1, 3, 5).</li>
+                            <li>Отсчёт с 5. Выбывает 1-й (остаются 3, 5).</li>
+                            <li>Отсчёт с 3. Выбывает 5-й (остаётся 3).</li>
+                        </ol>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== M ========== -->
+            <!-- ========== M ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание M</span>
+                    <h3>«Грязные» данные: очистка оценок студентов</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Вы работаете аналитиком данных в деканате. Из электронного журнала выгрузили список оценок студентов — но выгрузка оказалась «грязной»: где-то лишние пробелы, где-то вместо цифры написано слово («отл», «хор»), где-то пустые строки, а иногда попадаются совсем некорректные значения вроде «100» или «два».</p>
+                        <p>Такая ситуация — типичная для реальной работы аналитика (Data Science): прежде чем считать статистику, данные нужно очистить и нормализовать.</p>
+                        <p>Вам дан «грязный» список строк. В нём могут встречаться:</p>
+                        <ul>
+                            <li>пустые строки и строки с пробелами по краям;</li>
+                            <li>числа в виде строк: <code class="inline-code">" 5 "</code>, <code class="inline-code">"4"</code>;</li>
+                            <li>словесные обозначения: <code class="inline-code">"отл"</code>, <code class="inline-code">"хор"</code>, <code class="inline-code">"уд"</code>, <code class="inline-code">"неуд"</code>;</li>
+                            <li>отметки <code class="inline-code">"неявка"</code>, <code class="inline-code">"н"</code>;</li>
+                            <li>некорректные значения: <code class="inline-code">"100"</code>, <code class="inline-code">"два"</code>.</li>
+                        </ul>
+                    </div>
+                    <div class="task-statement">
+                        <div class="ts-label">◆ Задание</div>
+                        <div class="ts-text">
+                            <strong>Напишите программу</strong>, которая очищает список оценок и возвращает новый список, <strong>отсортированный по убыванию</strong>. Правила обработки:
+                            <ol style="margin-top:8px; font-weight:500;">
+                                <li>Убрать пробелы по краям каждой строки.</li>
+                                <li>Привести всё к числовому виду: <code class="inline-code">"5"</code>, <code class="inline-code">"отл"</code> → 5; <code class="inline-code">"4"</code>, <code class="inline-code">"хор"</code> → 4; <code class="inline-code">"3"</code>, <code class="inline-code">"уд"</code> → 3; <code class="inline-code">"2"</code>, <code class="inline-code">"неуд"</code> → 2.</li>
+                                <li>Игнорировать (удалить) <code class="inline-code">"неявка"</code>, <code class="inline-code">"н"</code>, пустые строки и всё, что не попадает в диапазон 2–5.</li>
+                                <li>Вернуть новый список, отсортированный по убыванию.</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Имя</th><th>Тип</th><th>Описание</th></tr></thead>
+                                <tbody>
+                                    <tr><td>grades</td><td>list[str]</td><td>«Грязный» список строк с оценками</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody><tr><td>Оценки</td><td class="mono">list[int], по убыванию</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Пример</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="mono">[" 5 ", "неявка", "4", " хор ", "", "100", "2", "два"]</td>
+                                    <td class="mono">[5, 4, 2]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top:10px; color: var(--muted); font-size: .92rem;">
+                            Что произошло: <code class="inline-code">" 5 "</code> → 5, <code class="inline-code">"неявка"</code> — игнор, <code class="inline-code">"4"</code> → 4, <code class="inline-code">" хор "</code> → 4 (тоже 4, но оба числа в итоге окажутся рядом после сортировки), <code class="inline-code">""</code> — игнор, <code class="inline-code">"100"</code> — вне диапазона, игнор, <code class="inline-code">"2"</code> → 2, <code class="inline-code">"два"</code> — не распознано, игнор.
+                        </p>
+                    </div>
+                </div>
+            </article>
+
+
+            <!-- ========== Q ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <span class="task-badge">Задание Q</span>
+                    <h3>Робот-исследователь</h3>
+                </div>
+                <div class="slide-body">
+                    <div class="story-block">
+                        <p>Робот начинает движение из точки с координатами <code class="inline-code">(0, 0)</code> на плоскости и выполняет последовательность команд перемещения. Каждая команда задаётся одной буквой:</p>
+                        <ul>
+                            <li><code class="inline-code">U</code> — шаг вверх (координата <em>y</em> увеличивается на 1);</li>
+                            <li><code class="inline-code">D</code> — шаг вниз (координата <em>y</em> уменьшается на 1);</li>
+                            <li><code class="inline-code">L</code> — шаг влево (координата <em>x</em> уменьшается на 1);</li>
+                            <li><code class="inline-code">R</code> — шаг вправо (координата <em>x</em> увеличивается на 1).</li>
+                        </ul>
+                        <p>После выполнения всех команд определите, в какой точке <code class="inline-code">(x, y)</code> окажется робот, и вычислите <strong>манхэттенское расстояние</strong> от начальной точки до конечной. Манхэттенское расстояние от точки <code class="inline-code">(x, y)</code> до начала координат <code class="inline-code">(0, 0)</code> вычисляется как сумма модулей координат: <code class="inline-code">|x| + |y|</code>.</p>
+                    </div>
+                    <div class="io-grid">
+                        <div class="io-card input">
+                            <div class="io-head">Входные данные</div>
+                            <table>
+                                <thead><tr><th>Имя</th><th>Тип</th><th>Описание</th></tr></thead>
+                                <tbody>
+                                    <tr><td>n</td><td>int</td><td>Количество команд (1 ≤ n ≤ 1000)</td></tr>
+                                    <tr><td>команды</td><td>str</td><td>n символов из множества U, D, L, R через пробел</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="io-card output">
+                            <div class="io-head">Выходные данные</div>
+                            <table>
+                                <thead><tr><th>Что</th><th>Формат</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Координаты</td><td class="mono">x y через пробел</td></tr>
+                                    <tr><td>Расстояние</td><td class="mono">int — манхэттенское расстояние</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <h4>Примеры</h4>
+                        <table class="ref-table">
+                            <thead><tr><th>Вход</th><th>Выход</th></tr></thead>
+                            <tbody>
+                                <tr><td class="mono">6 / U U R R D L</td><td class="mono">1 1 / 2</td></tr>
+                                <tr><td class="mono">4 / L L L L</td><td class="mono">-4 0 / 4</td></tr>
+                                <tr><td class="mono">8 / U D L R U D L R</td><td class="mono">0 0 / 0</td></tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top:10px;"><em>Пояснение к примеру 1:</em> Робот делает 2 шага вверх (y = 2), 2 шага вправо (x = 2), 1 шаг вниз (y = 1) и 1 шаг влево (x = 1). Итоговые координаты: <code class="inline-code">(1, 1)</code>. Манхэттенское расстояние: |1| + |1| = 2.</p>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+        <div class="carousel-bar">
+            <button class="nav-btn" id="tasks-prev" disabled>← Назад</button>
+            <span class="counter"><span class="cur" id="tasks-cur">1</span> / <span id="tasks-total">12</span></span>
+            <button class="nav-btn" id="tasks-next">Вперёд →</button>
+        </div>
+    </div>
+</section>
+
+</div>
+
+<footer>
+    <p>Лабораторная работа №6 · Списки в Python · 2026</p>
+</footer>
+
+</div>
+
+<script>
+(function() {
+    const overlay = document.getElementById('pin-overlay');
+    const mainContent = document.getElementById('main-content');
+    const pinInput = document.getElementById('pin-input');
+    const pinBtn = document.getElementById('pin-btn');
+    const pinError = document.getElementById('pin-error');
+    const CORRECT = 'NDMyMQ==';
+
+    if (sessionStorage.getItem('pin_verified') === 'true') {
+        overlay.classList.add('hidden');
+        mainContent.style.display = 'block';
+        initAll();
+        return;
+    }
+    function verifyPin() {
+        const v = pinInput.value.trim();
+        if (!v) { pinError.textContent = 'Введите PIN-код.'; return; }
+        if (btoa(v) === CORRECT) {
+            sessionStorage.setItem('pin_verified', 'true');
+            overlay.classList.add('hidden');
+            mainContent.style.display = 'block';
+            pinError.textContent = '';
+            initAll();
+        } else {
+            pinError.textContent = 'Неверный PIN-код.';
+            pinInput.value = '';
+            pinInput.focus();
+        }
+    }
+    pinBtn.addEventListener('click', verifyPin);
+    pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); verifyPin(); } });
+    pinInput.addEventListener('input', function() { this.value = this.value.replace(/\D/g,'').slice(0,4); });
+    pinInput.focus();
+
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+    });
+})();
+
+document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' });
+});
+
+function makeCarousel({carouselId, navSelector, prevBtnId, nextBtnId, curId, totalId, progressId}) {
+    const carousel = document.getElementById(carouselId);
+    const slides = carousel.querySelectorAll('.slide');
+    const chips = document.querySelectorAll(navSelector);
+    const btnPrev = document.getElementById(prevBtnId);
+    const btnNext = document.getElementById(nextBtnId);
+    const counterCur = document.getElementById(curId);
+    const counterTotal = document.getElementById(totalId);
+    const progressFill = document.getElementById(progressId);
+    const total = slides.length;
+
+    counterTotal.textContent = total;
+
+    function updateUI(idx) {
+        chips.forEach((c, i) => c.classList.toggle('active', i === idx));
+        counterCur.textContent = idx + 1;
+        btnPrev.disabled = idx === 0;
+        btnNext.disabled = idx === total - 1;
+        progressFill.style.width = ((idx + 1) / total * 100) + '%';
+        const activeChip = chips[idx];
+        if (activeChip) activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    function scrollToSlide(idx) {
+        carousel.scrollTo({ left: idx * carousel.clientWidth, behavior: 'smooth' });
+    }
+
+    let scrollTimeout;
+    carousel.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+            if (idx >= 0 && idx < total) updateUI(idx);
+        }, 50);
+    }, { passive: true });
+
+    btnPrev.addEventListener('click', () => {
+        const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+        scrollToSlide(Math.max(0, idx - 1));
+    });
+    btnNext.addEventListener('click', () => {
+        const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+        scrollToSlide(Math.min(total - 1, idx + 1));
+    });
+
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => scrollToSlide(parseInt(chip.dataset.idx, 10)));
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        const rect = carousel.getBoundingClientRect();
+        if (rect.bottom < 100 || rect.top > window.innerHeight - 100) return;
+        if (e.key === 'ArrowRight') btnNext.click();
+        if (e.key === 'ArrowLeft') btnPrev.click();
+    });
+
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+            scrollToSlide(idx);
+        }, 150);
+    });
+
+    updateUI(0);
+}
+
+function initAll() {
+    makeCarousel({
+        carouselId: 'samples-carousel',
+        navSelector: '#samples-nav .task-chip',
+        prevBtnId: 'samples-prev',
+        nextBtnId: 'samples-next',
+        curId: 'samples-cur',
+        totalId: 'samples-total',
+        progressId: 'samples-progress'
+    });
+    makeCarousel({
+        carouselId: 'tasks-carousel',
+        navSelector: '#tasks-nav .task-chip',
+        prevBtnId: 'tasks-prev',
+        nextBtnId: 'tasks-next',
+        curId: 'tasks-cur',
+        totalId: 'tasks-total',
+        progressId: 'tasks-progress'
+    });
+}
+</script>
+
+</body>
+</html>
