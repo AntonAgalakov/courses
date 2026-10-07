@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Урок #1 по Python</title>
-    <!-- Подключаем современный шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -21,11 +20,7 @@
             --transition: all 0.3s ease;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -45,7 +40,6 @@
             box-shadow: var(--shadow);
         }
 
-        /* Кнопка "Назад" */
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -59,10 +53,7 @@
             transition: var(--transition);
             margin-bottom: 20px;
         }
-        .back-btn:hover {
-            background: #dee2e6;
-            transform: translateX(-4px);
-        }
+        .back-btn:hover { background: #dee2e6; transform: translateX(-4px); }
 
         h1 {
             text-align: center;
@@ -89,10 +80,7 @@
             font-weight: 600;
         }
 
-        h2 img {
-            width: 28px;
-            height: 28px;
-        }
+        h2 img { width: 28px; height: 28px; }
 
         .task {
             background: #f9fbfd;
@@ -109,20 +97,9 @@
             box-shadow: 0 4px 12px rgba(67, 97, 238, 0.12);
         }
 
-        .task h3 {
-            margin: 12px 0 12px;
-            font-size: 1.2rem;
-            color: var(--secondary);
-        }
-
-        .task ul {
-            padding-left: 20px;
-            margin: 10px 0;
-        }
-
-        .task li {
-            margin-bottom: 6px;
-        }
+        .task h3 { margin: 12px 0 12px; font-size: 1.2rem; color: var(--secondary); }
+        .task ul { padding-left: 20px; margin: 10px 0; }
+        .task li { margin-bottom: 6px; }
 
         pre {
             font-family: 'JetBrains Mono', monospace;
@@ -143,16 +120,11 @@
             color: var(--secondary);
         }
 
-        /* Стили для задач */
-        .task.task-hard {
-            border-left-color: #e74c3c;
-            background: #fdf7f7;
-        }
+        .task.task-hard { border-left-color: #e74c3c; background: #fdf7f7; }
+        .task.task-new  { border-left-color: #16a085; background: #f2fbf8; }
+        .task.task-rich { border-left-color: #9c27b0; background: #faf3ff; }
 
-        /* Тест */
-        .test-container {
-            margin-top: 30px;
-        }
+        .test-container { margin-top: 30px; }
 
         .test-question {
             display: none;
@@ -168,9 +140,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .test-question.active {
-            display: block;
-        }
+        .test-question.active { display: block; }
 
         .test-question label {
             display: block;
@@ -184,20 +154,9 @@
             font-weight: 500;
         }
 
-        .test-question label:hover {
-            border-color: var(--primary-light);
-            background: #f0f5ff;
-        }
-
-        .test-question input[type="radio"] {
-            margin-right: 10px;
-            accent-color: var(--primary);
-        }
-
-        .test-controls {
-            text-align: center;
-            margin-top: 20px;
-        }
+        .test-question label:hover { border-color: var(--primary-light); background: #f0f5ff; }
+        .test-question input[type="radio"] { margin-right: 10px; accent-color: var(--primary); }
+        .test-controls { text-align: center; margin-top: 20px; }
 
         button {
             background: var(--primary);
@@ -237,10 +196,7 @@
             display: none;
         }
 
-        #result.show {
-            display: block;
-            animation: pulse 0.6s ease;
-        }
+        #result.show { display: block; animation: pulse 0.6s ease; }
 
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -287,6 +243,15 @@
             </p>
         </div>
 
+        <div class="task" style="border-left-color: #16a085;">
+            <p><strong>Полезные функции и операторы:</strong></p>
+            <ul>
+                <li><code>len(s)</code> — длина строки: <code>len("Python")</code> → <code>6</code></li>
+                <li><code>+ - * /</code> — арифметика, <code>//</code> — целочисленное деление, <code>%</code> — остаток, <code>**</code> — степень</li>
+                <li><code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code> — сравнения. Возвращают <code>True</code> или <code>False</code>: <code>5 &gt; 3</code> → <code>True</code></li>
+            </ul>
+        </div>
+
         <div class="task" style="border-left-color: #9b59b6; background: #f8f5ff;">
             <h3>🐍 Интересный факт</h3>
             <p>Python назван не в честь змеи, а в честь британского комедийного шоу <em>«Летающий цирк Монти Пайтона»</em>! Его создатель, Гвидо ван Россум, был большим фанатом.</p>
@@ -309,77 +274,201 @@ age = input("Сколько вам лет? ")
 print("Привет,", name + "! Вам", age, "лет.")</pre>
         </div>
 
+        <!-- === RICH ТЕОРИЯ === -->
+        <div class="task task-rich">
+            <h3>Библиотека rich — цветной вывод</h3>
+            <p>Обычный <code>print()</code> выводит чёрно-белый текст. Библиотека <code>rich</code> делает вывод цветным и красивым. Работает на Linux, macOS и Windows.</p>
+
+            <p><strong>Установка (один раз в терминале):</strong></p>
+            <pre>pip install rich</pre>
+
+            <p><strong>Подключение в начале программы:</strong></p>
+            <pre>from rich import print</pre>
+            <p>После этого тот же самый <code>print()</code> начинает понимать специальные метки в квадратных скобках:</p>
+
+            <pre>print("[bold red]Ошибка![/bold red] Что-то пошло не так")
+print("[green]✓ Всё хорошо[/green]")
+print("[blue on white] Синий текст на белом фоне [/blue on white]")</pre>
+
+            <p><strong>Основные цвета:</strong> <code>red</code>, <code>green</code>, <code>yellow</code>, <code>blue</code>, <code>magenta</code>, <code>cyan</code>, <code>white</code>, <code>black</code>.</p>
+            <p><strong>Стили:</strong> <code>bold</code> (жирный), <code>italic</code> (курсив), <code>underline</code> (подчёркнутый), <code>dim</code> (тусклый).</p>
+            <p><strong>Фон:</strong> добавляется словом <code>on</code>: <code>[white on blue]</code>.</p>
+            <p><strong>Комбинировать</strong> можно через пробел: <code>[bold yellow on blue]</code>.</p>
+            <p>💡 Метка действует до конца строки или до закрывающего тега <code>[/...]</code>. Цвета отлично сочетаются с эмодзи! А если вывод перенаправить в файл, <code>rich</code> сам отключит цвета.</p>
+        </div>
+
         <!-- === ЗАДАЧИ === -->
         <h2>🎯 Задачи</h2>
 
         <div class="task">
-            <h3>Задача 1</h3>
-            <p>Напишите программу “Анкета”, из 5 вопросов. В конце выведите все ответы пользователя<br>
-                <br>
-                Пример:<br>
-                Как тебя зовут?<br>
-                Сколько тебе лет?<br>
-                Тебе нравятся комедии?<br>
-                Какой твой любимый фильм?<br>
-                Какой твой любимый актер?</p>
-        </div>
+            <h3>Задача 1. Анкета</h3>
+            <p>Программа по очереди спрашивает у пользователя:</p>
+            <ul>
+                <li>имя,</li>
+                <li>фамилию,</li>
+                <li>любимый фильм.</li>
+            </ul>
+            <p>Используй <code>input()</code> с подсказкой, например:</p>
+            <pre>name = input("Как тебя зовут? ")</pre>
+            <p>Затем выведи текст:</p>
+            <pre>Привет, меня зовут &lt;имя&gt; &lt;фамилия&gt;.
+Мой любимый фильм — &lt;фильм&gt;.</pre>
+            <p><strong>Пример:</strong></p>
+            <pre>Ввод:
+Иван
+Петров
+Титаник
 
-        <div class="task task-hard">
-            <h3>Задача 2 🏋️‍♂️</h3>
-            <p>Напишите программу, которая по данному числу N от 1 до 9 выводит на экран N пингвинов. 
-                Изображение одного пингвина имеет размер 5×9 символов, между двумя соседними пингвинами 
-                также имеется пустой (из пробелов) столбец. Разрешается вывести пустой столбец 
-                после последнего пингвина.</p>
-            <p><img src="./img/t1_2.png" alt="Пингвин" style="max-width: 300px; display: block; margin: 10px auto;"></p>
-        </div>
-
-        <div class="task">
-            <h3>Задача 3</h3>
-            <p>m котов и n лисиц делят поровну между собой k золотых монет, лежащих в шляпе.
-                Разработайте программу, которая определит, сколько монет получит
-                каждая лиса и кот и сколько монет останется в шляпе, при условии,
-                что каждая лиса и кот получат одинаковое целое количество монет.
-                
-                <br>Пример выполнения:
-                
-                <br>Введите количество лисиц -> 4
-                <br>Введите количество котов -> 3
-                <br>Введите количество монет -> 20
-                <br>Каждому достанется монет - 2
-                <br>Останется в шляпе монет - 6</p>
-        </div>
-
-        <div class="task task-hard">
-            <h3>Задача 4 🏋️‍♂️</h3>
-            <p>Интернет-магазин занимается продажей различных сувениров и безделушек. 
-                Каждый сувенир весит 75 г, а безделушка – 112 г. Напишите программу, 
-                запрашивающую у пользователя количество тех и других покупок, после чего 
-                выведите на экран общий вес посылки.</p>
+Вывод:
+Привет, меня зовут Иван Петров.
+Мой любимый фильм — Титаник.</pre>
         </div>
 
         <div class="task">
-            <h3>Задача 5</h3>
-            <p>Написать программу, которая создаёт забавного «человечка» из трёх частей: голова, туловище и ноги — используя только смайлики (эмодзи).<br> Используй: https://unicode.bootstrap-4.ru/emoji/?ysclid=mggohfll5x220849342</p>
+            <h3>Задача 2. Перестановка цифр</h3>
+            <p>Дано двузначное число (от 10 до 99). Поменяй его цифры местами.</p>
+            <p>Подсказка:</p>
+            <pre>n = int(input("Введите двузначное число: "))</pre>
+            <p>Пример: 34 → 43.</p>
+            <p><strong>Пример выполнения:</strong></p>
+            <pre>Ввод: 34
+Вывод: Новое число: 43</pre>
         </div>
 
         <div class="task">
-            <h3>Задача 6</h3>
-            <p>Дано натуральное двузначное число. Разработайте программу, 
-                которая выводит число, полученное при перестановке цифр 
-                исходного числа.<br>
-                Пример выполнения:<br>
-                Введите двузначное число -> 24<br>
-                Ответ: 42<br>
-            </p>
+            <h3>Задача 3. Вес посылки</h3>
+            <p>Сувенир весит 75 г, безделушка — 112 г.</p>
+            <p>Программа спрашивает, сколько сувениров и сколько безделушек, и выводит общий вес в граммах и в килограммах.</p>
+            <p>Ровно две строки:</p>
+            <pre>Вес посылки: &lt;N&gt; г
+Это &lt;N/1000&gt; кг</pre>
+            <p>Используй <code>input()</code> с подсказкой:</p>
+            <pre>souvenirs = int(input("Сколько сувениров? "))
+trinkets = int(input("Сколько безделушек? "))</pre>
+            <p><strong>Пример:</strong></p>
+            <pre>Ввод:
+3
+5
+
+Вывод:
+Вес посылки: 785 г
+Это 0.785 кг</pre>
         </div>
 
         <div class="task task-hard">
-            <h3>Задача 7 🏋️‍♂️</h3>
-            <p>Разработайте программу, которая выводит на экран цифры целого трехзначного числа, введенного с клавиатуры
-                <br>Пример выполнения:
-                <br> Введите трехзначное число -> 248
-                <br> 2, 4, 8
-            </p>
+            <h3>Задача 4. Пингвины 🏋️‍♂️</h3>
+            <p>Нарисуй трёх пингвинов с помощью <code>print()</code> и умножения строк.</p>
+            <p>Совет: одну строку пингвина можно нарисовать так:</p>
+            <pre>print("   _~_    " * 3)</pre>
+            <p>Пробелы в конце строк не важны — сравнение их игнорирует. Ничего читать из <code>input()</code> не нужно, только напечатай картинку.</p>
+            <p><strong>Пример:</strong></p>
+            <pre>   _~_       _~_       _~_    
+  (o o)     (o o)     (o o)   
+ /  V  \   /  V  \   /  V  \  
+/(  _  )\ /(  _  )\ /(  _  )\ 
+  ^^ ^^     ^^ ^^     ^^ ^^   </pre>
+        </div>
+
+        <div class="task">
+            <h3>Задача 5. Сколько пицц заказать</h3>
+            <p>В одной пицце 8 кусков. Каждый гость съест 3 куска.</p>
+            <p>Программа спрашивает, сколько гостей придёт, и выводит:</p>
+            <pre>Нужно кусков: &lt;всего&gt;
+Целых пицц: &lt;сколько целых пицц&gt;
+Ещё кусков: &lt;сколько кусков сверх целых пицц&gt;</pre>
+            <p>Используй <code>input()</code> с подсказкой:</p>
+            <pre>guests = int(input("Сколько гостей? "))</pre>
+            <p><strong>Пример:</strong></p>
+            <pre>Ввод: 5
+
+Вывод:
+Нужно кусков: 15
+Целых пицц: 1
+Ещё кусков: 7</pre>
+        </div>
+
+
+        <!-- ============================================= -->
+        <!-- === НОВЫЕ ЗАДАЧИ ПОВЫШЕННОЙ СЛОЖНОСТИ     === -->
+        <!-- ============================================= -->
+
+        <div class="task task-new">
+            <h3>Задача 6. Секунды 🕐</h3>
+            <p>Пользователь вводит количество секунд. Программа переводит их в часы, минуты и секунды.</p>
+            <p><strong>Пример:</strong></p>
+            <pre>Ввод:
+3672
+
+Вывод:
+1 ч 1 мин 12 сек</pre>
+
+        </div>
+
+        <div class="task task-new">
+            <h3>Задача 7. Сколько лет собаке 🐶</h3>
+            <p>Считается, что 1 год собаки ≈ 7 человеческих лет, но только для первых двух лет жизни (после — старение замедляется).</p>
+            <p><strong>Упрощённая формула:</strong></p>
+            <ul>
+                <li>первые 2 года: <code>2 * 10.5</code> человеческих лет,</li>
+                <li>каждый следующий год: <code>+ 4</code> человеческих года.</li>
+            </ul>
+            <p>Спроси возраст собаки (можно дробный) и выведи её «человеческий» возраст.</p>
+            <p><strong>Пример:</strong></p>
+            <pre>Ввод: 3
+
+Вывод:
+Собаке 3 года — это 25.0 человеческих лет.</pre>
+            
+        </div>
+
+        <div class="task task-new">
+            <h3>Задача 8. Зерно на шахматной доске ♟️</h3>
+            <p>На первую клетку кладут 1 зерно, на вторую — 2, на третью — 4, на каждую следующую — вдвое больше. Спроси номер клетки (1–64) и выведи, сколько зёрен на ней.</p>
+            <p><strong>Пример:</strong></p>
+            <pre>Ввод: 5
+Вывод: На 5-й клетке 16 зёрен.</pre>
+            </div>
+
+        <!-- ============================================= -->
+        <!-- === ЗАДАЧИ С БИБЛИОТЕКОЙ RICH             === -->
+        <!-- ============================================= -->
+
+        <h2>Задачи с библиотекой rich</h2>
+        <p style="text-align:center; color: var(--text-light); margin-bottom: 10px;">
+            В каждой задаче первая строка — <code>from rich import print</code>.
+        </p>
+
+        <div class="task task-rich">
+            <h3>Задача 9. Экран загрузки ⚙️</h3>
+            <p>Программа ничего не спрашивает. Выведи строки, имитирующие загрузку программы:</p>
+            <pre>[bold cyan]Загрузка...[/bold cyan]
+[yellow]░░░░░░░░░░  20%[/yellow]
+[yellow]█████░░░░░  50%[/yellow]
+[green]█████████░  90%[/green]
+[bold green]✓ Готово![/bold green]</pre>
+            <p>Попробуй сделать так, чтобы каждая строка прогресса была своего цвета: чем больше заполнено — тем «теплее» цвет. Подсказка по цветам: <code>red</code>, <code>yellow</code>, <code>green</code>, <code>cyan</code>.</p>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- === ИГРА: УГАДАЙ ЧИСЛО                     === -->
+        <!-- ============================================= -->
+
+        <div class="task" style="border-left-color: #9c27b0; background: #faf3ff;">
+            <h3>🎲 Задача 10. Угадай число ⭐</h3>
+            <p>Компьютер загадывает случайное число от 1 до 100. Пользователь пытается его угадать. После каждой попытки программа подсказывает: «больше» или «меньше». Когда число угадано — поздравление и количество попыток.</p>
+
+            <p><strong>Пример работы:</strong></p>
+            <pre>Я загадал число от 1 до 100. Попробуй угадать!
+
+Твоя догадка: 50
+⬆ Моё число больше!
+
+Твоя догадка: 75
+⬇ Моё число меньше!
+
+Твоя догадка: 63
+🎉 Угадал! Ты справился за 3 попытки!</pre>
+
         </div>
 
         <!-- === ТЕСТ === -->
@@ -390,7 +479,6 @@ print("Привет,", name + "! Вам", age, "лет.")</pre>
         <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Ответьте на 5 вопросов. Вернуться к предыдущим вопросам нельзя!</p>
 
         <div class="test-container">
-            <!-- Вопросы остаются без изменений -->
             <div class="test-question active" data-question="1">
                 <p><strong>1. Какая функция используется для вывода текста в Python?</strong></p>
                 <label><input type="radio" name="q1" value="a"> echo()</label>
