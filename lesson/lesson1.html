@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Урок #1 по Python</title>
+    <!-- Подключаем современный шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --light-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #212529;
+            --text-light: #6c757d;
+            --border-radius: 16px;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 32px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        /* Кнопка "Назад" */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #e9ecef;
+            color: var(--text);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background: #dee2e6;
+            transform: translateX(-4px);
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 16px;
+            color: var(--secondary);
+        }
+
+        p.intro {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 32px;
+            font-size: 1.05rem;
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 36px 0 20px;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        h2 img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .task {
+            background: #f9fbfd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.08);
+            transition: var(--transition);
+        }
+
+        .task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.12);
+        }
+
+        .task h3 {
+            margin: 12px 0 12px;
+            font-size: 1.2rem;
+            color: var(--secondary);
+        }
+
+        .task ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .task li {
+            margin-bottom: 6px;
+        }
+
+        pre {
+            font-family: 'JetBrains Mono', monospace;
+            background: #2b2d42;
+            color: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-size: 0.95rem;
+            margin-top: 12px;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #eef2ff;
+            padding: 2px 6px;
+            border-radius: 6px;
+            color: var(--secondary);
+        }
+
+        /* Стили для задач */
+        .task.task-hard {
+            border-left-color: #e74c3c;
+            background: #fdf7f7;
+        }
+
+        /* Тест */
+        .test-container {
+            margin-top: 30px;
+        }
+
+        .test-question {
+            display: none;
+            padding: 24px;
+            background: #f9fbfd;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .test-question.active {
+            display: block;
+        }
+
+        .test-question label {
+            display: block;
+            margin: 12px 0;
+            padding: 14px;
+            background: white;
+            border: 2px solid #e0e6f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .test-question label:hover {
+            border-color: var(--primary-light);
+            background: #f0f5ff;
+        }
+
+        .test-question input[type="radio"] {
+            margin-right: 10px;
+            accent-color: var(--primary);
+        }
+
+        .test-controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            margin: 5px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        button:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(63, 55, 201, 0.4);
+        }
+
+        button:disabled {
+            background: #b0b0b0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #result {
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-align: center;
+            display: none;
+        }
+
+        #result.show {
+            display: block;
+            animation: pulse 0.6s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <a href="javascript:history.back()" class="back-btn">← Назад</a>
+
+        <h1>Урок #1: Основы Python</h1>
+        <p class="intro">В этом уроке вы познакомитесь с базовыми понятиями языка Python: переменные, типы данных, ввод и вывод.</p>
+
+        <!-- === ТЕОРИЯ === -->
+        <h2>📚 Основные понятия</h2>
+
+        <div class="task">
+            <p><strong>Переменная</strong> — это именованный объект в программе, который хранит некоторое значение. Это значение может быть числом, строкой, символом (в том числе эмодзи), логическим значением и другими типами данных.</p>
+            <p>Пример: <code>name = "Алиса"</code>, <code>age = 15</code></p>
+        </div>
+
+        <div class="task" style="border-left-color: #27ae60;">
+            <p><strong>Типы данных</strong> — определяют, какие значения может принимать переменная и какие операции можно над ней выполнять.</p>
+            <ul>
+                <li><code>str</code> — строка (текст): <code>"Привет"</code></li>
+                <li><code>int</code> — целое число: <code>42</code></li>
+                <li><code>float</code> — дробное число: <code>3.14</code></li>
+                <li><code>bool</code> — логическое значение: <code>True</code> или <code>False</code></li>
+            </ul>
+        </div>
+
+        <div class="task" style="border-left-color: #f39c12;">
+            <p><strong>Функции ввода и вывода:</strong></p>
+            <ul>
+                <li><code>print(...)</code> — выводит текст или значение на экран.</li>
+                <li><code>input(...)</code> — запрашивает у пользователя ввод с клавиатуры. <strong>Всегда возвращает строку!</strong></li>
+            </ul>
+            <p>Пример:<br>
+                <code>name = input("Как вас зовут? ")</code><br>
+                <code>print("Привет,", name)</code>
+            </p>
+        </div>
+
+        <div class="task" style="border-left-color: #9b59b6; background: #f8f5ff;">
+            <h3>🐍 Интересный факт</h3>
+            <p>Python назван не в честь змеи, а в честь британского комедийного шоу <em>«Летающий цирк Монти Пайтона»</em>! Его создатель, Гвидо ван Россум, был большим фанатом.</p>
+            <p>Python — один из самых популярных языков в мире. Он используется в веб-разработке, анализе данных, искусственном интеллекте, автоматизации и даже в космических миссиях NASA!</p>
+        </div>
+
+        <div class="task" style="border-left-color: #ff9800; background: #fff9f0;">
+            <h3>💡 Советы по решению задач</h3>
+            <ul>
+                <li>Всегда проверяйте, какой тип данных вы получаете от <code>input()</code> — если нужно число, используйте <code>int()</code> или <code>float()</code>.</li>
+                <li>Для вывода нескольких значений в <code>print()</code> можно перечислять их через запятую: <code>print("Вам", age, "лет")</code>.</li>
+            </ul>
+        </div>
+
+        <div class="task" style="border-left-color: #2980b9; background: #f0f7ff;">
+            <h3>Пример: Простая анкета</h3>
+            <pre>
+name = input("Как вас зовут? ")
+age = input("Сколько вам лет? ")
+print("Привет,", name + "! Вам", age, "лет.")</pre>
+        </div>
+
+        <!-- === ЗАДАЧИ === -->
+        <h2>🎯 Задачи</h2>
+
+        <div class="task">
+            <h3>Задача 1</h3>
+            <p>Напишите программу “Анкета”, из 5 вопросов. В конце выведите все ответы пользователя<br>
+                <br>
+                Пример:<br>
+                Как тебя зовут?<br>
+                Сколько тебе лет?<br>
+                Тебе нравятся комедии?<br>
+                Какой твой любимый фильм?<br>
+                Какой твой любимый актер?</p>
+        </div>
+
+        <div class="task task-hard">
+            <h3>Задача 2 🏋️‍♂️</h3>
+            <p>Напишите программу, которая по данному числу N от 1 до 9 выводит на экран N пингвинов. 
+                Изображение одного пингвина имеет размер 5×9 символов, между двумя соседними пингвинами 
+                также имеется пустой (из пробелов) столбец. Разрешается вывести пустой столбец 
+                после последнего пингвина.</p>
+            <p><img src="./img/t1_2.png" alt="Пингвин" style="max-width: 300px; display: block; margin: 10px auto;"></p>
+        </div>
+
+        <div class="task">
+            <h3>Задача 3</h3>
+            <p>m котов и n лисиц делят поровну между собой k золотых монет, лежащих в шляпе.
+                Разработайте программу, которая определит, сколько монет получит
+                каждая лиса и кот и сколько монет останется в шляпе, при условии,
+                что каждая лиса и кот получат одинаковое целое количество монет.
+                
+                <br>Пример выполнения:
+                
+                <br>Введите количество лисиц -> 4
+                <br>Введите количество котов -> 3
+                <br>Введите количество монет -> 20
+                <br>Каждому достанется монет - 2
+                <br>Останется в шляпе монет - 6</p>
+        </div>
+
+        <div class="task task-hard">
+            <h3>Задача 4 🏋️‍♂️</h3>
+            <p>Интернет-магазин занимается продажей различных сувениров и безделушек. 
+                Каждый сувенир весит 75 г, а безделушка – 112 г. Напишите программу, 
+                запрашивающую у пользователя количество тех и других покупок, после чего 
+                выведите на экран общий вес посылки.</p>
+        </div>
+
+        <div class="task">
+            <h3>Задача 5</h3>
+            <p>Написать программу, которая создаёт забавного «человечка» из трёх частей: голова, туловище и ноги — используя только смайлики (эмодзи).<br> Используй: https://unicode.bootstrap-4.ru/emoji/?ysclid=mggohfll5x220849342</p>
+        </div>
+
+        <div class="task">
+            <h3>Задача 6</h3>
+            <p>Дано натуральное двузначное число. Разработайте программу, 
+                которая выводит число, полученное при перестановке цифр 
+                исходного числа.<br>
+                Пример выполнения:<br>
+                Введите двузначное число -> 24<br>
+                Ответ: 42<br>
+            </p>
+        </div>
+
+        <div class="task task-hard">
+            <h3>Задача 7 🏋️‍♂️</h3>
+            <p>Разработайте программу, которая выводит на экран цифры целого трехзначного числа, введенного с клавиатуры
+                <br>Пример выполнения:
+                <br> Введите трехзначное число -> 248
+                <br> 2, 4, 8
+            </p>
+        </div>
+
+        <!-- === ТЕСТ === -->
+        <h2>
+            <img src="https://cdn-icons-png.flaticon.com/512/3051/3051303.png" alt="Тест">
+            Тест по уроку
+        </h2>
+        <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Ответьте на 5 вопросов. Вернуться к предыдущим вопросам нельзя!</p>
+
+        <div class="test-container">
+            <!-- Вопросы остаются без изменений -->
+            <div class="test-question active" data-question="1">
+                <p><strong>1. Какая функция используется для вывода текста в Python?</strong></p>
+                <label><input type="radio" name="q1" value="a"> echo()</label>
+                <label><input type="radio" name="q1" value="b"> print()</label>
+                <label><input type="radio" name="q1" value="c"> output()</label>
+                <label><input type="radio" name="q1" value="d"> console.log()</label>
+            </div>
+
+            <div class="test-question" data-question="2">
+                <p><strong>2. Какой тип данных у переменной <code>x = "123"</code>?</strong></p>
+                <label><input type="radio" name="q2" value="a"> int</label>
+                <label><input type="radio" name="q2" value="b"> float</label>
+                <label><input type="radio" name="q2" value="c"> str</label>
+                <label><input type="radio" name="q2" value="d"> bool</label>
+            </div>
+
+            <div class="test-question" data-question="3">
+                <p><strong>3. Как правильно присвоить значение переменной?</strong></p>
+                <label><input type="radio" name="q3" value="a"> let x = 5</label>
+                <label><input type="radio" name="q3" value="b"> x := 5</label>
+                <label><input type="radio" name="q3" value="c"> x = 5</label>
+                <label><input type="radio" name="q3" value="d"> var x = 5</label>
+            </div>
+
+            <div class="test-question" data-question="4">
+                <p><strong>4. Какой результат выполнения кода: <code>print(10 // 3)</code>?</strong></p>
+                <label><input type="radio" name="q4" value="a"> 3.333...</label>
+                <label><input type="radio" name="q4" value="b"> 3</label>
+                <label><input type="radio" name="q4" value="c"> 1</label>
+                <label><input type="radio" name="q4" value="d"> Ошибка</label>
+            </div>
+
+            <div class="test-question" data-question="5">
+                <p><strong>5. Какой тип у результата выражения: <code>input("Ваше имя: ")</code>?</strong></p>
+                <label><input type="radio" name="q5" value="a"> int</label>
+                <label><input type="radio" name="q5" value="b"> float</label>
+                <label><input type="radio" name="q5" value="c"> str</label>
+                <label><input type="radio" name="q5" value="d"> bool</label>
+            </div>
+
+            <div class="test-controls">
+                <button id="nextBtn" onclick="nextOrSubmit()">Далее →</button>
+                <button id="submitBtn" onclick="submitTest()" style="display:none;">Завершить тест</button>
+            </div>
+
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = 5;
+        let userAnswers = {};
+        const encryptedAnswers = "eyJxMSI6ImIiLCJxMiI6ImMiLCJxMyI6ImMiLCJxNCI6ImIiLCJxNSI6ImMifQ==";
+
+        function decryptAnswers() {
+            try {
+                return JSON.parse(atob(encryptedAnswers));
+            } catch (e) {
+                console.error("Ошибка расшифровки!");
+                return {};
+            }
+        }
+
+        function showQuestion(num) {
+            document.querySelectorAll('.test-question').forEach(q => q.classList.remove('active'));
+            document.querySelector(`.test-question[data-question="${num}"]`).classList.add('active');
+        }
+
+        function saveAnswer() {
+            const currentName = `q${currentQuestion}`;
+            const selected = document.querySelector(`input[name="${currentName}"]:checked`);
+            if (selected) {
+                userAnswers[currentName] = selected.value;
+                return true;
+            }
+            return false;
+        }
+
+        function updateButton() {
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            if (currentQuestion === totalQuestions) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        function nextOrSubmit() {
+            if (!saveAnswer()) {
+                alert('Пожалуйста, выберите ответ!');
+                return;
+            }
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+                updateButton();
+            } else {
+                submitTest();
+            }
+        }
+
+        function submitTest() {
+            saveAnswer();
+            const answers = decryptAnswers();
+            let score = 0;
+            for (let q in answers) {
+                if (userAnswers[q] === answers[q]) score++;
+            }
+
+            const percentage = Math.round((score / totalQuestions) * 100);
+            let message = `Ваш результат: ${score} из ${totalQuestions} (${percentage}%)`;
+
+            let color = '#e74c3c';
+            if (score === totalQuestions) {
+                color = '#2ecc71';
+                message += '<br>🏆 Отлично! Вы мастер Python!';
+            } else if (score >= 4) {
+                color = '#2ecc71';
+                message += '<br>👍 Почти идеально! Отличный результат!';
+            } else if (score >= 3) {
+                color = '#f39c12';
+                message += '<br>🙂 Неплохо! Повторите спорные моменты.';
+            } else {
+                message += '<br>📚 Советуем пересмотреть урок.';
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.style.color = color;
+            resultDiv.style.backgroundColor = color + '15';
+            resultDiv.style.border = `2px solid ${color}`;
+            resultDiv.classList.add('show');
+
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'none';
+        }
+
+        updateButton();
+    </script>
+</body>
+</html>
