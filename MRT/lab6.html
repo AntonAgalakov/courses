@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Лабораторная работа № 6 · CI-конвейер · GitHub Actions</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&amp;display=swap" rel="stylesheet"/>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #f8fafc;
+        color: #0f172a;
+        line-height: 1.6;
+        scroll-behavior: smooth;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    nav {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+        border-bottom: 1px solid #e2e8f0; padding: 12px 0; transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .logo { font-weight: 700; font-size: 1.2rem; color: #2563eb; letter-spacing: -0.5px; }
+    .logo span { color: #0f172a; font-weight: 400; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 8px 20px; list-style: none; }
+    .nav-links a {
+        text-decoration: none; font-size: 0.9rem; font-weight: 500;
+        color: #334155; transition: color 0.2s; padding: 4px 0;
+        border-bottom: 2px solid transparent;
+    }
+    .nav-links a:hover { color: #2563eb; border-bottom-color: #2563eb; }
+
+    .hero { padding: 60px 0 40px; text-align: center; }
+    .hero h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -1px; line-height: 1.2; margin-bottom: 8px; }
+    .hero h1 .highlight { color: #2563eb; }
+    .hero p.sub { font-size: 1.2rem; color: #475569; max-width: 700px; margin: 0 auto 20px; }
+    .badge {
+        display: inline-block; background: #dbeafe; color: #1d4ed8;
+        padding: 6px 18px; border-radius: 40px;
+        font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px;
+    }
+
+    section { padding: 48px 0; border-bottom: 1px solid #e9edf2; }
+    section:last-of-type { border-bottom: none; }
+    .section-title {
+        font-size: 1.8rem; font-weight: 700; margin-bottom: 24px;
+        letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px;
+    }
+    .section-title .number {
+        background: #2563eb; color: #fff; width: 36px; height: 36px;
+        border-radius: 50%; display: inline-flex; align-items: center;
+        justify-content: center; font-size: 1rem; font-weight: 600; flex-shrink: 0;
+    }
+
+    .card-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px; margin-top: 20px;
+    }
+    .card {
+        background: #ffffff; border-radius: 16px; padding: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        border: 1px solid #eef2f6;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+    .card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; color: #0f172a; }
+    .card p, .card li { color: #334155; font-size: 0.95rem; }
+    .card ul, .card ol { padding-left: 20px; margin: 8px 0; }
+    .card ul li, .card ol li { margin-bottom: 4px; }
+    .card-full { grid-column: 1 / -1; }
+
+    .code-block {
+        background: #1e293b; color: #e2e8f0; padding: 16px 20px;
+        border-radius: 12px; overflow-x: auto;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.85rem; line-height: 1.5; margin: 16px 0;
+        white-space: pre; tab-size: 4; -moz-tab-size: 4; word-break: normal;
+    }
+    .code-block .comment { color: #94a3b8; }
+    .code-block .keyword { color: #f472b6; }
+    .code-block .func { color: #60a5fa; }
+    .code-block .string { color: #a3e635; }
+    .code-block .number { color: #fbbf24; }
+    .code-block .type { color: #c084fc; }
+    .code-block .op { color: #f472b6; }
+
+    .table-wrap { overflow-x: auto; margin: 20px 0; }
+    table {
+        width: 100%; border-collapse: collapse; font-size: 0.9rem;
+        background: #fff; border-radius: 12px; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    th {
+        background: #f1f5f9; font-weight: 600; padding: 12px 16px;
+        text-align: left; border-bottom: 2px solid #e2e8f0;
+    }
+    td { padding: 10px 16px; border-bottom: 1px solid #ecf1f6; }
+    tr:last-child td { border-bottom: none; }
+
+    .info-box {
+        background: #f1f5f9; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #2563eb; margin: 16px 0;
+    }
+    .info-box strong { color: #0f172a; }
+
+    .new-box {
+        background: #f0fdf4; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #22c55e; margin: 16px 0;
+    }
+    .new-box strong { color: #14532d; }
+
+    .warn-box {
+        background: #fffbeb; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #f59e0b; margin: 16px 0;
+    }
+    .warn-box strong { color: #78350f; }
+
+    .btn-top {
+        display: inline-block; padding: 10px 24px; background: #2563eb;
+        color: #fff; border-radius: 40px; text-decoration: none;
+        font-weight: 500; transition: background 0.2s; border: none;
+        cursor: pointer; font-size: 0.9rem;
+    }
+    .btn-top:hover { background: #1d4ed8; }
+
+    footer {
+        text-align: center; padding: 40px 0 24px;
+        color: #64748b; font-size: 0.9rem;
+        border-top: 1px solid #e9edf2;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 { font-size: 2rem; }
+        .nav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .nav-links { gap: 12px; }
+        .section-title { font-size: 1.4rem; }
+        .card-grid { grid-template-columns: 1fr; }
+    }
+
+    .scroll-anchor { scroll-margin-top: 80px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-8 { margin-bottom: 8px; }
+    .fw-600 { font-weight: 600; }
+    .text-muted { color: #64748b; }
+    .sub-section { margin-top: 32px; }
+    .sub-section h4 { font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #0f172a; }
+
+    /* Блок спецификации (используется для частей задания) */
+    .spec-block {
+        background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb;
+        border-radius: 8px; padding: 0; margin: 20px 0; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+    }
+    .spec-block.is-new { border-left-color: #22c55e; }
+    .spec-block.is-given { border-left-color: #94a3b8; opacity: 0.9; }
+    .spec-block .row { display: block; padding: 10px 18px; border-top: 1px solid #eef2f7; line-height: 1.6; }
+    .spec-block .row:first-child {
+        padding: 13px 18px; border-top: 0; background: #f8fafc;
+        font-size: 1.05rem; font-weight: 700; color: #0f172a;
+    }
+    .spec-block.is-new .row:first-child { background: #f0fdf4; }
+    .spec-block.is-given .row:first-child { background: #f1f5f9; }
+    .spec-block .row:first-child .label { color: #0f172a; min-width: 0; margin-right: 12px; }
+    .spec-block .row:not(:first-child) .label {
+        display: block; min-width: 0; margin-bottom: 2px;
+        color: #475569; font-weight: 700;
+    }
+    .spec-block .row:not(:first-child) { color: #334155; }
+    .spec-block code { white-space: normal; }
+
+    .spec-steps { list-style: none; padding-left: 0; margin: 6px 0 0; counter-reset: step; }
+    .spec-steps li {
+        position: relative; padding-left: 30px; margin-bottom: 6px;
+        counter-increment: step; line-height: 1.55;
+    }
+    .spec-steps li::before {
+        content: counter(step);
+        position: absolute; left: 0; top: 1px;
+        width: 20px; height: 20px;
+        background: #e0edff; color: #1d4ed8;
+        border-radius: 50%; font-size: 0.75rem; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .spec-block .hint { color: #475569; font-style: italic; font-size: 0.92rem; }
+
+    .spec-block .new-badge {
+        display: inline-block; background: #22c55e; color: #052e16;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 4px; margin-left: 10px;
+        letter-spacing: 0.5px; vertical-align: middle;
+    }
+    .spec-block .given-badge {
+        display: inline-block; background: #94a3b8; color: #0f172a;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 4px; margin-left: 10px;
+        letter-spacing: 0.5px; vertical-align: middle;
+    }
+
+    .legend {
+        display: flex; flex-wrap: wrap; gap: 18px;
+        background: #fff; border: 1px solid #e2e8f0;
+        border-radius: 12px; padding: 14px 20px; margin: 20px 0;
+        font-size: 0.9rem;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-swatch {
+        width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+    }
+    .legend-swatch.green { background: #22c55e; }
+    .legend-swatch.gray { background: #94a3b8; }
+
+    .download-button {
+        display: inline-block; padding: 12px 20px;
+        background: #4f46e5; color: white;
+        text-decoration: none; border-radius: 8px;
+        font-weight: 600; transition: opacity 0.2s;
+    }
+    .download-button:hover { opacity: 0.85; }
+
+    /* Блок контрольных вопросов */
+    .qa-list { list-style: none; padding-left: 0; margin: 8px 0 0; counter-reset: qa; }
+    .qa-list li {
+        position: relative; padding-left: 40px; margin-bottom: 12px;
+        counter-increment: qa; line-height: 1.55; color: #0f172a;
+        background: #fff; border: 1px solid #eef2f6; border-radius: 10px;
+        padding: 12px 16px 12px 52px;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    }
+    .qa-list li::before {
+        content: counter(qa);
+        position: absolute; left: 14px; top: 12px;
+        width: 26px; height: 26px;
+        background: #e0edff; color: #1d4ed8;
+        border-radius: 50%; font-size: 0.8rem; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+
+    /* Оценки */
+    .grade-row td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .grade-row.total td { font-weight: 700; background: #f1f5f9; border-top: 2px solid #e2e8f0; }
+
+    /* Доп. задания */
+    .extra-list { list-style: none; padding-left: 0; margin: 8px 0 0; }
+    .extra-list li {
+        position: relative; padding-left: 30px; margin-bottom: 8px;
+        color: #0f172a; line-height: 1.55;
+    }
+    .extra-list li::before {
+        content: "＋";
+        position: absolute; left: 0; top: 0;
+        width: 22px; height: 22px;
+        background: #ede9fe; color: #6d28d9;
+        border-radius: 50%; font-size: 0.85rem; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="logo">Лабораторная № 6 <span>· CI / GitHub Actions</span></div>
+    <ul class="nav-links">
+      <li><a href="#goal">Цель</a></li>
+      <li><a href="#source">Исходные данные</a></li>
+      <li><a href="#task">Задание</a></li>
+      <li><a href="#questions">Вопросы</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="badge">Современные технологии программирования</div>
+    <h1>Построение CI-конвейера<br/><span class="highlight">GitHub Actions</span></h1>
+    <p class="sub">Непрерывная интеграция C++-проекта DataConverter</p>
+  </div>
+</header>
+
+<section class="scroll-anchor" id="goal">
+  <div class="container">
+    <div class="section-title"><span class="number">1</span> Цель работы</div>
+    <div class="card">
+      <p>Получить практические навыки настройки CI-конвейера с использованием <strong>GitHub Actions</strong>. Научиться:</p>
+      <ul>
+        <li>запускать сборку и автоматические тесты на разных операционных системах;</li>
+        <li>использовать матрицу заданий (<code>strategy.matrix</code>);</li>
+        <li>управлять зависимостями между заданиями;</li>
+        <li>кэшировать результаты сборки и зависимости;</li>
+        <li>сохранять артефакты CI.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="scroll-anchor" id="source">
+  <div class="container">
+    <div class="section-title"><span class="number">2</span> Исходные данные</div>
+
+    <div class="info-box">
+        <strong>Готовый проект</strong>
+        <p class="mt-16">
+            Скачайте подготовленный проект <strong>DataConverter</strong> на C++17 — консольную
+            утилиту для преобразования данных между форматами CSV, JSON и YAML. Внутри:
+            исходный код, конфигурация сборки CMake, автоматические модульные тесты,
+            примеры входных файлов и инструкция по локальной сборке.
+        </p>
+        <p class="mt-16">
+            <a href="DataConverter.zip" download class="download-button">Скачать проект</a>
+        </p>
+    </div>
+
+    <div class="card">
+      <p>Вам предоставляется готовый проект <strong>DataConverter</strong> на C++17 — консольная утилита для преобразования данных между форматами CSV, JSON и YAML.</p>
+
+      <h3 class="mt-16">Что содержит проект</h3>
+      <ul>
+        <li>исходный код приложения;</li>
+        <li>конфигурацию сборки CMake;</li>
+        <li>автоматические модульные тесты;</li>
+        <li>примеры входных файлов;</li>
+        <li>описание проекта и инструкцию по локальной сборке.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="scroll-anchor" id="task">
+  <div class="container">
+    <div class="section-title"><span class="number">3</span> Задание</div>
+
+    <!-- Часть 1 -->
+    <div class="spec-block">
+      <div class="row"><span class="label">Часть 1. Подготовка репозитория</span></div>
+      <div class="row"><span class="label">Задачи:</span>
+        <ol class="spec-steps">
+          <li>Создать собственный репозиторий GitHub на основе предоставленного проекта.</li>
+          <li>Проверить возможность локальной сборки проекта и прохождения тестов.</li>
+          <li>Изучить структуру проекта, используемые зависимости и команды сборки и тестирования.</li>
+          <li>Подготовить репозиторий к автоматическому запуску CI при изменении исходного кода.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Часть 2 -->
+    <div class="spec-block">
+      <div class="row"><span class="label">Часть 2. Создание CI-конвейера</span></div>
+      <div class="row"><span class="label">Триггеры:</span> события <code>push</code> и <code>pull_request</code>.</div>
+      <div class="row"><span class="label">Конвейер должен выполнять:</span>
+        <ol class="spec-steps">
+          <li>Получить исходный код репозитория.</li>
+          <li>Настроить среду сборки.</li>
+          <li>Установить необходимые зависимости.</li>
+          <li>Сконфигурировать проект с помощью CMake.</li>
+          <li>Собрать приложение.</li>
+          <li>Запустить автоматические тесты.</li>
+          <li>Завершить выполнение с ошибкой, если сборка или тестирование не прошли.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Часть 3 -->
+    <div class="spec-block">
+      <div class="row"><span class="label">Часть 3. Сборка на разных операционных системах</span></div>
+      <div class="row"><span class="label">Матрица ОС:</span> <code>ubuntu-latest</code> · <code>macos-latest</code> · <code>windows-latest</code>.</div>
+      <div class="row"><span class="label">Единые требования:</span> стандарт языка <strong>C++17</strong>, одинаковый исходный код и одинаковый набор тестов во всех конфигурациях.</div>
+      <div class="row"><span class="label">Задачи:</span>
+        <ol class="spec-steps">
+          <li>Использовать <code>strategy.matrix</code> для описания операционных систем.</li>
+          <li>Выполнять сборку и тестирование на каждой операционной системе.</li>
+          <li>Обеспечить корректную установку зависимостей и настройку CMake для каждой платформы.</li>
+          <li>Проверить результаты всех трёх заданий.</li>
+          <li>Объяснить, почему успешная сборка на одной ОС не гарантирует успешную сборку на остальных.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Часть 4 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 4. Параметр fail-fast</span></div>
+      <div class="row"><span class="label">Задачи:</span>
+        <ol class="spec-steps">
+          <li>Настроить <code>fail-fast: false</code> в матрице.</li>
+          <li>Временно внести контролируемую ошибку в один из тестов.</li>
+          <li>Запустить workflow и зафиксировать, как завершаются задания на разных ОС.</li>
+          <li>Изменить значение параметра на <code>fail-fast: true</code> и повторить эксперимент.</li>
+          <li>Сравнить результаты и объяснить влияние <code>fail-fast</code> на выполнение матрицы.</li>
+        </ol>
+      </div>
+      <div class="row"><span class="label">После:</span> восстановить тесты и убедиться, что все задания снова проходят успешно.</div>
+    </div>
+
+    <!-- Часть 5 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 5. Кэширование</span></div>
+      <div class="row"><span class="label">Задачи:</span>
+        <ol class="spec-steps">
+          <li>Выбрать подходящие данные для кэширования: например, загруженные зависимости или результаты компиляции.</li>
+          <li>Настроить ключ кэша с учётом операционной системы и файлов, от которых зависит содержимое кэша.</li>
+          <li>Выполнить первый запуск workflow и зафиксировать время.</li>
+          <li>Повторить запуск без изменения проекта и зафиксировать время.</li>
+          <li>Изменить один исходный файл и повторить запуск.</li>
+          <li>Сравнить результаты и объяснить, когда кэширование приносит пользу и почему оно не гарантирует ускорение каждого запуска.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Часть 6 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 6. Артефакты</span></div>
+      <div class="row"><span class="label">Цель:</span> настроить сохранение результатов CI в виде артефактов GitHub Actions.</div>
+      <div class="row"><span class="label">Минимум:</span> сохранить отчёт о тестировании или журнал результатов тестов. Дополнительно можно сохранить собранное приложение.</div>
+      <div class="row"><span class="label">Задачи:</span>
+        <ol class="spec-steps">
+          <li>Настроить загрузку артефактов после выполнения тестов.</li>
+          <li>Убедиться, что артефакты доступны в интерфейсе GitHub Actions.</li>
+          <li>Скачать один из артефактов и проверить его содержимое.</li>
+          <li>Объяснить разницу между кэшированием и артефактами.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="scroll-anchor" id="questions">
+  <div class="container">
+    <div class="section-title"><span class="number">5</span> Контрольные вопросы</div>
+    <div class="card">
+      <ol class="qa-list">
+        <li>Что такое непрерывная интеграция и какую проблему она решает?</li>
+        <li>Что такое workflow в GitHub Actions?</li>
+        <li>Чем отличаются события <code>push</code> и <code>pull_request</code>?</li>
+        <li>Что такое job и step?</li>
+        <li>Для чего используется <code>runs-on</code>?</li>
+        <li>Как работает <code>strategy.matrix</code>?</li>
+        <li>Почему задания матрицы выполняются в отдельных средах?</li>
+        <li>Для чего предназначен параметр <code>fail-fast</code>?</li>
+        <li>Чем кэширование отличается от сохранения артефактов?</li>
+        <li>Почему кэш следует разделять по операционным системам?</li>
+        <li>Почему проект может собираться на Ubuntu, но не собираться на Windows или macOS?</li>
+        <li>Какие преимущества даёт автоматический запуск тестов при каждом изменении репозитория?</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+
+
+<footer>
+  <div class="container">
+    <p>Лабораторная работа № 6 · Построение CI-конвейера для C++-проекта</p>
+    <p style="margin-top:8px;font-size:.8rem">Современные технологии программирования · 2026</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+}));
+window.addEventListener('scroll',()=>{
+    document.querySelector('nav').classList.toggle('scrolled', window.scrollY>10);
+});
+</script>
+
+</body>
+</html>
