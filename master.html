@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мастер-класс: Токены и ИИ 🤖</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --neon-pink: #e91e63;
+    --neon-blue: #0099cc;
+    --neon-purple: #8e24aa;
+    --neon-yellow: #f9a825;
+    --accent-green: #00a86b;
+    --ink: #1a1a2e;
+    --ink-soft: #4a4a6a;
+    --ink-faint: #8888aa;
+    --bg: #f5f7ff;
+    --card: #ffffff;
+    --line: rgba(26, 26, 46, 0.08);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ============================================
+     ФОНОВЫЕ ПЯТНА — пастельные, мягкие
+     ============================================ */
+  .bg-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: linear-gradient(180deg, #fdfbff 0%, #eef2ff 40%, #fef4fb 100%);
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.55;
+    animation: float 18s ease-in-out infinite;
+  }
+  .orb1 { width: 480px; height: 480px; background: #ffd6e8; top: -120px; left: -120px; }
+  .orb2 { width: 560px; height: 560px; background: #d6ecff; bottom: -180px; right: -140px; animation-delay: -6s; }
+  .orb3 { width: 400px; height: 400px; background: #e8dcff; top: 40%; left: 35%; animation-delay: -12s; }
+  .orb4 { width: 320px; height: 320px; background: #fff2c8; top: 15%; right: 10%; animation-delay: -3s; opacity: 0.45; }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(70px, -50px) scale(1.08); }
+    66% { transform: translate(-50px, 70px) scale(0.94); }
+  }
+
+  /* ============================================
+     HERO
+     ============================================ */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border: 2px solid var(--neon-blue);
+    border-radius: 50px;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--neon-blue);
+    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.7);
+    animation: pulse 2s ease-in-out infinite;
+    box-shadow: 0 4px 20px rgba(0, 153, 204, 0.15);
+    font-weight: 700;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0, 153, 204, 0.15); }
+    50% { box-shadow: 0 4px 35px rgba(0, 153, 204, 0.4); }
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple), var(--neon-blue));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 5s ease infinite;
+    margin-bottom: 20px;
+    letter-spacing: -2px;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .subtitle {
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: var(--ink-soft);
+    max-width: 700px;
+    margin-bottom: 40px;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    font-size: 14px;
+    color: var(--ink-faint);
+    animation: bounce 2s infinite;
+    font-weight: 600;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+
+  /* ============================================
+     SECTIONS
+     ============================================ */
+  section {
+    padding: 80px 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    color: var(--ink);
+  }
+
+  .num {
+    font-size: 0.9em;
+    color: #fff;
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+    padding: 8px 18px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(233, 30, 99, 0.35);
+  }
+
+  /* ============================================
+     CARD
+     ============================================ */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(26, 26, 46, 0.06);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    transition: left 0.6s;
+  }
+
+  .card:hover::before { left: 100%; }
+  .card:hover {
+    border-color: rgba(0, 153, 204, 0.3);
+    box-shadow: 0 20px 60px rgba(26, 26, 46, 0.1);
+  }
+
+  .card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: var(--neon-yellow);
+    font-weight: 800;
+  }
+
+  .card p {
+    color: var(--ink-soft);
+    margin-bottom: 15px;
+    font-size: 1.05rem;
+  }
+
+  /* ============================================
+     RULES LIST
+     ============================================ */
+  .rules {
+    list-style: none;
+    margin: 25px 0;
+  }
+
+  .rules li {
+    padding: 12px 0 12px 40px;
+    position: relative;
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    border-bottom: 1px dashed rgba(26, 26, 46, 0.1);
+  }
+
+  .rules li::before {
+    content: '▸';
+    position: absolute;
+    left: 10px;
+    color: var(--neon-blue);
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+
+  .rules li:last-child { border-bottom: none; }
+
+  .rules li strong { color: var(--ink); }
+
+  .highlight {
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+  }
+
+  /* ============================================
+     INFO TOKENS
+     ============================================ */
+  .info-tokens {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin: 25px 0;
+  }
+  .info-tokens .mini {
+    padding: 18px;
+    border-radius: 16px;
+    background: rgba(0, 153, 204, 0.06);
+    border: 1.5px solid rgba(0, 153, 204, 0.25);
+    text-align: center;
+  }
+  .info-tokens .mini .big-num {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--neon-blue);
+    margin-bottom: 5px;
+  }
+  .info-tokens .mini .lbl {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  .info-tokens .mini.pink {
+    background: rgba(233, 30, 99, 0.06);
+    border-color: rgba(233, 30, 99, 0.25);
+  }
+  .info-tokens .mini.pink .big-num { color: var(--neon-pink); }
+  .info-tokens .mini.yellow {
+    background: rgba(249, 168, 37, 0.08);
+    border-color: rgba(249, 168, 37, 0.3);
+  }
+  .info-tokens .mini.yellow .big-num { color: var(--neon-yellow); }
+
+  /* ============================================
+     TOKEN VISUALIZER
+     ============================================ */
+  .token-viz {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 20px;
+    background: #fafbff;
+    border-radius: 16px;
+    margin: 20px 0;
+    font-size: 1.1rem;
+    min-height: 60px;
+    align-items: center;
+    border: 1.5px solid rgba(0, 153, 204, 0.2);
+  }
+
+  .token {
+    position: relative;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    transition: transform 0.2s;
+    white-space: pre;
+  }
+  .token:hover { transform: scale(1.1) rotate(-2deg); }
+
+  /* Бейдж «×N» для многотокенных плиток */
+  .token-weight {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    background: var(--neon-pink);
+    color: #fff;
+    font-size: 0.6rem;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-weight: 800;
+    letter-spacing: 0;
+    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.5);
+    line-height: 1.4;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .token-multi { padding-right: 14px; }
+
+  /* ============================================
+     TASK GRID
+     ============================================ */
+  .task-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+  }
+
+  .task-card {
+    background: linear-gradient(135deg, #fff5f9 0%, #fef0f5 100%);
+    border: 2px solid rgba(233, 30, 99, 0.2);
+    border-radius: 24px;
+    padding: 35px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(233, 30, 99, 0.08);
+  }
+
+  .task-card:nth-child(2) {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e8f4fd 100%);
+    border-color: rgba(0, 153, 204, 0.25);
+    box-shadow: 0 10px 30px rgba(0, 153, 204, 0.08);
+  }
+
+  .task-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(233, 30, 99, 0.2);
+  }
+
+  .task-card:nth-child(2):hover {
+    box-shadow: 0 20px 50px rgba(0, 153, 204, 0.2);
+  }
+
+  .task-num {
+    display: inline-block;
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-yellow));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+    line-height: 1;
+  }
+
+  .task-card:nth-child(2) .task-num {
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .task-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    color: var(--ink);
+  }
+
+  .task-desc {
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+  }
+
+  /* ============================================
+     EXAMPLES
+     ============================================ */
+  .example {
+    background: #fffef5;
+    border-left: 3px solid var(--neon-yellow);
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    color: #b07800;
+    margin: 15px 0;
+    font-size: 0.95rem;
+    word-break: break-all;
+    border-top: 1px solid rgba(249, 168, 37, 0.15);
+    border-right: 1px solid rgba(249, 168, 37, 0.15);
+    border-bottom: 1px solid rgba(249, 168, 37, 0.15);
+  }
+
+  .example.pink {
+    border-left-color: var(--neon-pink);
+    color: var(--neon-pink);
+    background: #fff5f9;
+    border-top: 1px solid rgba(233, 30, 99, 0.15);
+    border-right: 1px solid rgba(233, 30, 99, 0.15);
+    border-bottom: 1px solid rgba(233, 30, 99, 0.15);
+  }
+
+  /* ============================================
+     INPUT
+     ============================================ */
+  .demo-input {
+    width: 100%;
+    background: #fafbff;
+    border: 2px solid rgba(0, 153, 204, 0.25);
+    border-radius: 14px;
+    padding: 15px 20px;
+    color: var(--ink);
+    font-size: 1.1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+    transition: all 0.3s;
+  }
+
+  .demo-input:focus {
+    outline: none;
+    border-color: var(--neon-blue);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(0, 153, 204, 0.12);
+  }
+
+  .counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    font-size: 1.1rem;
+    color: var(--neon-pink);
+    font-weight: 700;
+  }
+
+  .counter .big {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--neon-pink), var(--neon-yellow));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(0, 153, 204, 0.4), transparent);
+    margin-left: 20px;
+  }
+
+  /* ============================================
+     HINTS
+     ============================================ */
+  .hint {
+    background: #fffceb;
+    border: 1.5px solid rgba(249, 168, 37, 0.35);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-top: 20px;
+    color: #8a6400;
+    font-size: 0.95rem;
+  }
+
+  .hint strong { color: var(--ink); }
+  .hint.blue {
+    background: #eef9ff;
+    border-color: rgba(0, 153, 204, 0.3);
+    color: #006680;
+  }
+  .hint.pink {
+    background: #fff0f7;
+    border-color: rgba(233, 30, 99, 0.3);
+    color: #a8184a;
+  }
+
+  /* ============================================
+     CHAIN
+     ============================================ */
+  .chain {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+
+  .chain-step {
+    padding: 12px 20px;
+    background: #eef9ff;
+    border: 2px solid rgba(0, 153, 204, 0.35);
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: transform 0.3s;
+    color: var(--ink);
+  }
+  .chain-step:hover { transform: scale(1.05); }
+
+  .arrow {
+    color: var(--neon-pink);
+    font-size: 1.5rem;
+    font-weight: bold;
+    animation: slide 1.5s ease-in-out infinite;
+  }
+  @keyframes slide {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+  }
+
+  /* ============================================
+     FOOTER
+     ============================================ */
+  footer {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+  }
+
+  /* ============================================
+     TIME BADGE
+     ============================================ */
+  .time-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(233, 30, 99, 0.08);
+    border: 1.5px solid rgba(233, 30, 99, 0.35);
+    color: var(--neon-pink);
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+  }
+
+  /* ============================================
+     PHRASE BOX
+     ============================================ */
+  .phrase-box {
+    text-align: center;
+    padding: 30px 20px;
+    margin: 25px 0;
+    background: linear-gradient(135deg, #fffceb 0%, #fff0f7 100%);
+    border: 2px dashed rgba(249, 168, 37, 0.5);
+    border-radius: 20px;
+  }
+  .phrase-box .label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #b07800;
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+  .phrase-box .phrase {
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--neon-yellow), var(--neon-pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+  }
+
+  /* ============================================
+     REAL BADGE
+     ============================================ */
+  .real-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--accent-green);
+    background: rgba(0, 168, 107, 0.08);
+    border: 1.5px solid rgba(0, 168, 107, 0.35);
+    padding: 5px 12px;
+    border-radius: 50px;
+    margin-left: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    vertical-align: middle;
+    text-transform: none;
+  }
+  .real-badge .dot {
+    width: 7px; height: 7px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  .real-badge.loading {
+    color: #b07800;
+    background: rgba(249, 168, 37, 0.1);
+    border-color: rgba(249, 168, 37, 0.4);
+  }
+  .real-badge.loading .dot { background: var(--neon-yellow); }
+  .real-badge.error {
+    color: #d84315;
+    background: rgba(216, 67, 21, 0.08);
+    border-color: rgba(216, 67, 21, 0.4);
+  }
+  .real-badge.error .dot { background: #d84315; animation: none; }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ============================================
+     CODE INLINE
+     ============================================ */
+  code {
+    background: rgba(26, 26, 46, 0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.92em;
+  }
+
+  @media (max-width: 600px) {
+    .card { padding: 25px; }
+    .task-card { padding: 25px; }
+    section { padding: 60px 16px; }
+    .real-badge { margin-left: 0; margin-top: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="orb orb4"></div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="badge">Мастер-класс · Практика</span>
+  <h1>Токены,<br>ИИ и немного магии ✨</h1>
+  <p class="subtitle">Сколько «стоит» твоя фраза для нейросети? Как модель видит текст, что такое токен и почему смысл теряется при переводе — разберёмся на живых экспериментах.</p>
+  <div class="scroll-hint">↓ листай вниз ↓</div>
+</div>
+
+<!-- TASK A -->
+<section>
+  <h2 class="section-title">
+    <span class="num">Задание А</span>
+    Телеграмма миллионера 💸
+  </h2>
+
+  <div class="card">
+    <div class="time-badge">⏱ 10 минут · работа в командах</div>
+    <h3>Суть задания</h3>
+    <p>У каждой команды <span class="highlight">60 токенов</span> — это ваш бюджет. Нужно передать заданный смысл так, чтобы потратить <span class="highlight">как можно больше токенов</span>. То есть максимально «дорого» и «жирно» — кто потратит больше на тот же смысл, тот и победил.</p>
+
+    <div class="phrase-box">
+      <div class="label">Смысл, который надо передать</div>
+      <div class="phrase">«Привет, мир!»</div>
+    </div>
+
+    <h3 style="margin-top:35px;">🧠 Что такое токен?</h3>
+    <p>Токен — это <strong style="color:var(--ink);">не символ и не буква</strong>. Это кусочек текста, который модель выучила как единую единицу: целое слово, часть слова, знак препинания или отдельный иероглиф.</p>
+
+    <div class="info-tokens">
+      <div class="mini">
+        <span class="big-num">~4</span>
+        <span class="lbl">символа английского<br>на 1 токен</span>
+      </div>
+      <div class="mini pink">
+        <span class="big-num">~2</span>
+        <span class="lbl">символа русского<br>на 1 токен</span>
+      </div>
+      <div class="mini yellow">
+        <span class="big-num">2–4</span>
+        <span class="lbl">токена<br>на 1 эмодзи</span>
+      </div>
+    </div>
+
+    <h3 style="margin-top:35px;">
+      🔬 Живой счётчик токенов
+      <span class="real-badge loading" id="encoderStatus">
+        <span class="dot"></span><span id="encoderStatusText">загрузка cl100k_base…</span>
+      </span>
+    </h3>
+    <p style="margin-bottom:15px;">Попробуй прямо здесь — введи фразу «Привет, мир!» в разных видах и посмотри, как меняется стоимость:</p>
+
+    <textarea class="demo-input" id="tokenInput" placeholder="Введи свой вариант «Привет, мир!»...">Привет, мир!</textarea>
+    <div class="counter">
+      Стоимость: <span class="big" id="tokenCount">…</span> токенов
+    </div>
+    <div class="token-viz" id="tokenViz"></div>
+
+    <div class="hint pink" style="margin-top:20px;">
+      <strong>🏆 Правила победы:</strong> команда, которая потратит <strong>больше всего токенов</strong> при сохранении смысла «Привет, мир!» — побеждает. Счётчик работает на настоящем токенизаторе <strong>cl100k_base</strong> (тот же, что у GPT-4 и на tiktokenizer.vercel.app).
+    </div>
+  </div>
+</section>
+
+<footer>
+  Сделано 2026
+</footer>
+
+<!-- ============================================================
+     ОСНОВНОЙ СКРИПТ: отрисовка живого счётчика
+     ============================================================ -->
+<script>
+  const input   = document.getElementById('tokenInput');
+  const countEl = document.getElementById('tokenCount');
+  const vizEl   = document.getElementById('tokenViz');
+
+  const statusEl     = document.getElementById('encoderStatus');
+  const statusTextEl = document.getElementById('encoderStatusText');
+
+  const COLORS = {
+    lat:   '#0099cc',
+    cyr:   '#e91e63',
+    cjk:   '#b07800',
+    kana:  '#c2185b',
+    emoji: '#8e24aa',
+    num:   '#00a86b',
+    space: '#8888aa',
+    punct: '#f57c00',
+    byte:  '#777'
+  };
+
+  function detectKind(text) {
+    if (!text) return 'punct';
+    if (text.includes('\uFFFD')) return 'byte';
+
+    for (const ch of text) {
+      const code = ch.codePointAt(0);
+      if (code >= 0x1F300 && code <= 0x1FAFF) return 'emoji';
+      if (code >= 0x1F000 && code <= 0x1F2FF) return 'emoji';
+      if (code >= 0x2600  && code <= 0x27BF)  return 'emoji';
+      if (code === 0x2764 || code === 0x2728) return 'emoji';
+      if (code >= 0x2B00  && code <= 0x2BFF)  return 'emoji';
+      if (code >= 0x0400 && code <= 0x04FF) return 'cyr';
+      if (code >= 0x4E00 && code <= 0x9FFF) return 'cjk';
+      if (code >= 0x3040 && code <= 0x30FF) return 'kana';
+      if (code >= 0x0F00 && code <= 0x0FFF) return 'cjk';
+      if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) return 'lat';
+      if (code >= 48 && code <= 57) return 'num';
+    }
+    return 'punct';
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function visible(text) {
+    return escapeHtml(text)
+      .replace(/ /g, '<span style="opacity:0.35;">␣</span>')
+      .replace(/\n/g, '<span style="opacity:0.35;">⏎</span>')
+      .replace(/\t/g, '<span style="opacity:0.35;">→</span>');
+  }
+
+  function setStatus(state, text) {
+    statusEl.classList.remove('loading', 'error');
+    if (state === 'loading') statusEl.classList.add('loading');
+    if (state === 'error')   statusEl.classList.add('error');
+    statusTextEl.textContent = text;
+  }
+
+  function update() {
+    const text = input.value;
+
+    if (!window.gptTokenize) {
+      countEl.textContent = '…';
+      vizEl.innerHTML = '<span style="color:#8888aa; font-size:0.95rem;">⏳ ждём токенизатор…</span>';
+      return;
+    }
+
+    let result;
+    try {
+      result = window.gptTokenize(text);
+    } catch (e) {
+      vizEl.innerHTML = '<span style="color:#d84315;">Ошибка токенизации: ' + escapeHtml(String(e)) + '</span>';
+      return;
+    }
+
+    const { tokens, groups } = result;
+
+    countEl.textContent = tokens.length;
+
+    if (tokens.length === 0) {
+      vizEl.innerHTML = '<span style="color:#bbb; font-size:0.95rem;">начни вводить текст выше…</span>';
+      return;
+    }
+
+    const shown = groups.slice(0, 80);
+
+    vizEl.innerHTML = shown.map(g => {
+      const kind = detectKind(g.text);
+      const color = COLORS[kind] || '#888';
+      const style = `background:${color}18; color:${color}; border:1.5px solid ${color}55;`;
+      const display = g.text.length === 0 ? '∅' : visible(g.text);
+      const isMulti = g.ids.length > 1;
+      const cls = isMulti ? 'token token-multi' : 'token';
+      const badge = isMulti
+        ? `<span class="token-weight" title="${g.ids.length} токена внутри">×${g.ids.length}</span>`
+        : '';
+      const idsList = g.ids.join(', ');
+      return `<span class="${cls}" style="${style}" title="ID: ${idsList}">${display}${badge}</span>`;
+    }).join('')
+    + (groups.length > 80
+      ? `<span style="color:#aaa; font-size:0.9rem; margin-left:8px;">…и ещё ${groups.length - 80}</span>`
+      : '');
+  }
+
+  input.addEventListener('input', update);
+  window.__updateTokenViz = update;
+  update();
+</script>
+
+<!-- ============================================================
+     МОДУЛЬ: настоящий gpt-tokenizer (cl100k_base = GPT-4)
+     ============================================================ -->
+<script type="module">
+  try {
+    const mod = await import('https://esm.sh/gpt-tokenizer@2.5.0');
+    const { encode, decode } = mod;
+
+    window.gptTokenize = function(text) {
+      if (!text) return { tokens: [], groups: [] };
+
+      const ids = encode(text);
+
+      const tokens = ids.map(id => {
+        let t = '';
+        try {
+          t = decode([id]);
+        } catch (e) {
+          t = '\uFFFD';
+        }
+        return { id, text: t };
+      });
+
+      const groups = [];
+      let buffer = null;
+
+      for (const tok of tokens) {
+        if (buffer) {
+          buffer.tokens.push(tok);
+          buffer.ids.push(tok.id);
+
+          let combined = '';
+          try { combined = decode(buffer.ids); } catch (e) { combined = ''; }
+
+          if (!combined.includes('\uFFFD')) {
+            buffer.text = combined;
+            groups.push(buffer);
+            buffer = null;
+          }
+        } else if (tok.text.includes('\uFFFD')) {
+          buffer = { ids: [tok.id], tokens: [tok], text: tok.text };
+        } else {
+          groups.push({ ids: [tok.id], tokens: [tok], text: tok.text });
+        }
+      }
+      if (buffer) groups.push(buffer);
+
+      return { tokens, groups };
+    };
+
+    const statusEl = document.getElementById('encoderStatus');
+    const statusTextEl = document.getElementById('encoderStatusText');
+    statusEl.classList.remove('loading');
+    statusTextEl.textContent = 'реальный cl100k_base';
+    window.__updateTokenViz && window.__updateTokenViz();
+
+  } catch (err) {
+    console.error('Не удалось загрузить gpt-tokenizer:', err);
+    const statusEl = document.getElementById('encoderStatus');
+    const statusTextEl = document.getElementById('encoderStatusText');
+    if (statusEl) {
+      statusEl.classList.remove('loading');
+      statusEl.classList.add('error');
+      statusTextEl.textContent = 'токенизатор не загрузился';
+    }
+    const vizEl = document.getElementById('tokenViz');
+    if (vizEl) {
+      vizEl.innerHTML = '<span style="color:#d84315; font-size:0.95rem;">⚠️ Не удалось загрузить gpt-tokenizer. Проверь интернет-соединение или открой файл в браузере с доступом к esm.sh.</span>';
+    }
+  }
+</script>
+
+</body>
+</html>
