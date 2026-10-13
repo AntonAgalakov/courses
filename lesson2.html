@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Урок #2: Условный оператор</title>
-    <!-- Подключаем современный шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -45,7 +44,6 @@
             box-shadow: var(--shadow);
         }
 
-        /* Кнопка "Назад" */
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -143,7 +141,6 @@
             color: var(--secondary);
         }
 
-        /* Стили для задач */
         .task.task-hard {
             border-left-color: #e74c3c;
             background: #fdf7f7;
@@ -194,6 +191,11 @@
             accent-color: var(--primary);
         }
 
+        .test-question label.selected {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+
         .test-controls {
             text-align: center;
             margin-top: 20px;
@@ -214,7 +216,7 @@
             box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             background: var(--secondary);
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba(63, 55, 201, 0.4);
@@ -242,11 +244,24 @@
             animation: pulse 0.6s ease;
         }
 
+        #result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        #result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
+
         .hint-btn {
             background: #f1f8ff;
             color: var(--primary);
@@ -258,17 +273,26 @@
             font-size: 0.95rem;
             margin-top: 12px;
             transition: var(--transition);
+            box-shadow: none;
         }
 
-        .hint-btn:hover {
+        .hint-btn:hover:not(:disabled) {
             background: #e0f0ff;
             transform: translateY(-1px);
+            box-shadow: none;
         }
 
         .hint-code {
             margin-top: 16px;
             border-radius: 12px;
             overflow: hidden;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -350,26 +374,33 @@ else:
         </div>
 
         <div class="task">
-            <h3>Задача 2: Возраст собаки</h3>
-            <p>Напишите программу, которая переводит возраст собаки в «человеческие» годы по правилам:</p>
+            <h3>Задача 2: Шлагбаум и ночной тариф</h3>
+            <p>Костя — джуниор в аутсорсинговой компании. Ему поручили написать прошивку для автоматического шлагбаума в торговом центре. Терминал на въезде знает, во сколько машина заехала и сколько минут простояла, а потом сам считает, сколько должен водитель. И тут нюанс — «ночной тариф»: если парковка начинается после 22:00 и до 06:00, стоимость дороже на 20% — за освещение, охрану и вообще «ночная смена дорогая». Костя уже третий раз переписывает код, помогите ему довести до ума.</p>
+            <p><strong>Задание:</strong> реализуйте программу, которая считывает продолжительность парковки в минутах и час въезда (0–23), рассчитывает стоимость по тарифу ниже и, если парковка начинается в ночной период, увеличивает её на 20%. Программа должна вывести итоговую стоимость в рублях.</p>
+            <p><strong>Тариф:</strong></p>
             <ul>
-                <li>Первый и второй год — по 10.5 лет каждый</li>
-                <li>Каждый последующий год — по 4 года</li>
-                <li>Если возраст отрицательный — вывести ошибку</li>
+                <li>до 30 минут — 0 ₽</li>
+                <li>от 30 до 120 минут — 100 ₽</li>
+                <li>от 120 до 300 минут — 250 ₽</li>
+                <li>более 300 минут — 500 ₽</li>
             </ul>
-            <p>Пример:<br>
-                <code>Введите возраст собаки: 1.5</code><br>
-                <code>Человеческий возраст: 15.8 лет</code>
-            </p>
+            <p><strong>Ночной период:</strong> 22:00–06:00 — стоимость +20%.</p>
+            <p><strong>Входные данные:</strong> <code>duration</code> (int) — минут на парковке, <code>hour</code> (int) — час въезда (0–23).</p>
+            <p><strong>Выходные данные:</strong> стоимость (int, ₽).</p>
+            <p><strong>Примеры:</strong></p>
+            <pre>20 мин, 14:00 → 0 ₽
+90 мин, 14:00 → 100 ₽
+180 мин, 14:00 → 250 ₽
+400 мин, 14:00 → 500 ₽
+180 мин, 23:00 → 300 ₽ (+20%)</pre>
+            <p>Проверьте границы: 30, 120, 300 минут и часы 22, 6.</p>
         </div>
 
         <div class="task task-hard">
             <h3>Задача 3 🏋️‍♂️: Лаборатория безумного учёного</h3>
-            <p>ПТы — гений-эĸспериментатор из подвала, где заĸоны физиĸи не работают, 
-                но Wi-Fi ловит отлично. <br>
+            <p>Ты — гений-экспериментатор из подвала, где законы физики не работают, но Wi-Fi ловит отлично. <br>
                 Смешивай любые два "реагента" и смотри, что получится! <br>
-                Пользователь вводит два слова (в любом порядĸе). Программа проверяет 
-                известные ĸомбинации. </p>
+                Пользователь вводит два слова (в любом порядке). Программа проверяет известные комбинации.</p>
             <ul>
                 <li><code>ноутбук + вода</code> → <code>"Короткое замыкание… и твои слёзы."</code></li>
                 <li><code>наушники + школьный звонок</code> → <code>"Ты не услышал, что по алгебре контрольная..."</code></li>
@@ -381,58 +412,57 @@ else:
 
         <div class="task">
             <h3>Задача 4 🏋️‍♂️: Царство драконов</h3>
-            <p>Реализуйте игру по блок схеме:</p>
+            <p>Реализуйте игру по блок-схеме:</p>
             Игра "Царство драконов"<br>
-                      <img src="./img/3_6.png">
-                      <br>Вы находитесь в землях, заселенных драконами. Перед собой вы видите две пещеры.
-                      <br>В одной из них — дружелюбный дракон, который готов поделиться с вами своими сокровищами.
-                      <br>Во второй — жадный и голодный дракон, который мигом вас съест.
-                      <br>
-                      В какую пещеру вы войдете? (нажмите клавишу 1 или 2)
-                      <br>Вы приближаетесь к пещере...
-                      <br>Ее темнота заставляет вас дрожать от страха...
-                      <br>Большой дракон выпрыгивает перед вами! Он раскрывает свою пасть и...
-                      <br><code>Если да: </code> ...делится с вами своими сокровищами!
-                      <br><code>Если нет:</code> ...моментально вас съедает!
-                      <br>
+            <img src="./img/3_6.png" alt="Блок-схема">
+            <br>Вы находитесь в землях, заселенных драконами. Перед собой вы видите две пещеры.
+            <br>В одной из них — дружелюбный дракон, который готов поделиться с вами своими сокровищами.
+            <br>Во второй — жадный и голодный дракон, который мигом вас съест.
+            <br>
+            В какую пещеру вы войдете? (нажмите клавишу 1 или 2)
+            <br>Вы приближаетесь к пещере...
+            <br>Ее темнота заставляет вас дрожать от страха...
+            <br>Большой дракон выпрыгивает перед вами! Он раскрывает свою пасть и...
+            <br><code>Если да:</code> ...делится с вами своими сокровищами!
+            <br><code>Если нет:</code> ...моментально вас съедает!
+            <br>
         </div>
 
         <div class="task">
             <h3>Задача 5 🏋️‍♂️: Знаки зодиака</h3>
-            В гороскопах, наполняющих газеты и журналы, астрологи пытаются положение солнца в момент рождения человека как-то связать с его судьбой. Всего насчитывается 12 знаков зодиака. Напишите программу, запрашиваю щую у пользователя дату его рождения и выводящую на экран в соответствующие знак зодиака.
-            <img src="https://itexts.net/files/online_html/345361/_1.png">
-            <button id="hintBtn" class="hint-btn">💡 Подсказка</button>
+            В гороскопах, наполняющих газеты и журналы, астрологи пытаются положение солнца в момент рождения человека как-то связать с его судьбой. Всего насчитывается 12 знаков зодиака. Напишите программу, запрашивающую у пользователя дату его рождения и выводящую на экран соответствующий знак зодиака.
+            <img src="https://itexts.net/files/online_html/345361/_1.png" alt="Знаки зодиака">
+            <button id="hintBtn" class="hint-btn" type="button">💡 Подсказка</button>
             <div id="hintCode" class="hint-code" style="display: none;">
                 <pre>
-        # Задача 5: Определение знака зодиака
-        
-        print("Привет! Давай узнаем твой знак зодиака.")
-        
-        # Запрашиваем месяц и день рождения
-        month = input("Введите месяц рождения (например, 'январь', 'февраль' и т.д.): ")
-        day = int(input("Введите день рождения (число от 1 до 31): "))
-        
-        # Переменная для хранения знака зодиака
-        zodiac_sign = None
-        
-        # Проверяем даты по месяцам и дням
-        if month == "март":
-            if 21 <= day <= 31:
-                zodiac_sign = "Овен"
-        elif month == "апрель":
-            if 1 <= day <= 20:
-                zodiac_sign = "Овен"
-            elif 21 <= day <= 30:
-                zodiac_sign = "Телец"
-        ... Продолжи ...
-        
-        # Выводим результат
-        if zodiac_sign:
-            print(f"Твой знак зодиака: {zodiac_sign}")
-        else:
-            print("Не удалось определить знак зодиака. Проверь введённые данные.")</pre>
+# Задача 5: Определение знака зодиака
+
+print("Привет! Давай узнаем твой знак зодиака.")
+
+# Запрашиваем месяц и день рождения
+month = input("Введите месяц рождения (например, 'январь', 'февраль' и т.д.): ")
+day = int(input("Введите день рождения (число от 1 до 31): "))
+
+# Переменная для хранения знака зодиака
+zodiac_sign = None
+
+# Проверяем даты по месяцам и дням
+if month == "март":
+    if 21 <= day <= 31:
+        zodiac_sign = "Овен"
+elif month == "апрель":
+    if 1 <= day <= 20:
+        zodiac_sign = "Овен"
+    elif 21 <= day <= 30:
+        zodiac_sign = "Телец"
+... Продолжи ...
+
+# Выводим результат
+if zodiac_sign:
+    print(f"Твой знак зодиака: {zodiac_sign}")
+else:
+    print("Не удалось определить знак зодиака. Проверь введённые данные.")</pre>
             </div>
-        
         </div>
 
         <div class="task task-hard">
@@ -449,6 +479,64 @@ else:
             </ul>
         </div>
 
+        <div class="task">
+            <h3>Задача 7: Угадай число</h3>
+            <p>Компьютер загадывает случайное число от 1 до 10. Пользователь вводит своё предположение. Программа сообщает, насколько близко он подобрался:</p>
+            <ul>
+                <li>если угадал → <code>"Точно в цель!"</code></li>
+                <li>если разница 1 → <code>"Горячо!"</code></li>
+                <li>если разница 2–3 → <code>"Тепло"</code></li>
+                <li>если разница больше 3 → <code>"Холодно"</code></li>
+            </ul>
+            <p>Дополнительно: если пользователь угадал с первой попытки (флаг <code>attempts == 1</code>) → вывести <code>"Невероятно!"</code>.</p>
+            <p>Подсказка: используйте <code>import random</code> и <code>random.randint(1, 10)</code>. Разницу считайте через <code>abs()</code>.</p>
+        </div>
+
+        <!-- === ЗАДАЧА 8: ЛАДЬЯ === -->
+        <div class="task">
+            <h3>Задача 8: Ладья 🏰</h3>
+            <p>Ладья ходит по прямой: либо по горизонтали, либо по вертикали, на любое число клеток. Напиши программу, которая по координатам двух клеток определяет, может ли ладья за один ход попасть с первой на вторую.</p>
+            <p><strong>Входные данные:</strong> четыре числа <code>x1, y1, x2, y2</code> — где стоит ладья и куда хочет пойти. Все от 1 до 8.</p>
+            <p><strong>Выходные данные:</strong> <code>"Да"</code> или <code>"Нет"</code>.</p>
+            <p><strong>Примеры:</strong></p>
+            <pre>3 5 → 3 8   → Да (одна вертикаль)
+3 5 → 7 5   → Да (одна горизонталь)
+3 5 → 4 6   → Нет (диагональ — не её стиль)
+3 5 → 3 5   → Да (никуда не идти тоже можно)</pre>
+            <p><strong>Подсказка:</strong> у ладьи либо совпадают <code>x</code>, либо совпадают <code>y</code>. Запиши это через <code>or</code> в одном <code>if</code>.</p>
+            <p><strong>Усложнение:</strong> добавь проверку — если координаты вне диапазона 1–8, выведи <code>"Нет такой клетки"</code>.</p>
+        </div>
+
+        <!-- === ЗАДАЧА 9: СЛОН === -->
+        <div class="task">
+            <h3>Задача 9: Слон 🧙</h3>
+            <p>Слон ходит только по диагонали, на любое число клеток. Определи, может ли слон за один ход попасть из первой клетки во вторую.</p>
+            <p><strong>Входные данные:</strong> четыре числа <code>x1, y1, x2, y2</code> (1–8).</p>
+            <p><strong>Выходные данные:</strong> <code>"Да"</code> или <code>"Нет"</code>.</p>
+            <p><strong>Примеры:</strong></p>
+            <pre>2 2 → 5 5   → Да (по главной диагонали)
+2 2 → 5 6   → Нет
+4 7 → 1 4   → Да (разница 3 и 3)
+3 3 → 3 4   → Нет (слон так не умеет)</pre>
+            <p><strong>Подсказка:</strong> нужен модуль — <code>abs(x1 - x2) == abs(y1 - y2)</code>.</p>
+            <p><strong>Подколка:</strong> почему нельзя написать просто <code>x1 - x2 == y1 - y2</code>? Найди пример, где такой код соврёт.</p>
+        </div>
+
+        <!-- === ЗАДАЧА 10: ФЕРЗЬ === -->
+        <div class="task">
+            <h3>Задача 10: Ферзь 👑</h3>
+            <p>Ферзь — самая сильная фигура: он ходит и как ладья (по прямой), и как слон (по диагонали). Определи, может ли ферзь за один ход попасть из первой клетки во вторую.</p>
+            <p><strong>Входные данные:</strong> <code>x1, y1, x2, y2</code> (1–8).</p>
+            <p><strong>Выходные данные:</strong> <code>"Да"</code> или <code>"Нет"</code>.</p>
+            <p><strong>Примеры:</strong></p>
+            <pre>3 3 → 3 7   → Да (по вертикали)
+3 3 → 8 3   → Да (по горизонтали)
+3 3 → 6 6   → Да (по диагонали)
+3 3 → 4 6   → Нет</pre>
+            <p><strong>Подсказка:</strong> объедини условия для ладьи и слона через <code>or</code>. Следи за скобками!</p>
+            <p><strong>Усложнение:</strong> сначала проверь, что клетки вообще разные — иначе это «ход на месте», и это не ход.</p>
+        </div>
+
         <!-- === ТЕСТ === -->
         <h2>
             <img src="https://cdn-icons-png.flaticon.com/512/3051/3051303.png" alt="Тест">
@@ -457,6 +545,8 @@ else:
         <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Ответьте на 5 вопросов. Вернуться к предыдущим вопросам нельзя!</p>
 
         <div class="test-container">
+            <div class="progress-text" id="progressText">Вопрос 1 из 5</div>
+
             <div class="test-question active" data-question="1">
                 <p><strong>1. Какой синтаксис правильный для условия в Python?</strong></p>
                 <label><input type="radio" name="q1" value="a"> if x = 5 then:</label>
@@ -498,8 +588,8 @@ else:
             </div>
 
             <div class="test-controls">
-                <button id="nextBtn" onclick="nextOrSubmit()">Далее →</button>
-                <button id="submitBtn" onclick="submitTest()" style="display:none;">Завершить тест</button>
+                <button id="nextBtn" type="button" onclick="nextOrSubmit()">Далее →</button>
+                <button id="submitBtn" type="button" onclick="submitTest()" style="display:none;">Завершить тест</button>
             </div>
 
             <div id="result"></div>
@@ -507,112 +597,127 @@ else:
     </div>
 
     <script>
-        let currentQuestion = 1;
+        /* === ПОДСКАЗКА К ЗАДАЧЕ 5 === */
+        const hintBtn = document.getElementById('hintBtn');
+        const hintCode = document.getElementById('hintCode');
+
+        if (hintBtn && hintCode) {
+            hintBtn.addEventListener('click', function () {
+                const isHidden = hintCode.style.display === 'none' || hintCode.style.display === '';
+                hintCode.style.display = isHidden ? 'block' : 'none';
+                hintBtn.textContent = isHidden ? '🙈 Скрыть подсказку' : '💡 Подсказка';
+            });
+        }
+
+        /* === ТЕСТ === */
+        const correctAnswers = {
+            q1: 'b',
+            q2: 'b',
+            q3: 'd',
+            q4: 'c',
+            q5: 'b'
+        };
+
         const totalQuestions = 5;
+        let currentQuestion = 1;
         let userAnswers = {};
-        const encryptedAnswers = "eyJxMSI6ImIiLCJxMiI6ImIiLCJxMyI6ImQiLCJxNCI6ImMiLCJxNSI6ImIifQ==";
 
-        function decryptAnswers() {
-            try {
-                return JSON.parse(atob(encryptedAnswers));
-            } catch (e) {
-                console.error("Ошибка расшифровки!");
-                return {};
-            }
-        }
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressText = document.getElementById('progressText');
+        const resultEl = document.getElementById('result');
 
-        function showQuestion(num) {
-            document.querySelectorAll('.test-question').forEach(q => q.classList.remove('active'));
-            document.querySelector(`.test-question[data-question="${num}"]`).classList.add('active');
-        }
-
-        function saveAnswer() {
-            const currentName = `q${currentQuestion}`;
-            const selected = document.querySelector(`input[name="${currentName}"]:checked`);
-            if (selected) {
-                userAnswers[currentName] = selected.value;
-                return true;
-            }
-            return false;
-        }
-
-        function updateButton() {
-            const nextBtn = document.getElementById('nextBtn');
-            const submitBtn = document.getElementById('submitBtn');
-            if (currentQuestion === totalQuestions) {
-                nextBtn.style.display = 'none';
-                submitBtn.style.display = 'inline-block';
-            } else {
-                nextBtn.style.display = 'inline-block';
-                submitBtn.style.display = 'none';
-            }
-        }
+        // Подсветка выбранного варианта
+        document.querySelectorAll('.test-question input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const name = this.name;
+                document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+                    r.parentElement.classList.remove('selected');
+                });
+                this.parentElement.classList.add('selected');
+            });
+        });
 
         function nextOrSubmit() {
-            if (!saveAnswer()) {
-                alert('Пожалуйста, выберите ответ!');
+            const currentQ = document.querySelector(`.test-question[data-question="${currentQuestion}"]`);
+            const selected = currentQ.querySelector('input[type="radio"]:checked');
+
+            if (!selected) {
+                alert('Пожалуйста, выберите вариант ответа!');
                 return;
             }
-            if (currentQuestion < totalQuestions) {
-                currentQuestion++;
-                showQuestion(currentQuestion);
-                updateButton();
-            } else {
-                submitTest();
+
+            // Сохраняем ответ
+            userAnswers[selected.name] = selected.value;
+
+            // Переход к следующему вопросу
+            currentQ.classList.remove('active');
+            currentQuestion++;
+
+            if (currentQuestion <= totalQuestions) {
+                const nextQ = document.querySelector(`.test-question[data-question="${currentQuestion}"]`);
+                if (nextQ) {
+                    nextQ.classList.add('active');
+                    progressText.textContent = `Вопрос ${currentQuestion} из ${totalQuestions}`;
+                }
+
+                // На последнем вопросе меняем кнопку
+                if (currentQuestion === totalQuestions) {
+                    nextBtn.style.display = 'none';
+                    submitBtn.style.display = 'inline-block';
+                }
             }
         }
 
         function submitTest() {
-            saveAnswer();
-            const answers = decryptAnswers();
-            let score = 0;
-            for (let q in answers) {
-                if (userAnswers[q] === answers[q]) score++;
+            const currentQ = document.querySelector(`.test-question[data-question="${currentQuestion}"]`);
+            const selected = currentQ.querySelector('input[type="radio"]:checked');
+
+            if (!selected) {
+                alert('Пожалуйста, выберите вариант ответа!');
+                return;
             }
 
-            const percentage = Math.round((score / totalQuestions) * 100);
-            let message = `Ваш результат: ${score} из ${totalQuestions} (${percentage}%)`;
+            userAnswers[selected.name] = selected.value;
 
-            let color = '#e74c3c';
-            if (score === totalQuestions) {
-                color = '#2ecc71';
-                message += '<br>🏆 Отлично! Вы мастер условий!';
-            } else if (score >= 4) {
-                color = '#2ecc71';
-                message += '<br>👍 Почти идеально! Отличный результат!';
-            } else if (score >= 3) {
-                color = '#f39c12';
-                message += '<br>🙂 Неплохо! Повторите спорные моменты.';
-            } else {
-                message += '<br>📚 Советуем пересмотреть урок.';
-            }
-
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = message;
-            resultDiv.style.color = color;
-            resultDiv.style.backgroundColor = color + '15';
-            resultDiv.style.border = `2px solid ${color}`;
-            resultDiv.classList.add('show');
-
-            document.getElementById('nextBtn').style.display = 'none';
-            document.getElementById('submitBtn').style.display = 'none';
-        }
-
-        updateButton();
-
-        // Подсказка для задачи 5
-        if (document.getElementById('hintBtn')) {
-            document.getElementById('hintBtn').addEventListener('click', function() {
-                const hintCode = document.getElementById('hintCode');
-                if (hintCode.style.display === 'none' || hintCode.style.display === '') {
-                    hintCode.style.display = 'block';
-                    this.textContent = 'Скрыть подсказку';
-                } else {
-                    hintCode.style.display = 'none';
-                    this.textContent = '💡 Подсказка';
+            // Подсчёт результата
+            let correct = 0;
+            for (let i = 1; i <= totalQuestions; i++) {
+                const key = 'q' + i;
+                if (userAnswers[key] === correctAnswers[key]) {
+                    correct++;
                 }
-            });
+            }
+
+            // Блокируем кнопки
+            submitBtn.disabled = true;
+            document.querySelectorAll('.test-question input').forEach(inp => inp.disabled = true);
+
+            // Показываем результат
+            const percent = Math.round((correct / totalQuestions) * 100);
+            let message = '';
+            let cls = '';
+
+            if (correct === totalQuestions) {
+                message = `🎉 Отлично! ${correct} из ${totalQuestions} (${percent}%). Все ответы верны!`;
+                cls = 'success';
+            } else if (correct >= 3) {
+                message = `👍 Неплохо! ${correct} из ${totalQuestions} (${percent}%). Есть над чем поработать.`;
+                cls = 'success';
+            } else {
+                message = `📚 Стоит повторить материал. ${correct} из ${totalQuestions} (${percent}%).`;
+                cls = 'error';
+            }
+
+            resultEl.textContent = message;
+            resultEl.className = 'show ' + cls;
+
+            // Прокручиваем к результату
+            resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+
+        // Начинаем с первой кнопки "Далее"
+        progressText.textContent = `Вопрос 1 из ${totalQuestions}`;
     </script>
 </body>
 </html>
