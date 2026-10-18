@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Лабораторная работа № 7 · ORM · ODB + PostgreSQL</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet"/>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #f8fafc;
+        color: #0f172a;
+        line-height: 1.6;
+        scroll-behavior: smooth;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    nav {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+        border-bottom: 1px solid #e2e8f0; padding: 12px 0; transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .logo { font-weight: 700; font-size: 1.2rem; color: #2563eb; letter-spacing: -0.5px; }
+    .logo span { color: #0f172a; font-weight: 400; }
+    .nav-links { display: flex; flex-wrap: wrap; gap: 8px 20px; list-style: none; }
+    .nav-links a {
+        text-decoration: none; font-size: 0.9rem; font-weight: 500;
+        color: #334155; transition: color 0.2s; padding: 4px 0;
+        border-bottom: 2px solid transparent;
+    }
+    .nav-links a:hover { color: #2563eb; border-bottom-color: #2563eb; }
+
+    .hero { padding: 60px 0 40px; text-align: center; }
+    .hero h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -1px; line-height: 1.2; margin-bottom: 8px; }
+    .hero h1 .highlight { color: #2563eb; }
+    .hero p.sub { font-size: 1.2rem; color: #475569; max-width: 700px; margin: 0 auto 20px; }
+    .badge {
+        display: inline-block; background: #dbeafe; color: #1d4ed8;
+        padding: 6px 18px; border-radius: 40px;
+        font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px;
+    }
+
+    section { padding: 48px 0; border-bottom: 1px solid #e9edf2; }
+    section:last-of-type { border-bottom: none; }
+    .section-title {
+        font-size: 1.8rem; font-weight: 700; margin-bottom: 24px;
+        letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px;
+    }
+    .section-title .number {
+        background: #2563eb; color: #fff; width: 36px; height: 36px;
+        border-radius: 50%; display: inline-flex; align-items: center;
+        justify-content: center; font-size: 1rem; font-weight: 600; flex-shrink: 0;
+    }
+
+    .card-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px; margin-top: 20px;
+    }
+    .card {
+        background: #ffffff; border-radius: 16px; padding: 24px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        border: 1px solid #eef2f6;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+    .card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; color: #0f172a; }
+    .card p, .card li { color: #334155; font-size: 0.95rem; }
+    .card ul, .card ol { padding-left: 20px; margin: 8px 0; }
+    .card ul li, .card ol li { margin-bottom: 4px; }
+    .card-full { grid-column: 1 / -1; }
+
+    .code-block {
+        background: #1e293b; color: #e2e8f0; padding: 16px 20px;
+        border-radius: 12px; overflow-x: auto;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.85rem; line-height: 1.5; margin: 16px 0;
+        white-space: pre; tab-size: 4; -moz-tab-size: 4; word-break: normal;
+    }
+    .code-block .comment { color: #94a3b8; }
+    .code-block .keyword { color: #f472b6; }
+    .code-block .func { color: #60a5fa; }
+    .code-block .string { color: #a3e635; }
+    .code-block .number { color: #fbbf24; }
+    .code-block .type { color: #c084fc; }
+    .code-block .op { color: #f472b6; }
+
+    .table-wrap { overflow-x: auto; margin: 20px 0; }
+    table {
+        width: 100%; border-collapse: collapse; font-size: 0.9rem;
+        background: #fff; border-radius: 12px; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    th {
+        background: #f1f5f9; font-weight: 600; padding: 12px 16px;
+        text-align: left; border-bottom: 2px solid #e2e8f0;
+    }
+    td { padding: 10px 16px; border-bottom: 1px solid #ecf1f6; }
+    tr:last-child td { border-bottom: none; }
+
+    .info-box {
+        background: #f1f5f9; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #2563eb; margin: 16px 0;
+    }
+    .info-box strong { color: #0f172a; }
+
+    .new-box {
+        background: #f0fdf4; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #22c55e; margin: 16px 0;
+    }
+    .new-box strong { color: #14532d; }
+
+    .warn-box {
+        background: #fffbeb; padding: 16px 20px; border-radius: 12px;
+        border-left: 4px solid #f59e0b; margin: 16px 0;
+    }
+    .warn-box strong { color: #78350f; }
+
+    .btn-top {
+        display: inline-block; padding: 10px 24px; background: #2563eb;
+        color: #fff; border-radius: 40px; text-decoration: none;
+        font-weight: 500; transition: background 0.2s; border: none;
+        cursor: pointer; font-size: 0.9rem;
+    }
+    .btn-top:hover { background: #1d4ed8; }
+
+    footer {
+        text-align: center; padding: 40px 0 24px;
+        color: #64748b; font-size: 0.9rem;
+        border-top: 1px solid #e9edf2;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 { font-size: 2rem; }
+        .nav-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .nav-links { gap: 12px; }
+        .section-title { font-size: 1.4rem; }
+        .card-grid { grid-template-columns: 1fr; }
+    }
+
+    .scroll-anchor { scroll-margin-top: 80px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-8 { margin-bottom: 8px; }
+    .fw-600 { font-weight: 600; }
+    .text-muted { color: #64748b; }
+    .sub-section { margin-top: 32px; }
+    .sub-section h4 { font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #0f172a; }
+
+    /* Блок спецификации (используется для частей задания) */
+    .spec-block {
+        background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #2563eb;
+        border-radius: 8px; padding: 0; margin: 20px 0; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+    }
+    .spec-block.is-new { border-left-color: #22c55e; }
+    .spec-block.is-given { border-left-color: #94a3b8; opacity: 0.9; }
+    .spec-block .row { display: block; padding: 10px 18px; border-top: 1px solid #eef2f7; line-height: 1.6; }
+    .spec-block .row:first-child {
+        padding: 13px 18px; border-top: 0; background: #f8fafc;
+        font-size: 1.05rem; font-weight: 700; color: #0f172a;
+    }
+    .spec-block.is-new .row:first-child { background: #f0fdf4; }
+    .spec-block.is-given .row:first-child { background: #f1f5f9; }
+    .spec-block .row:first-child .label { color: #0f172a; min-width: 0; margin-right: 12px; }
+    .spec-block .row:not(:first-child) .label {
+        display: block; min-width: 0; margin-bottom: 2px;
+        color: #475569; font-weight: 700;
+    }
+    .spec-block .row:not(:first-child) { color: #334155; }
+    .spec-block code { white-space: normal; }
+
+    .spec-steps { list-style: none; padding-left: 0; margin: 6px 0 0; counter-reset: step; }
+    .spec-steps li {
+        position: relative; padding-left: 30px; margin-bottom: 6px;
+        counter-increment: step; line-height: 1.55;
+    }
+    .spec-steps li::before {
+        content: counter(step);
+        position: absolute; left: 0; top: 1px;
+        width: 20px; height: 20px;
+        background: #e0edff; color: #1d4ed8;
+        border-radius: 50%; font-size: 0.75rem; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .spec-block .hint { color: #475569; font-style: italic; font-size: 0.92rem; }
+
+    .spec-block .new-badge {
+        display: inline-block; background: #22c55e; color: #052e16;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 4px; margin-left: 10px;
+        letter-spacing: 0.5px; vertical-align: middle;
+    }
+    .spec-block .given-badge {
+        display: inline-block; background: #94a3b8; color: #0f172a;
+        font-size: 0.7rem; font-weight: 700;
+        padding: 2px 8px; border-radius: 4px; margin-left: 10px;
+        letter-spacing: 0.5px; vertical-align: middle;
+    }
+
+    .legend {
+        display: flex; flex-wrap: wrap; gap: 18px;
+        background: #fff; border: 1px solid #e2e8f0;
+        border-radius: 12px; padding: 14px 20px; margin: 20px 0;
+        font-size: 0.9rem;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-swatch {
+        width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+    }
+    .legend-swatch.green { background: #22c55e; }
+    .legend-swatch.gray { background: #94a3b8; }
+
+    .download-button {
+        display: inline-block; padding: 12px 20px;
+        background: #4f46e5; color: white;
+        text-decoration: none; border-radius: 8px;
+        font-weight: 600; transition: opacity 0.2s;
+    }
+    .download-button:hover { opacity: 0.85; }
+
+    /* Блок контрольных вопросов */
+    .qa-list { list-style: none; padding-left: 0; margin: 8px 0 0; counter-reset: qa; }
+    .qa-list li {
+        position: relative; padding-left: 40px; margin-bottom: 12px;
+        counter-increment: qa; line-height: 1.55; color: #0f172a;
+        background: #fff; border: 1px solid #eef2f6; border-radius: 10px;
+        padding: 12px 16px 12px 52px;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    }
+    .qa-list li::before {
+        content: counter(qa);
+        position: absolute; left: 14px; top: 12px;
+        width: 26px; height: 26px;
+        background: #e0edff; color: #1d4ed8;
+        border-radius: 50%; font-size: 0.8rem; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+
+    /* Оценки */
+    .grade-row td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .grade-row.total td { font-weight: 700; background: #f1f5f9; border-top: 2px solid #e2e8f0; }
+
+    /* Доп. задания */
+    .extra-list { list-style: none; padding-left: 0; margin: 8px 0 0; }
+    .extra-list li {
+        position: relative; padding-left: 30px; margin-bottom: 8px;
+        color: #0f172a; line-height: 1.55;
+    }
+    .extra-list li::before {
+        content: "＋";
+        position: absolute; left: 0; top: 0;
+        width: 22px; height: 22px;
+        background: #ede9fe; color: #6d28d9;
+        border-radius: 50%; font-size: 0.85rem; font-weight: 700;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+
+    /* Диаграмма классов */
+    .class-diagram {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px; margin: 20px 0;
+    }
+    .class-card {
+        background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+        overflow: hidden; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    }
+    .class-card .head {
+        background: #1e293b; color: #fff; padding: 10px 16px;
+        font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 0.95rem;
+    }
+    .class-card .head.given { background: #475569; }
+    .class-card .head.todo { background: #16a34a; }
+    .class-card .body { padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+    .class-card .body .field { color: #334155; margin: 2px 0; }
+    .class-card .body .field .type { color: #7c3aed; }
+    .class-card .body .field .name { color: #0f172a; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="logo">Лабораторная № 7 <span>· ORM / ODB + PostgreSQL</span></div>
+    <ul class="nav-links">
+      <li><a href="#goal">Цель</a></li>
+      <li><a href="#source">Исходные данные</a></li>
+      <li><a href="#model">Модель</a></li>
+      <li><a href="#task">Задание</a></li>
+      <li><a href="#questions">Вопросы</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <div class="badge">Современные технологии программирования</div>
+    <h1>Учёт техники фотостудии<br/><span class="highlight">C++17 · ODB · PostgreSQL · FLTK</span></h1>
+    <p class="sub">Приложение «Стоп-кадр»: реализация ORM-модели и транзакционной бизнес-логики</p>
+  </div>
+</header>
+
+<!-- 1. Цель -->
+<section class="scroll-anchor" id="goal">
+  <div class="container">
+    <div class="section-title"><span class="number">1</span> Цель работы</div>
+    <div class="card">
+      <p>Получить практические навыки работы с <strong>ORM-библиотекой ODB</strong> в C++ при взаимодействии с <strong>PostgreSQL</strong>. Научиться:</p>
+      <ul>
+        <li>описывать объектную модель с помощью ODB-прагм (<code>#pragma db ...</code>);</li>
+        <li>выполнять CRUD-операции;</li>
+        <li>строить транзакции с несколькими инвариантами и откатом при нарушении;</li>
+        <li>понимать проблему N+1 запросов и её границы применимости.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Исходные данные -->
+<section class="scroll-anchor" id="source">
+  <div class="container">
+    <div class="section-title"><span class="number">2</span> Исходные данные</div>
+
+    <div class="info-box">
+      <strong>Готовый проект</strong>
+      <p class="mt-16">
+        Скачайте подготовленный проект <strong>«Стоп-кадр»</strong> на C++17 —
+        настольное приложение для учёта техники фотостудии. В проекте уже реализованы:
+        графический интерфейс на FLTK, подключение к PostgreSQL, слой доступа к данным
+        через ODB, схема БД и большая часть бизнес-логики.
+      </p>
+      <p class="mt-16">
+        <a href="Stopkadr.zip" download class="download-button">Скачать проект</a>
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Предметная область</h3>
+      <p>Студия ведёт парк техники (камеры, объективы, вспышки, штативы, свет)
+        и штат фотографов. Перед съёмкой фотограф получает комплект техники,
+        после — возвращает в стойку. Приложение следит за тем, чтобы:</p>
+      <ul>
+        <li>нельзя было выдать единицу техники, которая уже на съёмке;</li>
+        <li>нельзя было уволить фотографа, у которого на руках техника;</li>
+        <li>нельзя было добавить фотографа с дублирующимся email;</li>
+        <li>нельзя было добавить технику с дублирующимся инвентарным номером.</li>
+      </ul>
+
+      <h3 class="mt-16">Что уже реализовано в проекте</h3>
+      <ul>
+        <li>три ODB-класса: <code>Employee</code>, <code>Asset</code>, <code>Assignment</code>
+          (у <code>Employee</code> прагмы написаны как эталон, у остальных — TODO);</li>
+        <li>графический интерфейс: вкладки «Фотографы» и «Техника», диалоги,
+          таблицы с бейджами, кнопки, обработка горячих клавиш;</li>
+        <li>частично сервисный слой <code>Service</code> — четыре метода-образца,
+          пять методов с TODO;</li>
+        <li>схема БД <code>sql/schema.sql</code>;</li>
+        <li>конфигурация сборки CMake с автоматической генерацией ODB-кода;</li>
+        <li>инструкция по установке PostgreSQL и запуску (<code>README.md</code>).</li>
+      </ul>
+    </div>
+
+    <div class="warn-box">
+      <strong>Важно.</strong>
+      Графический интерфейс, схему БД, конфигурацию CMake и файл <code>main.cpp</code>
+      менять не нужно. Все задачи — в трёх файлах:
+      <code>include/domain/asset.hxx</code>,
+      <code>include/domain/assignment.hxx</code>,
+      <code>src/service.cpp</code>.
+      В каждом TODO-блоке описан контракт метода: что он делает, какие ошибки
+      бросает и по каким критериям проверяется.
+    </div>
+  </div>
+</section>
+
+<!-- 3. Модель -->
+<section class="scroll-anchor" id="model">
+  <div class="container">
+    <div class="section-title"><span class="number">3</span> Объектная модель</div>
+
+    <div class="card">
+      <p>Три класса, каждый из которых маппится на отдельную таблицу PostgreSQL.</p>
+    </div>
+
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Класс</th>
+            <th>Таблица</th>
+            <th>Что нужно сделать</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Employee</code></td>
+            <td><code>employees</code></td>
+            <td>прагмы уже написаны — используйте как образец</td>
+          </tr>
+          <tr>
+            <td><code>Asset</code></td>
+            <td><code>assets</code></td>
+            <td>дописать 5 прагм</td>
+          </tr>
+          <tr>
+            <td><code>Assignment</code></td>
+            <td><code>assignments</code></td>
+            <td>дописать 5 прагм, из которых одна — <code>null</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Задание -->
+<section class="scroll-anchor" id="task">
+  <div class="container">
+    <div class="section-title"><span class="number">4</span> Задание</div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-swatch gray"></div>готово, менять не нужно</div>
+      <div class="legend-item"><div class="legend-swatch green"></div>нужно сделать</div>
+    </div>
+
+    <!-- Часть 1 -->
+    <div class="spec-block is-given">
+      <div class="row"><span class="label">Часть 1. Подготовка репозитория <span class="given-badge">ГОТОВО</span></span></div>
+      <div class="row"><span class="label">Что уже есть в проекте:</span>
+        <ol class="spec-steps">
+          <li>Структура каталогов и файлы.</li>
+          <li>Скрипт <code>sql/schema.sql</code> для создания таблиц.</li>
+          <li>CMake-конфигурация с автоматической генерацией ODB-кода.</li>
+          <li>README с инструкцией по установке PostgreSQL и запуску приложения.</li>
+        </ol>
+      </div>
+      <div class="row"><span class="label">Что Вам предлагается сделать:</span>
+        <ol class="spec-steps">
+          <li>Установить зависимости по README (<code>postgresql</code>, <code>odb</code>, <code>libodb-pgsql</code>, <code>libfltk1.3-dev</code>, <code>libpq-dev</code>, <code>cmake</code>, <code>g++</code>).</li>
+          <li>Создать базу <code>stopkadr</code>, применить <code>schema.sql</code>, задать переменные окружения <code>EQDB_*</code>.</li>
+          <li>Собрать проект командой из README.</li>
+          <li>Убедиться, что приложение запускается и пустые таблицы отображаются корректно.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Часть 2 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 2. Прагмы для класса <code>Asset</code> <span class="new-badge">TODO</span></span></div>
+      <div class="row"><span class="label">Файл:</span> <code>include/domain/asset.hxx</code></div>
+      <div class="row"><span class="label">Что сделать:</span>
+        Дописать ODB-прагмы перед полями класса <code>Asset</code>, чтобы ODB знал,
+        как мапить класс на таблицу <code>assets</code>.
+      </div>
+      <div class="row"><span class="label">Требования к маппингу:</span>
+        <ul style="margin:6px 0 0 0;padding-left:20px;">
+          <li><code>id</code> генерируется базой при вставке;</li>
+          <li>инвентарный номер уникален (двух единиц с одинаковым номером быть не может);</li>
+          <li>все поля обязательные (<code>NULL</code> в БД недопустим);</li>
+          <li>имена колонок: <code>inventory_number</code>, <code>model</code>, <code>category</code>, <code>assigned</code>.</li>
+        </ul>
+      </div>
+      <div class="row"><span class="label">Критерий готовности:</span>
+        после сборки приложение добавляет технику и показывает её в таблице;
+        попытка добавить дубль инвентарного номера отклоняется базой.
+      </div>
+      <div class="row"><span class="label hint">Подсказка:</span> в файле <code>include/domain/employee.hxx</code> прагмы уже написаны как образец. Там есть <code>#pragma db id auto</code>, <code>not_null</code>, <code>unique</code>, <code>column(...)</code>.</div>
+    </div>
+
+    <!-- Часть 3 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 3. Прагмы для класса <code>Assignment</code> <span class="new-badge">TODO</span></span></div>
+      <div class="row"><span class="label">Файл:</span> <code>include/domain/assignment.hxx</code></div>
+      <div class="row"><span class="label">Что сделать:</span>
+        Дописать ODB-прагмы перед полями класса <code>Assignment</code> для маппинга
+        на таблицу <code>assignments</code>.
+      </div>
+      <div class="row"><span class="label">Требования к маппингу:</span>
+        <ul style="margin:6px 0 0 0;padding-left:20px;">
+          <li><code>id</code> генерируется базой;</li>
+          <li><code>asset_id</code> и <code>employee_id</code> — обязательные ссылки на другие таблицы;</li>
+          <li><code>issued_at</code> — обязательная дата выдачи;</li>
+          <li><code>returned_at</code> — <strong>необязательная</strong> дата: пока техника на съёмке, даты возврата ещё нет, поле пустое (<code>NULL</code>);</li>
+          <li>имена колонок: <code>asset_id</code>, <code>employee_id</code>, <code>issued_at</code>, <code>returned_at</code>.</li>
+        </ul>
+      </div>
+      <div class="row"><span class="label">Критерий готовности:</span>
+        после сборки выдача и возврат работают; в БД у активной выдачи
+        <code>returned_at = NULL</code>, у завершённой — дата.
+      </div>
+    </div>
+
+    <!-- Часть 4 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 4. Добавление техники в каталог <span class="new-badge">TODO</span></span></div>
+      <div class="row"><span class="label">Файл:</span> <code>src/service.cpp</code>, метод <code>Service::addAsset</code></div>
+      <div class="row"><span class="label">Вызывается из:</span> диалога «+ Техника» после клика «Сохранить».</div>
+      <div class="row"><span class="label">Контракт:</span>
+        <ul style="margin:6px 0 0 0;padding-left:20px;">
+          <li><strong>Вход:</strong> <code>inv</code> — инвентарный номер, <code>model</code>, <code>cat</code> — текстовые поля.</li>
+          <li><strong>Успех:</strong> в БД появляется одна запись в <code>assets</code> со статусом <code>assigned = false</code>. Ничего не возвращается (<code>void</code>).</li>
+          <li><strong>Ошибка:</strong> выбросить <code>DomainError</code>, если такой инвентарный номер уже есть, текст: <code>"Инвентарный номер &lt;inv&gt; уже существует"</code>.</li>
+          <li><strong>При ошибке</strong> изменения в БД не применяются.</li>
+        </ul>
+      </div>
+      <div class="row"><span class="label">Критерии готовности:</span>
+        <ol class="spec-steps">
+          <li>После добавления — строка в таблице с бейджем «В стойке».</li>
+          <li>Попытка добавить дубль инвентарного номера — в БД остаётся одна запись.</li>
+        </ol>
+      </div>
+      <div class="row"><span class="label hint">Подсказка:</span> в этом же файле метод <code>addEmployee</code> делает то же самое для сотрудника. Структура решения идентична.</div>
+    </div>
+
+    <!-- Часть 5 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 5. Обновление данных фотографа <span class="new-badge">TODO</span></span></div>
+      <div class="row"><span class="label">Файл:</span> <code>src/service.cpp</code>, метод <code>Service::updateEmployee</code></div>
+      <div class="row"><span class="label">Вызывается из:</span> диалога редактирования фотографа после клика «Сохранить».</div>
+      <div class="row"><span class="label">Контракт:</span>
+        <ul style="margin:6px 0 0 0;padding-left:20px;">
+          <li><strong>Вход:</strong> <code>id</code> — существующий фотограф; <code>name</code>, <code>email</code> — новые значения; <code>active</code> — <code>true</code> (в штате) или <code>false</code> (уволен).</li>
+          <li><strong>Успех:</strong> поля в БД обновлены, ничего не возвращается.</li>
+          <li><strong>Ошибки</strong> — выбросить <code>DomainError</code>:
+            <ol style="margin:4px 0 4px 18px;padding:0;">
+              <li>если email изменился и такой email уже есть у другого фотографа, текст: <code>"Фотограф с email &lt;email&gt; уже существует"</code>;</li>
+              <li>если <code>active</code> становится <code>false</code>, а за фотографом есть техника на съёмке, текст: <code>"У фотографа на руках техника — сначала примите возврат"</code>.</li>
+            </ol>
+          </li>
+          <li><strong>При любой из ошибок</strong> изменения в БД не применяются.</li>
+        </ul>
+      </div>
+      <div class="row"><span class="label">Критерии готовности:</span>
+        <ol class="spec-steps">
+          <li>Изменение ФИО/email/статуса без нарушения правил — сохраняется и видно в таблице.</li>
+          <li>Попытка сохранить дубль email — диалог не закрывается.</li>
+          <li>Попытка уволить с техникой на съёмке — статус в таблице не меняется.</li>
+        </ol>
+      </div>
+      <div class="row"><span class="label hint">Подсказка:</span> «за фотографом числится техника» — это запрос к таблице <code>assignments</code> по <code>employee_id</code> с фильтром «нет даты возврата». У nullable-поля <code>returnedAt_</code> в ODB есть метод <code>is_null()</code>.</div>
+    </div>
+
+    <!-- Часть 6 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 6. Список техники с держателем <span class="new-badge">TODO</span></span></div>
+      <div class="row"><span class="label">Файл:</span> <code>src/service.cpp</code>, метод <code>Service::assets</code></div>
+      <div class="row"><span class="label">Вызывается из:</span> при каждой перерисовке вкладки «Техника».</div>
+      <div class="row"><span class="label">Контракт:</span>
+        <ul style="margin:6px 0 0 0;padding-left:20px;">
+          <li><strong>Успех:</strong> возвращает <code>std::vector&lt;AssetRow&gt;</code>, по одному элементу на каждую единицу техники. В поле <code>holder</code> — ФИО фотографа, если техника на съёмке, или пустая строка, если в стойке.</li>
+          <li><strong>Ошибок не бросает</strong> (пустая БД — пустой вектор).</li>
+        </ul>
+      </div>
+      <div class="row"><span class="label">Критерии готовности:</span>
+        <ol class="spec-steps">
+          <li>После выдачи техники её <code>holder</code> = ФИО фотографа.</li>
+          <li>После возврата <code>holder</code> = <code>""</code>.</li>
+          <li>Фильтр «В стойке» / «На съёмке» в UI работает корректно.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Предупреждение про N+1 (перед частью 6) -->
+    <div class="warn-box">
+      <strong>Что такое «N+1 запросов» и почему это упомянуто в части 6.</strong>
+      <p class="mt-16">Представьте, что в базе 100 единиц техники.</p>
+      <ul style="margin:8px 0 0 20px;">
+        <li><strong>1 запрос</strong> — получить все 100 единиц из таблицы <code>assets</code>.</li>
+        <li>Для каждой единицы ещё <strong>2 запроса</strong>: найти активную выдачу в <code>assignments</code>, найти фотографа в <code>employees</code>.</li>
+        <li>Итого: <strong>1 + 100 × 2 = 201 запрос</strong> вместо одного.</li>
+      </ul>
+      <p class="mt-16">
+        Называется «N+1», потому что «1 запрос на список + N запросов на каждую строку списка».
+        Это классическая проблема всех ORM (Hibernate, Entity Framework, SQLAlchemy, ODB) — ORM не «схлопывает» вложенные запросы автоматически.
+      </p>
+      <p class="mt-16">
+        <strong>Что нужно в лабе.</strong> Наивное решение с N+1 — достаточно. 100 единиц техники работают мгновенно, код читается за минуту. Но на защите будет вопрос: «Как переписать это на один SQL-запрос с <code>LEFT JOIN</code>?» — нужно уметь объяснить идею, даже если не реализовывать.
+      </p>
+    </div>
+
+
+    <!-- Часть 7 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 7. Выдача техники фотографу <span class="new-badge">TODO</span></span></div>
+      <div class="row"><span class="label">Файл:</span> <code>src/service.cpp</code>, метод <code>Service::issue</code></div>
+      <div class="row"><span class="label">Вызывается из:</span> диалога «Выдать» после клика «Сохранить».</div>
+      <div class="row"><span class="label">Контракт:</span>
+        <ul style="margin:6px 0 0 0;padding-left:20px;">
+          <li><strong>Вход:</strong> <code>assetId</code>, <code>employeeId</code> — id существующих записей.</li>
+          <li><strong>Успех:</strong> техника переходит в статус <code>assigned = true</code>, в <code>assignments</code> появляется запись с <code>issuedAt = текущее время</code> и пустым <code>returnedAt</code>. Ничего не возвращается.</li>
+          <li><strong>Ошибки</strong> — выбросить <code>DomainError</code>:
+            <ol style="margin:4px 0 4px 18px;padding:0;">
+              <li>техника уже на съёмке: <code>"Техника уже выдана"</code>;</li>
+              <li>фотограф уволен: <code>"Нельзя выдать уволенному фотографу"</code>.</li>
+            </ol>
+          </li>
+          <li><strong>При любой ошибке</strong> изменения в БД не применяются.</li>
+        </ul>
+      </div>
+      <div class="row"><span class="label">Критерии готовности:</span>
+        <ol class="spec-steps">
+          <li>После выдачи: бейдж «На съёмке», «У кого» = ФИО, запись в <code>assignments</code>.</li>
+          <li>Попытка выдать уже выданную технику — в БД ничего не меняется.</li>
+          <li>Попытка выдать уволенному — в БД ничего не меняется.</li>
+        </ol>
+      </div>
+      <div class="row"><span class="label hint">Примитивы ODB:</span> <code>db_.load&lt;T&gt;(id)</code>, <code>db_.update(obj)</code>, <code>db_.persist(obj)</code>, <code>t.commit()</code>. Паттерн транзакции — см. <code>addEmployee</code>.</div>
+    </div>
+
+    <!-- Часть 8 -->
+    <div class="spec-block is-new">
+      <div class="row"><span class="label">Часть 8. Возврат техники со съёмки <span class="new-badge">TODO</span></span></div>
+      <div class="row"><span class="label">Файл:</span> <code>src/service.cpp</code>, метод <code>Service::giveBack</code></div>
+      <div class="row"><span class="label">Вызывается из:</span> главного окна кнопкой «Принять».</div>
+      <div class="row"><span class="label">Контракт:</span>
+        <ul style="margin:6px 0 0 0;padding-left:20px;">
+          <li><strong>Вход:</strong> <code>assetId</code> — id техники.</li>
+          <li><strong>Успех:</strong> у активной выдачи проставляется <code>returnedAt = текущее время</code>, у техники <code>assigned = false</code>. Ничего не возвращается.</li>
+          <li><strong>Ошибка:</strong> выбросить <code>DomainError</code>, если активной выдачи нет (техника уже в стойке), текст: <code>"Нет активной выдачи для этой техники"</code>.</li>
+          <li><strong>При ошибке</strong> изменения в БД не применяются.</li>
+        </ul>
+      </div>
+      <div class="row"><span class="label">Критерии готовности:</span>
+        <ol class="spec-steps">
+          <li>После возврата: бейдж «В стойке», «У кого» = «—», в <code>assignments</code> у записи появилась дата возврата.</li>
+          <li>Попытка вернуть технику из стойки — в БД ничего не меняется.</li>
+          <li>Возвращённую технику можно снова выдать другому фотографу.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- 5. Вопросы -->
+<section class="scroll-anchor" id="questions">
+  <div class="container">
+    <div class="section-title"><span class="number">5</span> Контрольные вопросы</div>
+    <div class="card">
+      <ol class="qa-list">
+        <li>Что такое ORM и какие задачи она решает?</li>
+        <li>Что такое ODB-прагма? Приведите примеры <code>id auto</code>, <code>not_null</code>, <code>unique</code>, <code>column</code>.</li>
+        <li>Чем отличается <code>#pragma db not_null</code> от <code>#pragma db null</code>? В каком случае нужно второе?</li>
+        <li>Что генерирует компилятор ODB из файла <code>domain.hxx</code> и почему в <code>service.cpp</code> подключаются три файла <code>*-odb.hxx</code>?</li>
+        <li>Что произойдёт, если в прагме забыть <code>column("inventory_number")</code>, а в схеме БД колонка называется <code>inventory_number</code>?</li>
+        <li>Что такое транзакция в ODB? Как она связана с объектом <code>odb::transaction</code>?</li>
+        <li>Что произойдёт, если в середине транзакции выбросить исключение, но <code>t.commit()</code> не вызывать?</li>
+        <li>Зачем в таблице <code>assignments</code> уникальный индекс <code>uq_active_asset ... WHERE returned_at IS NULL</code>?</li>
+        <li>Что такое проблема N+1 запросов? Как она проявляется в <code>Service::assets</code>?</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Лабораторная работа № 7 · ORM-модель и транзакционная логика на C++/ODB/PostgreSQL</p>
+    <p style="margin-top:8px;font-size:.8rem">Современные технологии программирования · 2026</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+}));
+window.addEventListener('scroll',()=>{
+    document.querySelector('nav').classList.toggle('scrolled', window.scrollY>10);
+});
+</script>
+
+</body>
+</html>
