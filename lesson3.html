@@ -92,7 +92,7 @@
             transform: translateY(0);
         }
     
-        /* === ОСТАЛЬНЫЕ СТИЛИ (без изменений) === */
+        /* === ОСТАЛЬНЫЕ СТИЛИ === */
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -199,7 +199,28 @@
         .level-header.medium { color: #f39c12; }
         .level-header.hard { color: #e74c3c; }
     
-        /* Тест и остальное — без изменений */
+        /* Стили для раскрывающихся ответов */
+        details {
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        summary {
+            color: var(--primary);
+            font-weight: 600;
+            outline: none;
+        }
+        summary:hover {
+            color: var(--secondary);
+        }
+        .answer-content {
+            margin-top: 10px; 
+            padding: 15px; 
+            background: rgba(255,255,255,0.6); 
+            border-radius: 8px;
+            border: 1px dashed #ccc;
+        }
+    
+        /* Тест и остальное */
         .test-container { margin-top: 30px; }
         .test-question {
             display: none;
@@ -277,68 +298,11 @@
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
-        .error {
-            color: #e74c3c;
-            margin-top: 10px;
-            font-weight: 500;
-            display: none;
-        }
-        .password-box {
-            background: white;
-            padding: 32px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        .password-box h2 {
-            margin-bottom: 20px;
-            color: var(--secondary);
-        }
-        .password-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
-        }
-        .password-box button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            margin-top: 10px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            transition: var(--transition);
-        }
-        .password-box button:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-        }
     </style>
 </head>
 <body>
 
-<!-- Экран ввода пароля -->
-<div id="passwordScreen">
-    <div class="password-box">
-        <h2>🔒 Доступ к уроку</h2>
-        <p>Введите пароль для продолжения:</p>
-        <input type="password" id="passwordInput" placeholder="Пароль">
-        <button onclick="checkPassword()">Войти</button>
-        <div id="passwordError" class="error">Неверный пароль!</div>
-    </div>
-</div>
-
-<!-- Основной контент (изначально скрыт) -->
-<div class="container" id="mainContent" style="display:none;">
+<div class="container" id="mainContent">
 
     <a href="javascript:history.back()" class="back-btn">← Назад</a>
 
@@ -387,9 +351,9 @@ while True:
     <h3 class="level-header basic">🟢 Базовый уровень</h3>
 
     <div class="task task-basic">
-        <h3>Задача 1: Бесконечный попрошайка</h3>
-        <p>Пользователь застрял в цикле! Программа постоянно спрашивает "Выйти? (да/нет): ", и выходит только в том случае, если пользователь введет "да". Во всех остальных случаях (включая "нет", "возможно" и т.д.) цикл продолжается.</p>
-        <p>Подсказка: Используйте оператор != (не равно).</p>
+        <h3>Задача 1: 🚀 «Ракета на орбите»</h3>
+        <p>Чтобы выйти на орбиту, ракете нужно набрать скорость 8 км/с. Изначально скорость равна 0. Каждую секунду двигатель добавляет +0.5 км/с, но сопротивление воздуха забирает -0.1 км/с.</p>
+        <p>Напишите программу, которая с помощью цикла <code>while</code> выводит скорость ракеты каждую секунду и считает, сколько всего секунд она будет лететь до достижения орбиты (пока скорость не станет равна или больше 8 км/с).</p>
     </div>
 
     <div class="task task-basic">
@@ -417,7 +381,18 @@ while True:
     </div>
 
     <div class="task task-medium">
-        <h3>Задача 4: Последовательность Сиракуэз (Гипотеза Коллатца)</h3>
+        <h3>Задача 4: 🐹 «Голодный хомяк»</h3>
+        <p>У хомяка сытость = 0, а цель — набрать 100 единиц. Каждую «минуту» он съедает случайное количество зерна (от 10 до 30), но при этом тратит 5 единиц на бег в колесе. Цикл идёт, пока сытость < 100.</p>
+        <p>Показать, сколько минут хомяк добирался до цели и сколько всего зёрен съел.</p>
+        <p><strong>Пример:</strong></p>
+        <pre>Минута 1: +25 зерна, -5 бег → сытость 20
+Минута 2: +15 зерна, -5 бег → сытость 30
+...
+Хомяк наелся за 6 минут! Съел 120 зёрен 🐹</pre>
+    </div>
+
+    <div class="task task-medium">
+        <h3>Задача 5: Последовательность Сиракуэз (Гипотеза Коллатца)</h3>
         <p>Пользователь вводит любое натуральное число. Программа строит из него последовательность по следующим правилам (пока число не станет равно 1):</p>
         <ul>
             <li>Если число четное, делим его на 2.</li>
@@ -429,20 +404,20 @@ while True:
     </div>
 
     <div class="task task-medium">
-        <h3>Задача 7: "Камень, Ножницы, Бумага" до первой победы</h3>
+        <h3>Задача 6: "Камень, Ножницы, Бумага" до первой победы</h3>
         <p>Программа играет с пользователем в "Камень, Ножницы, Бумагу". Цикл повторяется, пока одна из сторон (пользователь или компьютер) не одержит 3 победы (не обязательно подряд). После каждого раунда программа выводит текущий счет.</p>
     </div>
 
     <!-- ПОВЫШЕННЫЙ УРОВЕНЬ -->
     <h3 class="level-header hard">🔴 Повышенный уровень</h3>
 
-<div class="task task-hard">
-    <h3>Задача 5 🏆: Игра "21" (упрощенная)</h3>
-    <p>Компьютер и пользователь по очереди берут от 1 до 3 конфет из кучки, которая изначально содержит 21 конфету. Проигрывает тот, кто возьмет последнюю конфету. Сначала напишите программу для игры двух людей, где компьютер просто выводит текущее количество конфет и просит сделать ход.</p>
-    <p><strong>Усложнение:</strong> Реализуйте "умного" противника — компьютер, который всегда стремится оставить игроку количество конфет, кратное 4.</p>
-    <p>Цель: Создание простой игровой логики.</p>
-    <p><strong>Пример работы (базовая версия):</strong></p>
-    <pre>
+    <div class="task task-hard">
+        <h3>Задача 7 🏆: Игра "21" (упрощенная)</h3>
+        <p>Компьютер и пользователь по очереди берут от 1 до 3 конфет из кучки, которая изначально содержит 21 конфету. Проигрывает тот, кто возьмет последнюю конфету. Сначала напишите программу для игры двух людей, где компьютер просто выводит текущее количество конфет и просит сделать ход.</p>
+        <p><strong>Усложнение:</strong> Реализуйте "умного" противника — компьютер, который всегда стремится оставить игроку количество конфет, кратное 4.</p>
+        <p>Цель: Создание простой игровой логики.</p>
+        <p><strong>Пример работы (базовая версия):</strong></p>
+        <pre>
 В кучке 21 конфета.
 Ход игрока 1: Сколько конфет взять (1-3)? 2
 Осталось 19 конфет.
@@ -453,21 +428,105 @@ while True:
 Осталось 1 конфета.
 Ход игрока 2: Сколько конфет взять (1-3)? 1
 Игрок 2 взял последнюю конфету и проиграл!</pre>
-</div>
+    </div>
 
-<div class="task task-hard">
-    <h3>Задача 6 🏆: Симулятор спортивного комментатора</h3>
-    <p>Программа симулирует матч между двумя командами. Счет начинается с 0:0. В цикле с каждой итерацией ("минутой матча") с небольшой вероятностью забивает одна из команд. Цикл длится, пока не истекут "90 минут" или пока не будет забито 5 голов. После каждого гола программа выводит текущий счет и "имя забившего" (случайным образом выбранное из списка).</p>
-    <p><strong>Пример работы:</strong></p>
-    <pre>
+    <div class="task task-hard">
+        <h3>Задача 8 🏆: Симулятор спортивного комментатора</h3>
+        <p>Программа симулирует матч между двумя командами. Счет начинается с 0:0. В цикле с каждой итерацией ("минутой матча") с небольшой вероятностью забивает одна из команд. Цикл длится, пока не истекут "90 минут" или пока не будет забито 5 голов. После каждого гола программа выводит текущий счет и "имя забившего" (случайным образом выбранное из списка).</p>
+        <p><strong>Пример работы:</strong></p>
+        <pre>
 Минута 7: Гол! Счёт 1:0. Забил: Иванов!
 Минута 23: Гол! Счёт 1:1. Забил: Петров!
 Минута 45: Гол! Счёт 2:1. Забил: Сидоров!
 Минута 68: Гол! Счёт 2:2. Забил: Кузнецов!
 Минута 82: Гол! Счёт 3:2. Забил: Васильев!
 Матч завершён! Итоговый счёт: 3:2</pre>
-    <p>Подсказка: используйте <code>random.random() < 0.05</code> для 5% шанса гола на каждой минуте.</p>
-</div>
+        <p>Подсказка: используйте <code>random.random() < 0.05</code> для 5% шанса гола на каждой минуте.</p>
+    </div>
+
+    <!-- === ДОПОЛНИТЕЛЬНО: БИБЛИОТЕКА TURTLE === -->
+    <h2>🐢 Дополнительно: Библиотека Turtle</h2>
+    
+    <div class="task" style="border-left-color: #1abc9c; background: #e8f8f5;">
+        <h3>Знакомство с Черепахой</h3>
+        <p>Библиотека <code>turtle</code> позволяет рисовать фигуры с помощью виртуальной черепашки. Циклы <code>while</code> здесь незаменимы для создания узоров и сложных фигур.</p>
+        <p>В учебных задачах (ОГЭ/ЕГЭ) удобно подключать все команды сразу через <code>from turtle import *</code> — тогда можно писать <code>forward(...)</code> вместо <code>t.forward(...)</code>.</p>
+        <pre>
+from turtle import *
+from random import seed
+
+seed(5)             # Фиксируем "случайность" (для воспроизводимости)
+
+speed(5)            # Скорость (1-10, 0 - мгновенно)
+
+forward(100)        # Вперёд на 100 пикселей
+right(90)           # Повернуть направо на 90 градусов
+left(45)            # Повернуть налево на 45 градусов
+penup()             # Поднять перо (не рисовать)
+pendown()           # Опустить перо
+color("red")        # Цвет линии
+        </pre>
+        <p><strong>Важное правило геометрии:</strong> Сумма всех внешних углов любой замкнутой фигуры всегда равна <strong>360°</strong>. Если черепашка поворачивает направо на 90°, ей понадобится 4 шага, чтобы сделать круг (4 × 90 = 360).</p>
+    </div>
+
+    <div class="task task-medium">
+        <h3>Задача 9: Turtle: Растущая спираль</h3>
+        <p>Нарисуйте спираль. Черепашка начинает с шага 10, поворачивает направо на 90° и идёт вперёд. С каждым шагом длина увеличивается на 5. Цикл идёт, пока длина шага меньше 200.</p>
+        <pre>
+step = 10
+while step < 200:
+    forward(step)
+    right(90)
+    step = step + 5</pre>
+        <p><strong>Усложнение:</strong> Попробуйте изменить угол поворота на 60° или 45°. Как изменится узор?</p>
+    </div>
+
+    <div class="task task-hard">
+        <h3>Задача 10: Turtle: Мандала (Вложенные циклы)</h3>
+        <p>Нарисуйте красивую мандалу с помощью двух циклов <code>while</code>. Внешний цикл рисует 12 лепестков (поворот на 30° после каждого). Внутренний цикл рисует сам лепесток (например, 30 коротких шагов с поворотом на 6°).</p>
+        <pre>
+i = 0
+while i < 12:
+    j = 0
+    while j < 30:
+        forward(3)
+        right(6)
+        j = j + 1
+    right(30)  # Поворот для нового лепестка
+    i = i + 1</pre>
+    </div>
+
+    <!-- === АЛГОРИТМЫ ДЛЯ ЧЕРЕПАХИ (ЛОГИКА) === -->
+    <h2>📐 Алгоритмы для Черепахи (ОГЭ/ЕГЭ)</h2>
+    <p style="margin-bottom: 15px; color: var(--text-light);">В таких задачах не нужно писать код. Нужно представить, как двигается Черепаха, и посчитать итоговую фигуру. <em>Подсказка: посчитайте итоговый поворот за один шаг цикла.</em></p>
+
+    <div class="task task-medium">
+        <h3>Задача 11: Пятиконечная звезда</h3>
+        <p>Черепаха стартует в (0,0), смотрит вверх, хвост опущен. Ей был дан следующий алгоритм:</p>
+        <pre>Повтори 12 [Вперёд 4 Направо 144 Вперёд 4 Налево 72]</pre>
+        <p>Определите периметр получившейся фигуры.</p>
+        
+    </div>
+
+    <div class="task task-hard">
+        <h3>Задача 12: Хитрая шестерёнка</h3>
+        <p>Черепаха смотрит вправо. Ей был дан следующий алгоритм:</p>
+        <pre>Повтори 12 [Вперёд 5 Направо 60 Вперёд 5 Налево 30]</pre>
+        <p>Определите периметр получившейся фигуры.</p>
+        
+    </div>
+
+        <div class="task task-hard">
+        <h3>Задача 9 🏆: 🍀 Счастливые и несчастливые числа</h3>
+        <p>Число называется <strong>счастливым</strong>, если, повторяя операцию «заменить число суммой квадратов его цифр», мы рано или поздно получим 1. Если же процесс зацикливается на последовательности <code>4 → 16 → 37 → 58 → 89 → 145 → 42 → 20 → 4 → …</code>, число <strong>несчастливое</strong>.</p>
+        <p>Напишите программу, которая принимает натуральное число N, выводит всю цепочку преобразований через « → » и в конце сообщает вердикт.</p>
+        <p><strong>Пример для 19:</strong><br>
+        19 → 82 → 68 → 100 → 1 — счастливое число 🍀</p>
+        <p><strong>Пример для 4:</strong><br>
+        4 → 16 → 37 → 58 → 89 → 145 → 42 → 20 → 4 — несчастливое число 😢</p>
+        <p><strong>Подсказка:</strong> для разбора числа на цифры используйте <code>% 10</code> (последняя цифра) и <code>// 10</code> (отбросить последнюю цифру) во вложенном цикле <code>while</code>.</p>
+
+    </div>
 
     <!-- === ТЕСТ === -->
     <h2>
@@ -542,19 +601,16 @@ while True:
         window.addEventListener('resize', resize);
         resize();
 
-        // Только 0 и 1 для минимализма
         const chars = "01";
         const fontSize = 14;
         const columns = Math.floor(w / fontSize);
         const drops = [];
 
-        // Инициализируем позиции
         for (let i = 0; i < columns; i++) {
             drops[i] = Math.floor(Math.random() * h / fontSize);
         }
 
         function draw() {
-            // Полупрозрачный фон для "следа"
             ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
             ctx.fillRect(0, 0, w, h);
 
@@ -565,7 +621,6 @@ while True:
                 const text = chars[Math.floor(Math.random() * chars.length)];
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-                // Сбрасываем каплю с небольшой вероятностью
                 if (drops[i] * fontSize > h && Math.random() > 0.975) {
                     drops[i] = 0;
                 }
@@ -581,50 +636,19 @@ while True:
     function showTasks() {
         const tasks = document.querySelectorAll('.task');
         tasks.forEach((task, i) => {
-            // Появляем с небольшой задержкой
             setTimeout(() => {
                 task.classList.add('visible');
             }, i * 100);
         });
     }
 
-    // === ЗАПУСК ПОСЛЕ ВХОДА ===
+    // === ЗАПУСК ===
     document.addEventListener('DOMContentLoaded', function() {
-        // Если экран пароля скрыт — запускаем сразу
-        if (document.getElementById('mainContent').style.display === 'block') {
-            initMatrixRain();
-            showTasks();
-        } else {
-            // Иначе ждём, пока пользователь войдёт
-            const observer = new MutationObserver(() => {
-                if (document.getElementById('mainContent').style.display === 'block') {
-                    initMatrixRain();
-                    showTasks();
-                    observer.disconnect();
-                }
-            });
-            observer.observe(document.getElementById('mainContent'), { attributes: true, attributeFilter: ['style'] });
-        }
+        initMatrixRain();
+        showTasks();
     });
 
-    // === ФУНКЦИИ ПАРОЛЯ И ТЕСТА (оставьте как есть) ===
-    const encryptedPassword = "cHl0aG9uMjAyNQ==";
-    function decryptPassword() {
-        try { return atob(encryptedPassword); } catch (e) { return ""; }
-    }
-    function checkPassword() {
-        const input = document.getElementById("passwordInput").value;
-        const correct = decryptPassword();
-        const errorEl = document.getElementById("passwordError");
-        if (input === correct) {
-            document.getElementById("passwordScreen").style.display = "none";
-            document.getElementById("mainContent").style.display = "block";
-        } else {
-            errorEl.style.display = "block";
-            setTimeout(() => errorEl.style.display = "none", 2000);
-        }
-    }
-
+    // === ФУНКЦИИ ТЕСТА ===
     const encryptedAnswers = "eyJxMSI6ImIiLCJxMiI6ImEiLCJxMyI6ImMiLCJxNCI6ImMiLCJxNSI6ImMifQ==";
     function decryptAnswers() {
         try { return JSON.parse(atob(encryptedAnswers)); } catch (e) { return {}; }
