@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Глава 1. Что такое Git и зачем он нужен</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --code-bg: #f1f5f9;
+    --code-border: #e2e8f0;
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --warn-bg: #fffbeb;
+    --warn-border: #fde68a;
+    --tip-bg: #ecfdf5;
+    --tip-border: #a7f3d0;
+    --green: #059669;
+    --amber: #d97706;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 17px;
+  }
+  header.chapter {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    padding: 56px 24px 48px;
+  }
+  header.chapter .inner { max-width: 900px; margin: 0 auto; }
+  header.chapter .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin: 0 0 12px;
+  }
+  header.chapter h1 {
+    font-size: 38px;
+    line-height: 1.2;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  header.chapter .lede {
+    color: #cbd5e1;
+    font-size: 18px;
+    max-width: 640px;
+    margin: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+  main { margin-top: 40px; }
+
+  nav.toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  nav.toc h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { margin-bottom: 6px; }
+  nav.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav.toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  @media (max-width: 640px) {
+    nav.toc ol { columns: 1; }
+    header.chapter h1 { font-size: 28px; }
+  }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section h2 {
+    font-size: 27px;
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+  }
+  section h3 { font-size: 20px; margin: 32px 0 12px; font-weight: 650; }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 24px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 650; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: #0f172a;
+  }
+  a.inline { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(37, 99, 235, 0.3); }
+  a.inline:hover { border-bottom-color: var(--accent); }
+
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 0 0 20px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    border: 1px solid #1e293b;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  pre .prompt { color: #64748b; user-select: none; }
+  pre .cmd { color: #93c5fd; }
+  pre .out { color: #cbd5e1; }
+  pre .added { color: #86efac; }
+  pre .removed { color: #fca5a5; }
+  pre .comment { color: #64748b; font-style: italic; }
+
+  .callout { border-left: 4px solid; padding: 16px 20px; border-radius: 8px; margin: 0 0 20px; font-size: 16px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .callout.info { background: var(--info-bg); border-color: var(--info-border); }
+  .callout.info .label { color: var(--accent); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.warn .label { color: var(--amber); }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.tip .label { color: var(--green); }
+
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    margin: 8px 0 24px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .diagram-caption { font-size: 13px; color: var(--muted); text-align: center; margin-top: 18px; font-style: italic; }
+
+  .areas-flow { display: flex; align-items: stretch; justify-content: center; gap: 0; flex-wrap: wrap; }
+  .area-box { flex: 1 1 200px; min-width: 180px; border-radius: 12px; padding: 20px 18px; text-align: center; border: 2px solid; }
+  .area-box .area-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .area-box .area-sub { font-size: 13px; opacity: 0.75; }
+  .area-box.working { background: #fef3c7; border-color: #f59e0b; color: #78350f; }
+  .area-box.staging { background: #dbeafe; border-color: #3b82f6; color: #1e3a8a; }
+  .area-box.repo    { background: #d1fae5; border-color: #10b981; color: #064e3b; }
+  .area-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 12px; min-width: 100px; font-size: 12px; color: var(--muted); }
+  .area-arrow .cmd { font-family: monospace; font-size: 12.5px; background: var(--code-bg); padding: 2px 8px; border-radius: 5px; color: #0f172a; white-space: nowrap; }
+  .area-arrow .line { font-size: 26px; line-height: 1; color: var(--accent); margin: 4px 0; }
+  @media (max-width: 720px) {
+    .areas-flow { flex-direction: column; }
+    .area-arrow .line { transform: rotate(90deg); }
+  }
+
+  .reverse-commands { margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; font-size: 14.5px; }
+  .reverse-commands div { color: var(--muted); }
+  .reverse-commands code { font-size: 13px; }
+  @media (max-width: 640px) { .reverse-commands { grid-template-columns: 1fr; } }
+
+  .lifecycle { display: flex; flex-direction: column; gap: 0; align-items: center; }
+  .lc-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; width: 100%; }
+  .state { padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 14.5px; border: 2px solid; white-space: nowrap; }
+  .state.untracked { background: #f1f5f9; border-color: #94a3b8; color: #334155; }
+  .state.staged    { background: #dbeafe; border-color: #3b82f6; color: #1e3a8a; }
+  .state.committed { background: #d1fae5; border-color: #10b981; color: #064e3b; }
+  .state.modified  { background: #fef3c7; border-color: #f59e0b; color: #78350f; }
+  .lc-arrow { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: var(--muted); padding: 0 6px; }
+  .lc-arrow code { font-size: 11.5px; padding: 1px 6px; }
+  .lc-arrow .arr { font-size: 22px; line-height: 1; color: var(--accent); }
+  .lc-spacer { height: 22px; }
+  @media (max-width: 760px) {
+    .lc-row { flex-direction: column; }
+    .lc-arrow .arr { transform: rotate(90deg); }
+  }
+
+  .commit-chain { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; padding: 10px 0; }
+  .commit-node { display: inline-flex; flex-direction: column; align-items: center; }
+  .commit-hash { font-family: monospace; background: #0f172a; color: #86efac; padding: 6px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+  .commit-label { font-size: 11.5px; color: var(--muted); margin-top: 4px; font-family: monospace; }
+  .chain-arrow { font-size: 20px; color: var(--muted); padding: 0 4px; }
+  .ref-label { display: inline-block; background: var(--accent); color: #fff; padding: 2px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 6px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 22px; font-size: 15.5px; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 650; font-size: 14px; color: #334155; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 13.5px; }
+
+  .step { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 22px 24px; margin: 0 0 26px; }
+  .step h4 { margin: 0 0 6px; font-size: 18px; font-weight: 650; color: var(--accent); }
+  .step .goal { color: var(--muted); font-size: 14.5px; margin: 0 0 18px; }
+  .step pre { margin-bottom: 14px; }
+  .step h5 {
+    font-size: 15px;
+    font-weight: 650;
+    margin: 18px 0 8px;
+    color: #334155;
+  }
+  .step ul.explain { margin: 0 0 14px; padding-left: 22px; font-size: 15px; }
+  .step ul.explain li { margin-bottom: 6px; }
+  .step ul.explain code { font-size: 13.5px; }
+  .step .state-after { font-size: 14px; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .step .state-after strong { color: var(--text); }
+
+  .output-breakdown {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 0 0 16px;
+    font-size: 14.5px;
+  }
+  .output-breakdown .ob-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .output-breakdown dl { margin: 0; }
+  .output-breakdown dt {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    background: #e2e8f0;
+    color: #0f172a;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .output-breakdown dd { margin: 4px 0 0 0; padding-left: 0; color: var(--text); }
+
+  footer.chapter-footer { border-top: 2px solid var(--border); padding-top: 28px; margin-top: 40px; color: var(--muted); font-size: 15px; }
+
+/* Кнопка «На главную» в шапке */
+header .back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.15s, color 0.15s;
+}
+header .back-home:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Ссылка «На главную» в футере */
+.back-home-footer {
+  color: var(--accent, #2563eb);
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-home-footer:hover {
+  text-decoration: underline;
+}
+
+</style>
+</head>
+<body>
+
+<header class="chapter">
+  <div class="inner">
+    <a href="start.html" class="back-home">← На главную</a>
+    <p class="kicker">Глава 1</p>
+    <h1>Что такое Git и зачем он нужен</h1>
+  </div>
+</header>
+
+<div class="container">
+  <main>
+
+    <nav class="toc">
+      <h2>Содержание главы</h2>
+      <ol>
+        <li><a href="#intro">Введение</a></li>
+        <li><a href="#problem">Какую проблему решает контроль версий</a></li>
+        <li><a href="#types">Три поколения систем контроля версий</a></li>
+        <li><a href="#what-is-git">Что такое Git</a></li>
+        <li><a href="#three-areas">Три области Git</a></li>
+        <li><a href="#file-lifecycle">Жизненный цикл файла</a></li>
+        <li><a href="#commit">Что такое коммит</a></li>
+        <li><a href="#history">Как устроена история</a></li>
+        <li><a href="#head">HEAD и ветки (кратко)</a></li>
+        <li><a href="#terminal">Терминал: MSYS2 UCRT64 и Linux</a></li>
+        <li><a href="#basics">Базовые команды терминала</a></li>
+        <li><a href="#example">Сквозной пример: от пустой папки до первого коммита</a></li>
+        <li><a href="#git-vs-github">Git и GitHub — не одно и то же</a></li>
+        <li><a href="#myths">Частые заблуждения</a></li>
+        <li><a href="#summary">Итоги главы</a></li>
+      </ol>
+    </nav>
+
+    <!-- ============================================================ -->
+    <section id="intro">
+      <h2>1. Введение</h2>
+      <p>
+        <strong>Git</strong> — это программа для <strong>контроля версий</strong>
+        (version control). Она устанавливается на компьютер и работает
+        поверх обычной файловой системы. Git не заменяет редактор,
+        не запускает код и не «делает магию» — он ведёт учёт изменений
+        в файлах и позволяет возвращаться к любому сохранённому состоянию.
+      </p>
+      <p>
+        Если сказать ещё точнее: Git хранит <strong>снимки состояния
+        проекта</strong> и связи между ними. Каждый снимок называется
+        <strong>коммитом</strong> (commit). Из коммитов складывается
+        история проекта. Git умеет показать, чем один снимок отличается
+        от другого, кто и когда его сделал, и на каком снимке находится
+        проект сейчас.
+      </p>
+      <p>
+        Дальше в этой главе мы разберём: зачем это нужно, чем Git
+        отличается от других подобных систем, из каких частей он
+        состоит и что происходит с файлом, когда мы его «сохраняем»
+        в историю. В конце — научимся работать в терминале и пройдём
+        первый сквозной пример. Установка Git описана отдельно —
+        в <a class="inline" href="windows.html">инструкции для Windows</a>
+        и <a class="inline" href="linux.html">инструкции для Linux</a>.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="problem">
+      <h2>2. Какую проблему решает контроль версий</h2>
+      <p>
+        Пока проект состоит из одного файла и пишется за один вечер,
+        контроль версий не нужен. Проблемы начинаются, когда:
+      </p>
+      <ul>
+        <li>файлов становится много и они связаны между собой;</li>
+        <li>проект живёт недели, месяцы и годы;</li>
+        <li>над проектом работают несколько человек;</li>
+        <li>нужно срочно исправить ошибку в старой версии, не ломая новую;</li>
+        <li>нужно понять, когда и кем была внесена конкретная строка.</li>
+      </ul>
+
+      <h3>Что происходит без системы контроля версий</h3>
+      <p>
+        Типичная картина: папка с файлами вида
+        <code>report.docx</code>, <code>report_v2.docx</code>,
+        <code>report_final.docx</code>, <code>report_final_испр.docx</code>,
+        <code>report_final_испр_2.docx</code>. Никто уже не помнит,
+        чем именно отличаются копии, какая из них актуальна и почему.
+        Если два человека правили одну и ту же копию — правки одного
+        потеряны. Если нужно откатить одну конкретную правку —
+        придётся вручную сравнивать файлы.
+      </p>
+      <p>Система контроля версий решает эти проблемы системно:</p>
+      <table>
+        <thead>
+          <tr><th>Проблема</th><th>Что даёт Git</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Непонятно, что и когда изменилось</td><td>Каждое изменение оформлено коммитом с автором, датой и сообщением. Есть команда <code>git log</code>.</td></tr>
+          <tr><td>Нужно вернуться к прошлой версии</td><td>Любой коммит можно восстановить полностью или частично.</td></tr>
+          <tr><td>Несколько человек правят одно и то же</td><td>Изменения сливаются (<code>git merge</code>), конфликты видны явно и разрешаются осознанно.</td></tr>
+          <tr><td>Хочется попробовать новую идею, не ломая основную версию</td><td>Ветки (<code>git branch</code>): отдельная линия работы, которую можно слить или выбросить.</td></tr>
+          <tr><td>Нужно знать, кто внёс конкретную строку</td><td><code>git blame</code> показывает автора и коммит для каждой строки файла.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="types">
+      <h2>3. Три поколения систем контроля версий</h2>
+      <p>Контроль версий развивался в три этапа. Понимание разницы помогает увидеть, почему Git устроен именно так.</p>
+
+      <h3>Локальные системы</h3>
+      <p>Простейший вариант: история хранится в той же папке, что и файлы (например, в скрытой подпапке). Работает только на одном компьютере. Если компьютер сломается — история пропадёт вместе с файлами. Пример: RCS.</p>
+
+      <h3>Централизованные системы</h3>
+      <p>Есть один общий сервер, на котором лежит вся история. Каждый разработчик подключается к серверу и берёт оттуда файлы. Плюс — история в одном месте, все видят одно и то же. Минус — без сети работать нельзя, а падение сервера останавливает всю команду. Примеры: SVN, CVS.</p>
+
+      <h3>Распределённые системы (Git)</h3>
+      <p>У каждого разработчика есть <strong>полная копия истории</strong>, а не только последние файлы. Сервер (например, GitHub) — это просто один из узлов, с которым удобно синхронизироваться. Следствия:</p>
+      <ul>
+        <li>почти все операции (коммит, просмотр истории, переключение веток) выполняются локально и мгновенно;</li>
+        <li>можно работать без интернета;</li>
+        <li>если сервер упадёт — история сохранится у каждого участника;</li>
+        <li>любой клон репозитория — это полноценная резервная копия.</li>
+      </ul>
+      <div class="callout info">
+        <span class="label">Важно понять</span>
+        <p>Git — распределённая система. Это не «облако, в котором лежит код». Это локальная программа, которая умеет синхронизироваться с другими копиями той же истории.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="what-is-git">
+      <h2>4. Что такое Git</h2>
+      <p><strong>Git</strong> — распределённая система контроля версий, созданная Линусом Торвальдсом в 2005 году для разработки ядра Linux. Сегодня это стандарт де-факто в разработке ПО.</p>
+      <p>Три ключевых свойства Git, которые важно понимать с самого начала:</p>
+
+      <h3>4.1. Git хранит снимки, а не разницы</h3>
+      <p>Многие системы контроля версий хранят <em>изменения</em>: «в файле A добавили строку, в файле B удалили строку». Git устроен иначе: каждый коммит — это <strong>снимок всего проекта целиком</strong> на момент коммита. Если файл не менялся с прошлого коммита, Git не хранит его заново — он ссылается на ту же самую копию. Поэтому снимки не раздувают репозиторий.</p>
+
+      <h3>4.2. Почти всё делается локально</h3>
+      <p>Вся история лежит в скрытой папке <code>.git/</code> внутри проекта. Коммит, просмотр логов, переключение веток, сравнение версий — всё это работает без интернета. Сеть нужна только для обмена с другими копиями (<code>git push</code>, <code>git pull</code>).</p>
+
+      <h3>4.3. Целостность через хеши</h3>
+      <p>Каждый объект в Git (файл, папка, коммит) идентифицируется <strong>криптографическим хешем</strong> — длинной строкой из 40 шестнадцатеричных символов. Обычно используют сокращение до 7 символов. Пример хеша коммита: <code>3f2a1b7</code>. Если содержимое объекта изменить хотя бы на байт — хеш станет другим. Это гарантирует, что история не «тихо испортится»: любое искажение сразу обнаружится.</p>
+
+      <div class="callout tip">
+        <span class="label">Что нужно запомнить</span>
+        <p>Git — это локальная программа. Вся история проекта хранится в папке <code>.git/</code>. Каждый коммит — снимок всего проекта, адресуемый по хешу.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="three-areas">
+      <h2>5. Три области Git</h2>
+      <p>Это, пожалуй, самая важная схема во всём Git. Файл в проекте может находиться в одной из трёх областей:</p>
+
+      <div class="diagram">
+        <div class="areas-flow">
+          <div class="area-box working"><div class="area-name">Working Directory</div><div class="area-sub">рабочая папка<br>то, что Вы видите в редакторе</div></div>
+          <div class="area-arrow"><span class="cmd">git add</span><span class="line">→</span></div>
+          <div class="area-box staging"><div class="area-name">Staging Area</div><div class="area-sub">индекс<br>подготовлено к коммиту</div></div>
+          <div class="area-arrow"><span class="cmd">git commit</span><span class="line">→</span></div>
+          <div class="area-box repo"><div class="area-name">Repository</div><div class="area-sub">история коммитов<br>папка <code>.git/</code></div></div>
+        </div>
+        <div class="reverse-commands">
+          <div>← <code>git restore --staged &lt;файл&gt;</code> — вернуть из индекса в рабочую папку</div>
+          <div>← <code>git reset</code> / <code>git revert</code> — откатить коммит (подробно в главе 9)</div>
+          <div>← <code>git restore &lt;файл&gt;</code> — отменить правки в рабочей папке</div>
+          <div></div>
+        </div>
+        <p class="diagram-caption">Рис. 1. Три области Git и команды перехода между ними</p>
+      </div>
+
+      <h3>5.1. Working Directory — рабочая папка</h3>
+      <p>Это обычная папка на диске, в которой лежат файлы проекта. Вы открываете их в редакторе и меняете напрямую. Пока изменения не добавлены в индекс, Git их «не видит» в смысле коммита: он знает, что файл отличается от последнего снимка, но сохранять его в историю не будет, пока Вы явно не скажете.</p>
+
+      <h3>5.2. Staging Area (индекс) — область подготовки</h3>
+      <p>Это промежуточный слой между рабочей папкой и историей. Сюда попадают файлы, которые должны войти в <em>следующий</em> коммит. Зачем он нужен:</p>
+      <ul>
+        <li>можно изменить десять файлов, а закоммитить только три;</li>
+        <li>можно разбить одну большую правку на несколько логичных коммитов;</li>
+        <li>перед коммитом можно посмотреть, что именно попадёт в историю (<code>git diff --staged</code>).</li>
+      </ul>
+      <p>Файл попадает в индекс командой <code>git add</code>. Убрать его из индекса (не трогая содержимое) — командой <code>git restore --staged &lt;файл&gt;</code>.</p>
+
+      <h3>5.3. Repository — хранилище истории</h3>
+      <p>Это папка <code>.git/</code> в корне проекта. В ней лежат все коммиты, все версии всех файлов и служебные данные. Файлы попадают сюда командой <code>git commit</code> — в виде нового снимка. Напрямую в <code>.git/</code> ничего не трогают: вся работа идёт через команды Git.</p>
+
+      <div class="callout warn">
+        <span class="label">Не трогайте .git/ руками</span>
+        <p>Внутри <code>.git/</code> лежит вся история проекта. Удаление или случайное изменение файлов внутри этой папки может привести к потере данных. Работайте с Git только через команды.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="file-lifecycle">
+      <h2>6. Жизненный цикл файла</h2>
+      <p>У файла в Git есть четыре основных состояния. Понимание переходов между ними снимает 90% путаницы.</p>
+
+      <div class="diagram">
+        <div class="lifecycle">
+          <div class="lc-row">
+            <span class="state untracked">Untracked</span>
+            <span class="lc-arrow"><code>git add</code><span class="arr">→</span></span>
+            <span class="state staged">Staged</span>
+            <span class="lc-arrow"><code>git commit</code><span class="arr">→</span></span>
+            <span class="state committed">Committed (unmodified)</span>
+          </div>
+          <div class="lc-spacer"></div>
+          <div class="lc-row">
+            <span class="state modified">Modified</span>
+            <span class="lc-arrow"><code>git add</code><span class="arr">→</span></span>
+            <span class="state staged">Staged</span>
+          </div>
+          <div class="lc-spacer"></div>
+          <div class="lc-row" style="font-size:14px; color: var(--muted);">
+            <span>↑ правка файла в редакторе переводит <code>Committed</code> в <code>Modified</code></span>
+          </div>
+        </div>
+        <p class="diagram-caption">Рис. 2. Состояния файла и команды перехода</p>
+      </div>
+
+      <table>
+        <thead><tr><th>Состояние</th><th>Что означает</th><th>Как попасть сюда</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Untracked</strong></td><td>Файл есть в папке, но Git о нём ещё ничего не знает: он не входил ни в один коммит.</td><td>Создать новый файл в рабочей папке.</td></tr>
+          <tr><td><strong>Staged</strong></td><td>Файл подготовлен и попадёт в следующий коммит.</td><td><code>git add &lt;файл&gt;</code></td></tr>
+          <tr><td><strong>Committed</strong></td><td>Файл вошёл в последний коммит и с тех пор не менялся.</td><td><code>git commit</code></td></tr>
+          <tr><td><strong>Modified</strong></td><td>Файл отличается от того, что в последнем коммите.</td><td>Открыть и изменить файл, который уже был закоммичен.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <span class="label">Тонкость</span>
+        <p>Если изменить файл, уже добавленный в индекс, то у Git одновременно будет «старая версия в индексе» и «новая версия в рабочей папке». <code>git status</code> покажет это двумя разными блоками: «Changes to be committed» и «Changes not staged for commit».</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="commit">
+      <h2>7. Что такое коммит</h2>
+      <p><strong>Коммит</strong> — это зафиксированный снимок проекта. Технически коммит — это объект, который содержит:</p>
+      <ul>
+        <li><strong>ссылку на снимок файлов</strong> (дерево каталогов и файлов на этот момент);</li>
+        <li><strong>автора и дату</strong> создания;</li>
+        <li><strong>сообщение</strong> — короткое описание, что изменилось;</li>
+        <li><strong>ссылку на родительский коммит</strong> (или на несколько, если это слияние);</li>
+        <li><strong>собственный хеш</strong> — уникальный идентификатор.</li>
+      </ul>
+
+      <p>Упрощённо коммит выглядит так:</p>
+      <pre><code><span class="comment"># псевдо-структура коммита</span>
+commit 3f2a1b7...
+Author: Иван &lt;ivan@example.com&gt;
+Date:   Mon Oct 20 14:32:11 2026 +0300
+
+    Добавить приветствие в hello.txt
+
+    tree      a1b2c3d...    <span class="comment"># снимок всех файлов проекта</span>
+    parent    —             <span class="comment"># у первого коммита родителя нет</span></code></pre>
+
+      <h3>Зачем нужно сообщение коммита</h3>
+      <p>Сообщение — это единственное, что объяснит через полгода (Вам же самому) <em>зачем</em> было сделано изменение. Хорошая практика:</p>
+      <ul>
+        <li>первая строка — до 50 символов, в повелительном наклонении: «Добавить форму входа», «Исправить опечатку в README»;</li>
+        <li>если нужно — пустая строка и подробное описание ниже;</li>
+        <li>не «фиксы», не «ещё немного поправил», не «asdf».</li>
+      </ul>
+
+      <h3>Коммит — это не сохранение файла</h3>
+      <p>Важно не путать: <code>Ctrl+S</code> в редакторе сохраняет файл на диск, но <strong>не создаёт коммит</strong>. Коммит создаётся только командой <code>git commit</code> и фиксирует состояние <em>всех</em> файлов, которые были в индексе на этот момент.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="history">
+      <h2>8. Как устроена история</h2>
+      <p>Коммиты связаны друг с другом ссылками на родителей. Это образует направленный граф: у каждого коммита (кроме первого) ровно один родитель, у коммита-слияния — два или больше. У первого коммита в репозитории родителя нет, его называют <em>root commit</em>.</p>
+
+      <div class="diagram">
+        <div class="commit-chain">
+          <span class="commit-node"><span class="commit-hash">a1b2c3d</span><span class="commit-label">root</span></span>
+          <span class="chain-arrow">←</span>
+          <span class="commit-node"><span class="commit-hash">e4f5a6b</span><span class="commit-label">2-й</span></span>
+          <span class="chain-arrow">←</span>
+          <span class="commit-node"><span class="commit-hash">7c8d9e0</span><span class="commit-label">3-й</span></span>
+          <span class="chain-arrow">←</span>
+          <span class="commit-node"><span class="commit-hash">3f2a1b7</span><span class="commit-label">последний</span><span class="ref-label">main · HEAD</span></span>
+        </div>
+        <p class="diagram-caption">Рис. 3. Цепочка коммитов. Стрелки означают «родитель»: у коммита 3f2a1b7 родитель — 7c8d9e0, и так далее до root.</p>
+      </div>
+
+      <p>Слово <code>main</code> на схеме — это <strong>ветка</strong>, то есть именованная ссылка на конкретный коммит. Слово <code>HEAD</code> — указатель на текущий коммит (о нём ниже). По умолчанию новая ветка называется <code>main</code> (в старых версиях Git — <code>master</code>).</p>
+
+      <div class="callout info">
+        <span class="label">Почему стрелки назад</span>
+        <p>Каждый коммит знает своего родителя, а не наоборот. Из последнего коммита можно пройти всю историю назад до самого первого. Поэтому <code>git log</code> показывает историю начиная с текущего коммита — и идёт в прошлое.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="head">
+      <h2>9. HEAD и ветки (кратко)</h2>
+      <p>Полностью ветки и <code>HEAD</code> разбираются в главе 4, но одно понятие нужно уже сейчас.</p>
+      <p><strong>HEAD</strong> — это специальный указатель, который говорит Git: «вот коммит, на котором Вы сейчас находитесь». Когда Вы делаете новый коммит, <code>HEAD</code> (и ветка, на которую он указывает) переезжает на только что созданный коммит. В обычном состоянии <code>HEAD</code> указывает на ветку, а ветка — на коммит.</p>
+      <p>Проверить, где сейчас <code>HEAD</code>, можно командой:</p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+...</span></code></pre>
+      <p>Строка <code>On branch main</code> означает: <code>HEAD</code> указывает на ветку <code>main</code>, а она — на последний коммит этой ветки.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="terminal">
+      <h2>10. Терминал: MSYS2 UCRT64 и Linux</h2>
+      <p>
+        Вся практика в этой главе (и во всём учебнике) выполняется
+        в терминале. Если Вы ещё не установили инструменты — вернитесь
+        к <a class="inline" href="windows.html">инструкции для Windows</a>
+        или <a class="inline" href="linux.html">для Linux</a>.
+      </p>
+      <p>
+        На Windows используется не <code>cmd</code> и не PowerShell,
+        а <strong>MSYS2 UCRT64</strong> — окружение, которое даёт
+        Linux-подобный терминал и все инструменты для C (GCC, Make,
+        CUnit, Git). На Linux подойдёт любой стандартный терминал.
+      </p>
+
+      <div class="callout info">
+        <span class="label">Почему UCRT64, а не Git Bash</span>
+        <p>
+          Git Bash умеет только команды Git. UCRT64 — это полноценная
+          среда: в ней одновременно доступны <code>git</code>,
+          <code>gcc</code>, <code>make</code> и CUnit. В контрольной
+          работе понадобятся все четыре, поэтому выбран именно UCRT64.
+        </p>
+      </div>
+
+      <h3>10.1. Как открыть UCRT64 (Windows)</h3>
+      <ol>
+        <li>Нажмите «Пуск» → найдите <strong>MSYS2 UCRT64</strong> → запустите.</li>
+        <li>
+          Откроется окно с приглашением вида:
+          <pre><code>user@machine UCRT64 ~
+$</code></pre>
+          Здесь <code>~</code> — Ваша домашняя папка (обычно
+          <code>C:\Users\&lt;имя&gt;</code>).
+        </li>
+        <li>
+          Если при установке MSYS2 было добавлено контекстное меню —
+          можно в Проводнике открыть нужную папку, кликнуть правой
+          кнопкой и выбрать <strong>MSYS2 UCRT64 Here</strong>.
+        </li>
+      </ol>
+
+      <h3>10.2. Главное отличие: пути в стиле Unix</h3>
+      <p>
+        Внутри UCRT64 диск <code>C:</code> превращается в <code>/c/</code>.
+        Это самая частая точка путаницы у новичков. Примеры:
+      </p>
+      <table>
+        <thead><tr><th>Windows-путь</th><th>Путь в UCRT64</th></tr></thead>
+        <tbody>
+          <tr><td><code>C:\Users\ivan</code></td><td><code>/c/Users/ivan</code> или <code>~</code></td></tr>
+          <tr><td><code>C:\Projects\hello-git</code></td><td><code>/c/Projects/hello-git</code></td></tr>
+          <tr><td><code>D:\Work\test</code></td><td><code>/d/Work/test</code></td></tr>
+        </tbody>
+      </table>
+      <p>
+        Обратные слэши (<code>\</code>) в UCRT64 как разделители пути
+        <strong>не работают</strong> — используйте прямые (<code>/</code>),
+        как в Linux.
+      </p>
+
+      <h3>10.3. Как перейти в папку проекта</h3>
+      <p>
+        Например, проект находится в <code>C:\Projects\hello-git</code>:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">cd /c/Projects/hello-git</span>
+<span class="prompt">$</span> <span class="cmd">pwd</span>
+<span class="out">/c/Projects/hello-git</span></code></pre>
+      <p>
+        Если проект в домашней папке — короче: <code>cd ~/hello-git</code>.
+        Команда <code>pwd</code> всегда покажет, где Вы сейчас.
+      </p>
+
+      <h3>10.4. Проверка, что всё на месте</h3>
+      <p>В UCRT64 выполните три команды:</p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git --version</span>
+<span class="prompt">$</span> <span class="cmd">gcc --version</span>
+<span class="prompt">$</span> <span class="cmd">make --version</span></code></pre>
+      <p>
+        Каждая должна вывести версию. Если какая-то не найдена —
+        вернитесь к <a class="inline" href="windows.html">инструкции
+        по установке Windows</a> и проверьте, что установлен нужный
+        пакет.
+      </p>
+
+      <div class="callout tip">
+        <span class="label">Перед первым коммитом</span>
+        <p>
+          Git должен знать Ваши имя и email — иначе <code>git commit</code>
+          откажется работать. Если ещё не настраивали — загляните
+          в <a class="inline" href="Git-lesson2.html">главу 2</a>
+          или выполните прямо сейчас:
+        </p>
+        <pre style="margin-top:8px; margin-bottom:0;"><code><span class="prompt">$</span> <span class="cmd">git config --global user.name "Ваше Имя"</span>
+<span class="prompt">$</span> <span class="cmd">git config --global user.email "you@example.com"</span></code></pre>
+      </div>
+
+      <h3>10.5. Linux и macOS</h3>
+      <p>
+        На Linux откройте любой терминал (GNOME Terminal, Konsole,
+        XTerm — без разницы; часто <code>Ctrl+Alt+T</code>). На macOS —
+        <code>Terminal.app</code> или iTerm2. Пути обычные:
+        <code>/home/user/projects</code>, <code>~/projects</code>.
+        Все команды ниже работают так же, как в UCRT64.
+      </p>
+
+      <div class="callout warn">
+        <span class="label">Что не работает в UCRT64</span>
+        <p>
+          Команды Windows-консоли вроде <code>dir</code>,
+          <code>copy</code>, <code>type</code>, <code>cls</code> —
+          не работают. Используйте их аналоги из Linux:
+          <code>ls</code>, <code>cp</code>, <code>cat</code>,
+          <code>clear</code>. Git-команды при этом работают везде
+          одинаково.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="basics">
+      <h2>11. Базовые команды терминала</h2>
+      <p>
+        Здесь перечислены все команды терминала, которые встретятся
+        в практическом примере. Их немного, и они очень простые.
+        Git-команды разберём отдельно — в сквозном примере.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Команда</th><th>Что делает</th><th>Пример</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>pwd</code></td>
+            <td>Показать, в какой папке терминал находится сейчас (<em>print working directory</em>).</td>
+            <td><code>pwd</code> → <code>/c/Projects/hello-git</code></td>
+          </tr>
+          <tr>
+            <td><code>ls</code></td>
+            <td>Показать список файлов и папок в текущей папке (<em>list</em>).</td>
+            <td><code>ls</code> → имена файлов</td>
+          </tr>
+          <tr>
+            <td><code>cd &lt;папка&gt;</code></td>
+            <td>Перейти в указанную папку (<em>change directory</em>).</td>
+            <td><code>cd Documents</code></td>
+          </tr>
+          <tr>
+            <td><code>cd ..</code></td>
+            <td>Перейти на уровень вверх.</td>
+            <td><code>cd ..</code></td>
+          </tr>
+          <tr>
+            <td><code>mkdir &lt;имя&gt;</code></td>
+            <td>Создать новую папку (<em>make directory</em>).</td>
+            <td><code>mkdir my-project</code></td>
+          </tr>
+          <tr>
+            <td><code>echo "текст"</code></td>
+            <td>Вывести текст на экран.</td>
+            <td><code>echo "привет"</code></td>
+          </tr>
+          <tr>
+            <td><code>&gt;</code></td>
+            <td>Записать вывод команды в файл. <strong>Перезаписывает файл.</strong></td>
+            <td><code>echo "привет" &gt; hi.txt</code></td>
+          </tr>
+          <tr>
+            <td><code>&gt;&gt;</code></td>
+            <td>Дописать вывод команды в конец файла.</td>
+            <td><code>echo "ещё" &gt;&gt; hi.txt</code></td>
+          </tr>
+          <tr>
+            <td><code>cat &lt;файл&gt;</code></td>
+            <td>Показать содержимое файла прямо в терминале.</td>
+            <td><code>cat hi.txt</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>11.1. Что открыть (кратко)</h3>
+      <table>
+        <thead><tr><th>Система</th><th>Открыть</th></tr></thead>
+        <tbody>
+          <tr><td>Windows</td><td><strong>MSYS2 UCRT64</strong> (подробно — раздел 10)</td></tr>
+          <tr><td>Linux</td><td>Любой терминал (GNOME Terminal, Konsole, XTerm, …)</td></tr>
+          <tr><td>macOS</td><td>Terminal.app или iTerm2</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <span class="label">Что такое «текущая папка»</span>
+        <p>
+          Терминал всегда «находится» в какой-то папке. Если Вы пишете
+          <code>mkdir hello</code>, папка <code>hello</code> создастся
+          именно в текущей папке. Если Вы пишете <code>git status</code>,
+          Git будет искать репозиторий начиная с текущей папки.
+          Чтобы не путаться, перед началом работы полезно выполнить
+          <code>pwd</code> — увидеть, где Вы.
+        </p>
+      </div>
+
+      <h3>11.2. Как читать примеры в учебнике</h3>
+      <p>
+        В примерах команд строка <code>$</code> в начале — это
+        <strong>приглашение командной строки</strong>. Её <strong>не нужно
+        вводить</strong>. Вводится только то, что идёт после неё. Строки
+        без <code>$</code> и с серым цветом — это <strong>вывод</strong>
+        Git, его набирать не надо.
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git --version</span>        <span class="comment"># ← это вводите Вы (без $)</span>
+<span class="out">git version 2.55.0</span>   <span class="comment"># ← это выводит Git</span></code></pre>
+      <p>
+        В некоторых местах в примерах будут встречаться комментарии
+        (серым курсивом после <code>#</code>) — это пояснения, их тоже
+        набирать не нужно.
+      </p>
+
+      <div class="callout tip">
+        <span class="label">Совет</span>
+        <p>
+          Все команды из примеров можно копировать прямо из учебника и
+          вставлять в терминал. Это нормально и не считается читерством —
+          на первых порах так делают все.
+        </p>
+      </div>
+
+      <h3>11.3. Почему не графический интерфейс</h3>
+      <p>
+        Графические клиенты скрывают, что именно происходит. Пока Вы
+        не увидели своими глазами вывод <code>git status</code> и
+        <code>git log</code>, Вы не понимаете, как устроен Git.
+        После — можете пользоваться чем угодно, включая GUI. Но
+        сначала — терминал.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="example">
+      <h2>12. Сквозной пример: от пустой папки до первого коммита</h2>
+      <p>
+        Пройдём весь путь по шагам. Все команды выполняются в терминале
+        (на Windows — в MSYS2 UCRT64, на Linux — в любом терминале).
+        Вывод команд показан как есть. После каждого шага разобрано,
+        что означает каждая команда и каждая строка вывода.
+      </p>
+
+      <div class="step">
+        <h4>Шаг 1. Создать папку проекта и инициализировать репозиторий</h4>
+        <p class="goal">Создаём новую папку <code>hello-git</code> и превращаем её в Git-репозиторий.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">mkdir hello-git</span>
+<span class="prompt">$</span> <span class="cmd">cd hello-git</span>
+<span class="prompt">$</span> <span class="cmd">git init</span>
+<span class="out">Initialized empty Git repository in /home/user/hello-git/.git/</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>mkdir hello-git</code> — команда <code>mkdir</code> (make directory) создаёт новую папку. <code>hello-git</code> — имя папки. В текущей папке появится подпапка <code>hello-git</code>.</li>
+          <li><code>cd hello-git</code> — команда <code>cd</code> (change directory) переходит в указанную папку. После выполнения Вы окажетесь внутри <code>hello-git</code>, и все следующие команды будут выполняться уже в ней.</li>
+          <li><code>git init</code> — <code>git</code> вызывает программу Git, <code>init</code> (initialize) создаёт новый пустой репозиторий в текущей папке. Внутри <code>hello-git</code> появится скрытая папка <code>.git/</code>, в которой будет храниться вся история проекта.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>Initialized empty Git repository in /home/user/hello-git/.git/</dt>
+            <dd>«Инициализирован пустой Git-репозиторий в /home/user/hello-git/.git/». Git сообщает, что репозиторий создан, и показывает полный путь к новой папке <code>.git/</code>. В UCRT64 путь будет выглядеть как <code>/c/Users/&lt;имя&gt;/hello-git/.git/</code> — это одна и та же папка, записанная по-разному.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Состояние:</strong> репозиторий существует, но в нём пока ни одного коммита. Файлов в проекте нет.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 2. Создать файл</h4>
+        <p class="goal">Создаём файл <code>hello.txt</code> с одной строкой текста и смотрим, как Git его видит.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "Привет, Git!" &gt; hello.txt</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+	hello.txt
+
+nothing added to commit but untracked files present (use "git add" to track)</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>echo "Привет, Git!"</code> — команда <code>echo</code> выводит текст на экран. Сама по себе она просто напечатала бы «Привет, Git!» в терминале.</li>
+          <li><code>&gt;</code> — символ перенаправления. Он берёт то, что должно было вывестись на экран, и записывает в файл. Если файла нет — он создаётся. <strong>Если файл уже есть — он будет перезаписан.</strong></li>
+          <li><code>hello.txt</code> — имя файла, в который пишем.</li>
+          <li>Итого: <code>echo "Привет, Git!" &gt; hello.txt</code> создаёт файл <code>hello.txt</code> с текстом «Привет, Git!».</li>
+          <li><code>git status</code> — команда <code>status</code> показывает текущее состояние репозитория: какие файлы изменены, какие добавлены в индекс, на какой ветке Вы находитесь. Это самая часто используемая команда Git — ей стоит пользоваться перед каждым <code>add</code> и <code>commit</code>.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>On branch main</dt>
+            <dd>«На ветке main». Git сообщает, что Вы находитесь на ветке <code>main</code> — это главная ветка, созданная по умолчанию при <code>git init</code>.</dd>
+            <dt>No commits yet</dt>
+            <dd>«Коммитов пока нет». В репозитории ещё не сделано ни одного коммита.</dd>
+            <dt>Untracked files:</dt>
+            <dd>«Неотслеживаемые файлы». Раздел, в котором перечислены файлы, существующие в рабочей папке, но не входящие ни в один коммит. Git их видит, но ещё не «взял под контроль».</dd>
+            <dt>(use "git add &lt;file&gt;..." to include in what will be committed)</dt>
+            <dd>Подсказка от Git: «используйте git add &lt;файл&gt;..., чтобы включить файл в следующий коммит».</dd>
+            <dt>hello.txt</dt>
+            <dd>Собственно имя неотслеживаемого файла. Отступ слева означает, что файл относится к разделу «Untracked files».</dd>
+            <dt>nothing added to commit but untracked files present (use "git add" to track)</dt>
+            <dd>«Ничего не добавлено к коммиту, но есть неотслеживаемые файлы (используйте git add, чтобы начать их отслеживать)». Итоговая фраза: делать коммит пока не с чем, потому что в индексе пусто.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Состояние файла:</strong> <code>Untracked</code>. Git видит, что файл появился, но не хранит его в истории.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 3. Добавить файл в индекс</h4>
+        <p class="goal">Переводим файл из рабочей папки в staging area — подготовку к коммиту.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git add hello.txt</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached &lt;file&gt;..." to unstage)
+	new file:   hello.txt</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>git add hello.txt</code> — команда <code>git add</code> добавляет указанный файл в индекс (staging area). Файл ещё не попал в историю, но уже «подготовлен» к следующему коммиту. Содержимое файла при этом не меняется.</li>
+          <li><code>hello.txt</code> — имя файла, который добавляем. Можно было указать <code>git add .</code> (точка = «все файлы в текущей папке и подпапках»), но для наглядности указываем файл явно.</li>
+          <li><code>git status</code> — снова смотрим состояние, чтобы увидеть, что изменилось.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>On branch main</dt>
+            <dd>Всё та же ветка <code>main</code>.</dd>
+            <dt>No commits yet</dt>
+            <dd>Коммитов по-прежнему нет.</dd>
+            <dt>Changes to be committed:</dt>
+            <dd>«Изменения, которые будут закоммичены». Раздел, в котором перечислены файлы из индекса — то есть то, что попадёт в следующий коммит.</dd>
+            <dt>(use "git rm --cached &lt;file&gt;..." to unstage)</dt>
+            <dd>Подсказка: «используйте git rm --cached &lt;файл&gt;..., чтобы убрать файл из индекса». (На практике чаще используют <code>git restore --staged &lt;файл&gt;</code> — об этом в главе 3.)</dd>
+            <dt>new file: hello.txt</dt>
+            <dd>«Новый файл: hello.txt». Ключевое слово <code>new file</code> означает, что файл добавляется в историю впервые. Дальше отступ, имя файла. Файл теперь в индексе.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Состояние файла:</strong> <code>Staged</code>. Файл подготовлен и попадёт в следующий коммит.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 4. Сделать первый коммит</h4>
+        <p class="goal">Сохраняем снимок проекта в историю. Файл из индекса переходит в репозиторий.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git commit -m "Добавить приветствие в hello.txt"</span>
+<span class="out">[main (root-commit) 3f2a1b7] Добавить приветствие в hello.txt
+ 1 file changed, 1 insertion(+)
+ create mode 100644 hello.txt</span></code></pre>
+
+        <h5>Разбор команды</h5>
+        <ul class="explain">
+          <li><code>git commit</code> — создаёт новый коммит из того, что сейчас лежит в индексе. Всё, что было добавлено через <code>git add</code>, попадёт в снимок.</li>
+          <li><code>-m</code> — флаг (ключ) «message». Позволяет передать сообщение коммита прямо в командной строке, не открывая редактор.</li>
+          <li><code>"Добавить приветствие в hello.txt"</code> — само сообщение коммита, в кавычках. Это текст, который останется в истории и объяснит будущему читателю, что было сделано.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>[main (root-commit) 3f2a1b7] Добавить приветствие в hello.txt</dt>
+            <dd>Первая строка: <code>main</code> — ветка, в которую добавлен коммит; <code>root-commit</code> — это самый первый коммит в репозитории (у него нет родителя); <code>3f2a1b7</code> — сокращённый хеш нового коммита (у Вас он будет другим); далее в квадратных скобках — сообщение коммита.</dd>
+            <dt>1 file changed, 1 insertion(+)</dt>
+            <dd>«1 файл изменён, 1 вставка (+)». Git подводит статистику: в коммите участвует один файл, в нём появилась одна новая строка. Знак <code>+</code> означает добавление (было бы <code>-</code> — удаление).</dd>
+            <dt>create mode 100644 hello.txt</dt>
+            <dd>«Создан файл hello.txt с режимом доступа 100644». Число <code>100644</code> — это стандартные права обычного файла в Git (не исполняемого, не символической ссылки). Для нас это просто служебная информация о том, что файл создан.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Состояние файла:</strong> <code>Committed</code>. В истории появился первый коммит <code>3f2a1b7</code>. <code>root-commit</code> означает, что это самый первый коммит в репозитории.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 5. Изменить файл</h4>
+        <p class="goal">Дописываем в файл вторую строку. Файл уже в истории, но теперь отличается от последнего снимка.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "Вторая строка" &gt;&gt; hello.txt</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git restore &lt;file&gt;..." to discard changes in working directory)
+	modified:   hello.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>echo "Вторая строка"</code> — выводит текст «Вторая строка».</li>
+          <li><code>&gt;&gt;</code> — <strong>двойное</strong> перенаправление. В отличие от одиночного <code>&gt;</code>, оно не перезаписывает файл, а <em>дописывает</em> в конец. Именно поэтому первая строка файла остаётся на месте.</li>
+          <li><code>hello.txt</code> — файл, в конец которого дописываем строку.</li>
+          <li><code>git status</code> — снова смотрим состояние.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>On branch main</dt>
+            <dd>Всё та же ветка <code>main</code>.</dd>
+            <dt>Changes not staged for commit:</dt>
+            <dd>«Изменения, не подготовленные к коммиту». Раздел, в котором перечислены файлы, отличающиеся от последнего коммита, но пока <em>не добавленные</em> в индекс. Здесь уже нет строки «No commits yet», потому что коммит в репозитории появился на предыдущем шаге.</dd>
+            <dt>(use "git add &lt;file&gt;..." to update what will be committed)</dt>
+            <dd>Подсказка: «используйте git add, чтобы обновить то, что попадёт в коммит».</dd>
+            <dt>(use "git restore &lt;file&gt;..." to discard changes in working directory)</dt>
+            <dd>Подсказка: «используйте git restore &lt;файл&gt;..., чтобы отменить изменения в рабочей папке». ⚠️ Это действие уничтожит правки в файле, будьте осторожны.</dd>
+            <dt>modified: hello.txt</dt>
+            <dd>«Изменён: hello.txt». Ключевое слово <code>modified</code> говорит, что файл уже отслеживается Git (был в прошлом коммите), но его содержимое в рабочей папке отличается от того, что в истории.</dd>
+            <dt>no changes added to commit (use "git add" and/or "git commit -a")</dt>
+            <dd>«Нет изменений, добавленных к коммиту (используйте git add и/или git commit -a)». Итог: в индексе пусто, коммитить пока нечего.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Состояние файла:</strong> <code>Modified</code>. Git видит, что файл отличается от последнего коммита, но в индекс изменение не добавлено.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 6. Снова добавить в индекс и закоммитить</h4>
+        <p class="goal">Повторяем стандартный цикл: <code>add</code> → <code>commit</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git add hello.txt</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Добавить вторую строку в hello.txt"</span>
+<span class="out">[main 9d1e4c2] Добавить вторую строку в hello.txt
+ 1 file changed, 1 insertion(+)</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>git add hello.txt</code> — снова добавляет файл в индекс. Теперь в индексе актуальная версия файла (с двумя строками).</li>
+          <li><code>git commit -m "..."</code> — создаёт новый коммит. Смысл тот же, что на шаге 4, только это уже второй коммит в истории, а не root.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>[main 9d1e4c2] Добавить вторую строку в hello.txt</dt>
+            <dd>Коммит добавлен в ветку <code>main</code>, его сокращённый хеш — <code>9d1e4c2</code> (у Вас будет другой). Слова <code>root-commit</code> здесь уже нет — это обычный коммит с родителем.</dd>
+            <dt>1 file changed, 1 insertion(+)</dt>
+            <dd>«1 файл изменён, 1 вставка». В коммите участвует один файл, добавлена одна строка. Строка <code>create mode ...</code> не появляется, потому что файл уже существует в истории — он не создаётся заново, а изменяется.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Состояние:</strong> в истории уже два коммита: <code>3f2a1b7</code> → <code>9d1e4c2</code>. Ветка <code>main</code> и <code>HEAD</code> теперь указывают на <code>9d1e4c2</code>.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 7. Посмотреть историю</h4>
+        <p class="goal">Проверяем, что оба коммита на месте.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out">9d1e4c2 (HEAD -&gt; main) Добавить вторую строку в hello.txt
+3f2a1b7 Добавить приветствие в hello.txt</span></code></pre>
+
+        <h5>Разбор команды</h5>
+        <ul class="explain">
+          <li><code>git log</code> — показывает историю коммитов. По умолчанию выводит каждый коммит с полной информацией (автор, дата, хеш, сообщение) — это занимает много места.</li>
+          <li><code>--oneline</code> — флаг «одной строкой». Ужимает каждый коммит до одной строки: сокращённый хеш + сообщение. Самый удобный формат для повседневной работы.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git (сверху — самые новые коммиты)</div>
+          <dl>
+            <dt>9d1e4c2 (HEAD -&gt; main) Добавить вторую строку в hello.txt</dt>
+            <dd>Первая строка — самый последний (второй) коммит. <code>9d1e4c2</code> — его сокращённый хеш. <code>HEAD -&gt; main</code> — служебная пометка: <code>HEAD</code> указывает на ветку <code>main</code>, а она — на этот коммит. Далее — сообщение коммита.</dd>
+            <dt>3f2a1b7 Добавить приветствие в hello.txt</dt>
+            <dd>Вторая строка — первый (root) коммит. Пометки <code>HEAD</code> здесь нет, потому что <code>HEAD</code> на него не указывает — он на самом последнем коммите.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Что мы видим:</strong> две строки — два коммита, от нового к старому. <code>HEAD -&gt; main</code> показывает, что <code>HEAD</code> указывает на ветку <code>main</code>, а она — на коммит <code>9d1e4c2</code>.</p>
+      </div>
+
+      <div class="callout tip">
+        <span class="label">Итог примера</span>
+        <p>Мы прошли все четыре состояния файла: Untracked → Staged → Committed → Modified → Staged → Committed. И получили историю из двух коммитов. Это и есть базовый рабочий цикл Git, который будет повторяться постоянно.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="git-vs-github">
+      <h2>13. Git и GitHub — не одно и то же</h2>
+      <p>Это самое частое смешение понятий у новичков.</p>
+      <table>
+        <thead><tr><th></th><th>Git</th><th>GitHub</th></tr></thead>
+        <tbody>
+          <tr><td>Что это</td><td>Программа для контроля версий</td><td>Веб-сервис для хранения Git-репозиториев</td></tr>
+          <tr><td>Где работает</td><td>Локально на Вашем компьютере</td><td>В интернете, на серверах компании</td></tr>
+          <tr><td>Нужен интернет?</td><td>Нет (кроме синхронизации)</td><td>Да</td></tr>
+          <tr><td>Кто сделал</td><td>Линус Торвальдс, 2005</td><td>Компания GitHub, 2008 (с 2018 — у Microsoft)</td></tr>
+          <tr><td>Аналоги</td><td>—</td><td>GitLab, Bitbucket, Gitea</td></tr>
+        </tbody>
+      </table>
+      <p>Грубо говоря: Git — это инструмент, GitHub — это площадка, где этим инструментом удобно пользоваться совместно. Можно пользоваться Git вообще без GitHub — и это нормально. А GitHub без Git не имеет смысла.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="myths">
+      <h2>14. Частые заблуждения</h2>
+
+      <h3>«Git сохраняет файлы автоматически»</h3>
+      <p>Нет. Git создаёт снимок только по команде <code>git commit</code>. Сохранение файла в редакторе — это просто запись на диск, история проекта от этого не меняется.</p>
+
+      <h3>«Коммит — это сохранение одного файла»</h3>
+      <p>Нет. Коммит — это снимок <em>всего проекта</em> на момент коммита. Просто в индекс перед коммитом попадают только те файлы, которые Вы туда добавили. Остальные файлы в снимок войдут в том виде, в каком были в предыдущем коммите.</p>
+
+      <h3>«Git хранит все версии файлов целиком, поэтому репозиторий огромный»</h3>
+      <p>Не совсем. Git действительно мыслит снимками, но физически одинаковые файлы хранятся один раз. Если в коммите файл не менялся, новый коммит просто ссылается на тот же объект. Поэтому даже долгая история занимает немного места.</p>
+
+      <h3>«Без GitHub Git не работает»</h3>
+      <p>Работает. GitHub — лишь один из способов поделиться репозиторием. Git полностью функционален локально.</p>
+
+      <h3>«Ветка — это копия папки с файлами»</h3>
+      <p>Нет. Ветка в Git — это всего лишь <strong>указатель на коммит</strong> (файл с 40-символьным хешем внутри). Создание ветки не копирует файлы и не занимает места. Подробно — в главе 4.</p>
+
+      <h3>«Если удалить файл, он удалится из истории»</h3>
+      <p>Нет. Удаление файла в рабочей папке (и коммит этого удаления) означает «в этом снимке файла нет». Но во всех предыдущих коммитах он остаётся. История неизменна — это одно из главных свойств Git.</p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="summary">
+      <h2>15. Итоги главы</h2>
+      <p>Что нужно вынести из главы 1:</p>
+      <ul>
+        <li><strong>Git</strong> — распределённая система контроля версий, работающая локально.</li>
+        <li>Git хранит <strong>снимки проекта</strong> (коммиты), связанные ссылками на родителей.</li>
+        <li>Каждый объект в Git идентифицируется <strong>хешем</strong>; история неизменна.</li>
+        <li>У Git <strong>три области</strong>: рабочая папка → индекс (staging) → репозиторий.</li>
+        <li>Файл проходит состояния: <strong>Untracked → Staged → Committed → Modified</strong> и обратно.</li>
+        <li>Базовый цикл: <code>git add</code> → <code>git commit</code> → (правки) → <code>git add</code> → <code>git commit</code>.</li>
+        <li><strong>HEAD</strong> — указатель на текущий коммит (обычно через ветку, например <code>main</code>).</li>
+        <li><strong>Git ≠ GitHub</strong>: Git — программа, GitHub — сервис.</li>
+        <li>Установка инструментов — отдельная инструкция: <a class="inline" href="windows.html">Windows</a> / <a class="inline" href="linux.html">Linux</a>.</li>
+        <li>Вся практика в учебнике — <strong>в терминале</strong>; на Windows это <strong>MSYS2 UCRT64</strong>, на Linux — любой терминал.</li>
+        <li>В UCRT64 пути записываются в стиле Unix: <code>C:\Users\ivan</code> → <code>/c/Users/ivan</code>.</li>
+        <li>Из базовых команд терминала достаточно знать: <code>pwd</code>, <code>ls</code>, <code>cd</code>, <code>mkdir</code>, <code>echo</code>, <code>&gt;</code>, <code>&gt;&gt;</code>, <code>cat</code>.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="label">Проверьте себя</span>
+        <p>Попробуйте ответить, не подглядывая:</p>
+        <ul style="margin-bottom:0">
+          <li>В какой области находится файл сразу после <code>git add</code>?</li>
+          <li>Что произойдёт с файлом, если сделать <code>git restore --staged file.txt</code>?</li>
+          <li>Почему сообщение коммита важно, если Git и так хранит все версии?</li>
+          <li>Чем коммит отличается от сохранения файла в редакторе?</li>
+          <li>Как в UCRT64 записать путь к папке <code>C:\Projects\hello</code>?</li>
+          <li>Чем отличаются <code>&gt;</code> и <code>&gt;&gt;</code> при записи в файл?</li>
+          <li>Что покажет <code>pwd</code> сразу после открытия терминала?</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="chapter-footer">
+
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>

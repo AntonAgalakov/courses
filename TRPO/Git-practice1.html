@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практика. Программа на C с Git</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --code-bg: #f1f5f9;
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --warn-bg: #fffbeb;
+    --warn-border: #fde68a;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --tip-bg: #ecfdf5;
+    --tip-border: #a7f3d0;
+    --green: #059669;
+    --amber: #d97706;
+    --red: #dc2626;
+    --purple: #7c3aed;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 17px;
+  }
+  header.chapter {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    padding: 56px 24px 48px;
+  }
+  header.chapter .inner { max-width: 900px; margin: 0 auto; }
+  header.chapter .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin: 0 0 12px;
+  }
+  header.chapter h1 {
+    font-size: 36px;
+    line-height: 1.2;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  header.chapter .lede {
+    color: #cbd5e1;
+    font-size: 18px;
+    max-width: 700px;
+    margin: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+  main { margin-top: 40px; }
+
+  nav.toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  nav.toc h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { margin-bottom: 6px; }
+  nav.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav.toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  @media (max-width: 640px) {
+    nav.toc ol { columns: 1; }
+    header.chapter h1 { font-size: 26px; }
+  }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section h2 {
+    font-size: 27px;
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+  }
+  section h3 { font-size: 20px; margin: 32px 0 12px; font-weight: 650; }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 24px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 650; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: #0f172a;
+  }
+
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 0 0 20px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    border: 1px solid #1e293b;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  pre .prompt { color: #64748b; user-select: none; }
+  pre .cmd { color: #93c5fd; }
+  pre .out { color: #cbd5e1; }
+  pre .comment { color: #64748b; font-style: italic; }
+  pre .d-file  { color: #fbbf24; font-weight: 600; }
+  pre .d-hunk  { color: #a78bfa; }
+  pre .d-add   { color: #86efac; }
+  pre .d-del   { color: #fca5a5; }
+  pre .d-ctx   { color: #cbd5e1; }
+  pre .s-add { color: #86efac; }
+  pre .s-mod { color: #fbbf24; }
+  pre .s-del { color: #fca5a5; }
+  pre .hash  { color: #fcd34d; background: rgba(252,211,77,0.08); padding: 0 4px; border-radius: 3px; }
+  /* C syntax */
+  pre .c-kw   { color: #c4b5fd; }
+  pre .c-str  { color: #fcd34d; }
+  pre .c-fn   { color: #67e8f9; }
+  pre .c-num  { color: #fca5a5; }
+  pre .c-typ  { color: #86efac; }
+
+  .callout { border-left: 4px solid; padding: 16px 20px; border-radius: 8px; margin: 0 0 20px; font-size: 16px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .callout.info { background: var(--info-bg); border-color: var(--info-border); }
+  .callout.info .label { color: var(--accent); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.warn .label { color: var(--amber); }
+  .callout.danger { background: var(--danger-bg); border-color: var(--danger-border); }
+  .callout.danger .label { color: var(--red); }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.tip .label { color: var(--green); }
+  .callout.key { background: #fef3c7; border-color: #f59e0b; }
+  .callout.key .label { color: var(--amber); }
+
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    margin: 8px 0 24px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .diagram-caption { font-size: 13px; color: var(--muted); text-align: center; margin-top: 18px; font-style: italic; }
+
+  .commit-chain {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 0;
+  }
+  .commit-node { display: inline-flex; flex-direction: column; align-items: center; }
+  .commit-hash {
+    font-family: monospace;
+    background: #0f172a;
+    color: #86efac;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    position: relative;
+  }
+  .commit-hash.example::after {
+    content: "пример";
+    position: absolute;
+    top: -10px;
+    right: -8px;
+    background: #f59e0b;
+    color: #fff;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .commit-label {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: monospace;
+    max-width: 120px;
+    text-align: center;
+  }
+  .chain-arrow { font-size: 20px; color: var(--muted); padding: 0 4px; }
+  .ref-label {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .ref-label.detached { background: var(--amber); }
+  .ref-label.bad { background: var(--red); }
+  .ref-label.fix { background: var(--green); }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 22px; font-size: 15.5px; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 650; font-size: 14px; color: #334155; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 13.5px; }
+
+  .step { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 22px 24px; margin: 0 0 26px; }
+  .step h4 { margin: 0 0 6px; font-size: 18px; font-weight: 650; color: var(--accent); }
+  .step .goal { color: var(--muted); font-size: 14.5px; margin: 0 0 18px; }
+  .step pre { margin-bottom: 14px; }
+  .step h5 { font-size: 15px; font-weight: 650; margin: 18px 0 8px; color: #334155; }
+  .step ul.explain { margin: 0 0 14px; padding-left: 22px; font-size: 15px; }
+  .step ul.explain li { margin-bottom: 6px; }
+  .step ul.explain code { font-size: 13.5px; }
+  .step .state-after { font-size: 14px; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .step .state-after strong { color: var(--text); }
+
+  /* Notepad для своих хешей */
+  .my-hashes {
+    background: #fffbeb;
+    border: 2px dashed #f59e0b;
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin: 0 0 22px;
+  }
+  .my-hashes h5 {
+    margin: 0 0 12px;
+    font-size: 15px;
+    color: #92400e;
+    font-weight: 700;
+  }
+  .my-hashes p { margin: 0 0 12px; font-size: 14.5px; color: #78350f; }
+  .my-hashes table { margin-bottom: 0; box-shadow: none; border: 1px solid #fcd34d; }
+  .my-hashes th { background: #fef3c7; color: #78350f; }
+  .my-hashes td { border-bottom: 1px solid #fde68a; }
+  .my-hashes .blank {
+    display: inline-block;
+    min-width: 80px;
+    border-bottom: 2px dotted #92400e;
+    color: transparent;
+  }
+
+  .output-breakdown {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 0 0 16px;
+    font-size: 14.5px;
+  }
+  .output-breakdown .ob-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .output-breakdown dl { margin: 0; }
+  .output-breakdown dt {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    background: #e2e8f0;
+    color: #0f172a;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .output-breakdown dd { margin: 4px 0 0 0; padding-left: 0; color: var(--text); }
+
+  footer.chapter-footer { border-top: 2px solid var(--border); padding-top: 28px; margin-top: 40px; color: var(--muted); font-size: 15px; }
+</style>
+</head>
+<body>
+
+<header class="chapter">
+  <div class="inner">
+    <p class="kicker">Практика</p>
+    <h1>Программа на C с Git</h1>
+    <p class="lede">
+      В этой практике Вы напишете простую программу на C от пустого
+      файла до версии с багом, сделаете пять коммитов, научитесь
+      перемещаться между ними, сравните их между собой и исправите
+      ошибку. Всё — только теми командами, что уже прошли.
+    </p>
+  </div>
+</header>
+
+<div class="container">
+  <main>
+
+    <nav class="toc">
+      <h2>Содержание практики</h2>
+      <ol>
+        <li><a href="#intro">Что мы сделаем</a></li>
+        <li><a href="#hashes">Хеши у Вас будут другими</a></li>
+        <li><a href="#prepare">Подготовка: компилятор и Git</a></li>
+        <li><a href="#setup">Создание проекта</a></li>
+        <li><a href="#c1">Коммит 1: Hello, World</a></li>
+        <li><a href="#c2">Коммит 2: функция сложения</a></li>
+        <li><a href="#c3">Коммит 3: цикл вывода чисел</a></li>
+        <li><a href="#c4">Коммит 4: ошибочное «улучшение»</a></li>
+        <li><a href="#log">Смотрим историю и выписываем свои хеши</a></li>
+        <li><a href="#detach">Перемещаемся на старый коммит</a></li>
+        <li><a href="#compile-old">Компилируем старую версию</a></li>
+        <li><a href="#back">Возвращаемся на main</a></li>
+        <li><a href="#compare">Сравниваем коммиты</a></li>
+        <li><a href="#fix">Исправляем баг</a></li>
+        <li><a href="#bonus">Бонус: ветка из старого коммита</a></li>
+        <li><a href="#errors">Если Git ругается: fatal: bad revision</a></li>
+        <li><a href="#summary">Итоги и задания</a></li>
+      </ol>
+    </nav>
+
+    <!-- ============================================================ -->
+    <section id="intro">
+      <h2>1. Что мы сделаем</h2>
+      <p>
+        Сценарий: Вы пишете небольшую программу на C, постепенно
+        наращиваете её функциональность и коммитите после каждого
+        шага. Затем намеренно вносите ошибку, замечаете её, смотрите
+        историю, <strong>перемещаетесь на предыдущий коммит</strong>,
+        убеждаетесь, что там всё работало, возвращаетесь на последний
+        и исправляете ошибку новым коммитом.
+      </p>
+
+      <div class="diagram">
+        <div class="commit-chain">
+          <span class="commit-node">
+            <span class="commit-hash example">a1b2c3d</span>
+            <span class="commit-label">Hello World</span>
+          </span>
+          <span class="chain-arrow">→</span>
+          <span class="commit-node">
+            <span class="commit-hash example">e4f5a6b</span>
+            <span class="commit-label">+ функция sum</span>
+          </span>
+          <span class="chain-arrow">→</span>
+          <span class="commit-node">
+            <span class="commit-hash example">7c8d9e0</span>
+            <span class="commit-label">+ цикл</span>
+          </span>
+          <span class="chain-arrow">→</span>
+          <span class="commit-node">
+            <span class="commit-hash example">3f2a1b7</span>
+            <span class="commit-label">баг!</span>
+            <span class="ref-label bad">bad</span>
+          </span>
+          <span class="chain-arrow">→</span>
+          <span class="commit-node">
+            <span class="commit-hash example">9d1e4c2</span>
+            <span class="commit-label">исправление</span>
+            <span class="ref-label">main</span>
+          </span>
+        </div>
+        <p class="diagram-caption">
+          Рис. 1. Пять коммитов, которые мы создадим.
+          <strong style="color:var(--amber)">Все хеши на схеме — примеры.</strong>
+          У Вас они будут другими.
+        </p>
+      </div>
+
+      <p>
+        Главный навык — <strong>не бояться перемещаться по истории</strong>.
+        В Git можно в любой момент «отмотать» рабочую папку к любому
+        коммиту, посмотреть, как всё было, скомпилировать и запустить —
+        и так же легко вернуться обратно. Ничего не ломается, пока
+        Вы не пытаетесь делать в этом состоянии новые коммиты, не
+        создав ветку.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="hashes">
+      <h2>2. Хеши у Вас будут другими</h2>
+      <div class="callout key">
+        <span class="label">Прочтите до того, как начнёте</span>
+        <p>
+          В этой практике Вы увидите много строк вида
+          <code>7c8d9e0</code>, <code>3f2a1b7</code> и т.п. Это
+          <strong>хеши коммитов</strong> — уникальные идентификаторы,
+          которые Git вычисляет для каждого коммита.
+          <strong>У Вас они будут другими.</strong> Все хеши в этом
+          документе — <em>примеры</em> для иллюстрации. Свои хеши
+          Вы найдёте в <code>git log --oneline</code>.
+        </p>
+      </div>
+
+      <h3>2.1. Что такое хеш коммита</h3>
+      <p>
+        Хеш — это 40-символьная строка из цифр и букв a–f. Git
+        вычисляет её из содержимого коммита: файлов, автора, даты,
+        сообщения и родительского коммита. <strong>Любое изменение
+        хотя бы одного байта даёт другой хеш</strong>. Поэтому у
+        двух людей, делающих «одинаковые» коммиты в разное время,
+        хеши всё равно будут разные — например, из-за разницы в
+        дате и времени.
+      </p>
+      <p>
+        Обычно хеш записывают сокращённо — первые 7 символов.
+        В <code>git log --oneline</code> Git показывает именно такую
+        короткую форму:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out"><span class="hash">3f2a1b7</span> (HEAD -&gt; main) Оптимизировать sum
+<span class="hash">7c8d9e0</span> Добавить цикл вывода чисел
+<span class="hash">e4f5a6b</span> Добавить функцию sum и вывод её результата
+<span class="hash">a1b2c3d</span> Добавить Hello World на C</span></code></pre>
+
+      <h3>2.2. Почему их нельзя копировать из учебника</h3>
+      <p>
+        Если Вы скопируете команду <code>git switch --detach 7c8d9e0</code>
+        из примера и вставите в свой терминал, Git ответит примерно так:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git switch --detach 7c8d9e0</span>
+<span class="out">fatal: bad revision '7c8d9e0'</span></code></pre>
+      <p>
+        Это <strong>нормально</strong>: в Вашем репозитории нет коммита
+        с таким хешем, потому что Ваш коммит «Добавить цикл вывода
+        чисел» имеет другой хеш. Нужно подставить свой — тот,
+        который Вы видите в <code>git log</code>.
+      </p>
+
+      <h3>2.3. Как найти свой хеш</h3>
+      <p>
+        Есть три способа найти нужный хеш:
+      </p>
+      <ol>
+        <li>
+          <strong>Посмотреть в <code>git log --oneline</code>.</strong>
+          Самое простое: выполнить команду, найти нужную строку по
+          сообщению коммита и взять первые 7 символов.
+        </li>
+        <li>
+          <strong>Найти по сообщению:</strong>
+          <code>git log --oneline --grep="цикл"</code> выведет только
+          коммиты, в сообщении которых встречается «цикл». Удобно,
+          когда история длинная.
+        </li>
+        <li>
+          <strong>Посмотреть последний коммит:</strong>
+          <code>git log --oneline -1</code> выведет только самый
+          свежий.
+        </li>
+      </ol>
+
+      <div class="callout warn">
+        <span class="label">Правило на всю практику</span>
+        <p>
+          Везде, где в команде стоит хеш — <strong>подставляйте свой</strong>.
+          Хеши из примеров (<code>a1b2c3d</code>, <code>7c8d9e0</code>,
+          <code>3f2a1b7</code>, <code>9d1e4c2</code>) — только для
+          иллюстрации. Свои хеши Вы выпишете в разделе 9 и будете
+          использовать дальше. Если ошиблись — Git скажет
+          <code>fatal: bad revision</code>, и Вы просто попробуете
+          ещё раз. Ничего не сломается.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="prepare">
+      <h2>3. Подготовка: компилятор и Git</h2>
+      <p>
+        Нам понадобятся две вещи: установленный Git (глава 1) и
+        компилятор C — программа, которая превращает исходный код
+        в исполняемый файл. Самый распространённый — <code>gcc</code>.
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git --version</span>
+<span class="out">git version 2.55.0</span>
+
+<span class="prompt">$</span> <span class="cmd">gcc --version</span>
+<span class="out">gcc (Ubuntu 13.2.0-23ubuntu4) 13.2.0</span></code></pre>
+
+      <div class="output-breakdown">
+        <div class="ob-title">Разбор вывода</div>
+        <dl>
+          <dt>git version 2.55.0</dt>
+          <dd>Git установлен. Версия может отличаться — не важно.</dd>
+          <dt>gcc (Ubuntu 13.2.0...) 13.2.0</dt>
+          <dd>Компилятор установлен. У Вас будет другая версия и платформа — это нормально.</dd>
+        </dl>
+      </div>
+
+      <h3>3.1. Если gcc не установлен</h3>
+      <table>
+        <thead><tr><th>Система</th><th>Команда установки</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Debian / Ubuntu / Mint</td>
+            <td><code>sudo apt update &amp;&amp; sudo apt install build-essential -y</code></td>
+          </tr>
+          <tr>
+            <td>Fedora / CentOS / RHEL</td>
+            <td><code>sudo dnf install gcc -y</code></td>
+          </tr>
+          <tr>
+            <td>Arch Linux</td>
+            <td><code>sudo pacman -S gcc</code></td>
+          </tr>
+          <tr>
+            <td>macOS</td>
+            <td><code>xcode-select --install</code> — установит Command Line Tools, включая clang</td>
+          </tr>
+          <tr>
+            <td>Windows (проще всего)</td>
+            <td>Открыть WSL: <code>wsl --install</code> в PowerShell от администратора, потом в Ubuntu выполнить <code>sudo apt install build-essential git -y</code></td>
+          </tr>
+          <tr>
+            <td>Windows (нативно)</td>
+            <td>Скачать MinGW-w64 с mingw-w64.org, добавить его <code>bin</code> в <code>PATH</code>, перезапустить Git Bash</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        После установки закройте и снова откройте терминал, чтобы
+        обновился <code>PATH</code>, и повторите <code>gcc --version</code>.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="setup">
+      <h2>4. Создание проекта</h2>
+
+      <div class="step">
+        <h4>Шаг 1. Создать папку и инициализировать репозиторий</h4>
+        <p class="goal">Пустая папка превращается в Git-репозиторий с веткой <code>main</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">mkdir c-git-practice</span>
+<span class="prompt">$</span> <span class="cmd">cd c-git-practice</span>
+<span class="prompt">$</span> <span class="cmd">git init</span>
+<span class="out">Initialized empty Git repository in /home/user/c-git-practice/.git/</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>mkdir c-git-practice</code> — создаёт папку проекта.</li>
+          <li><code>cd c-git-practice</code> — переходим в неё.</li>
+          <li><code>git init</code> — создаёт в папке скрытый подкаталог <code>.git/</code> — там будет вся история.</li>
+        </ul>
+
+        <p class="state-after"><strong>Состояние:</strong> репозиторий существует, ни одного коммита, ни одного файла.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 2. Создать .gitignore для C</h4>
+        <p class="goal">Исключаем из Git исполняемые и объектные файлы — они генерируются компилятором и не должны попадать в историю.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "prog" &gt; .gitignore</span>
+<span class="prompt">$</span> <span class="cmd">echo "a.out" &gt;&gt; .gitignore</span>
+<span class="prompt">$</span> <span class="cmd">echo "*.o" &gt;&gt; .gitignore</span>
+<span class="prompt">$</span> <span class="cmd">cat .gitignore</span>
+<span class="out">prog
+a.out
+*.o</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>echo "prog" &gt; .gitignore</code> — создаёт <code>.gitignore</code> с первой строкой <code>prog</code>. Мы будем компилировать в файл <code>prog</code>, его Git должен игнорировать.</li>
+          <li><code>&gt;&gt;</code> — дописывает в конец файла. Так появляются <code>a.out</code> (имя по умолчанию у gcc) и <code>*.o</code> (объектные файлы).</li>
+          <li><code>cat .gitignore</code> — показывает содержимое.</li>
+        </ul>
+
+        <p class="state-after"><strong>Состояние:</strong> в папке один файл <code>.gitignore</code>, untracked.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="c1">
+      <h2>5. Коммит 1: Hello, World</h2>
+
+      <div class="step">
+        <h4>Шаг 3. Написать программу</h4>
+        <p class="goal">Минимальный C-код: выводит одну строку и завершается.</p>
+        <p>
+          Откройте файл <code>prog.c</code> в любом редакторе
+          (VS Code, Notepad, nano — не важно) и напишите:
+        </p>
+        <pre><code><span class="c-kw">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>(<span class="c-typ">void</span>) {
+    <span class="c-fn">printf</span>(<span class="c-str">"Hello, World!\n"</span>);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}</code></pre>
+
+        <h5>Разбор кода</h5>
+        <ul class="explain">
+          <li><code>#include &lt;stdio.h&gt;</code> — подключает стандартную библиотеку ввода-вывода. Без неё не будет <code>printf</code>.</li>
+          <li><code>int main(void)</code> — точка входа. Возвращает целое (0 = успех).</li>
+          <li><code>printf(...)</code> — печатает строку. <code>\n</code> — перевод строки.</li>
+          <li><code>return 0;</code> — сообщает ОС, что программа завершилась успешно.</li>
+        </ul>
+
+        <pre><code><span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+	.gitignore
+	prog.c
+
+nothing added to commit but untracked files present (use "git add" to track)</span></code></pre>
+
+        <p class="state-after"><strong>Состояние:</strong> два untracked-файла, индекс пуст, коммитов нет.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 4. Первый коммит</h4>
+        <p class="goal">Добавляем оба файла в индекс и коммитим.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git add .gitignore prog.c</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Добавить Hello World на C"</span>
+<span class="out">[main (root-commit) <span class="hash">a1b2c3d</span>] Добавить Hello World на C
+ 2 files changed, 8 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 prog.c</span></code></pre>
+
+        <div class="callout key">
+          <span class="label">Ваш хеш будет другим</span>
+          <p>
+            В строке <code>[main (root-commit) a1b2c3d]</code> число
+            <code>a1b2c3d</code> — это <strong>пример</strong>. У Вас
+            Git выведет свой хеш, например <code>b7e4f21</code>.
+            Запомните его — это первый коммит, его мы будем
+            сравнивать позже. Впрочем, если забудете, всегда можно
+            посмотреть через <code>git log</code>.
+          </p>
+        </div>
+
+        <p class="state-after"><strong>Состояние:</strong> первый коммит создан. Хеш у Вас свой — запишите его.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 5. Скомпилировать и запустить</h4>
+        <p class="goal">Убеждаемся, что программа работает и скомпилированный файл Git игнорирует.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">gcc prog.c -o prog</span>
+<span class="prompt">$</span> <span class="cmd">./prog</span>
+<span class="out">Hello, World!</span>
+
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+nothing to commit, working tree clean</span></code></pre>
+
+        <p class="state-after"><strong>Состояние:</strong> программа работает, файл <code>prog</code> создан, но Git его игнорирует — рабочая папка clean.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="c2">
+      <h2>6. Коммит 2: функция сложения</h2>
+
+      <div class="step">
+        <h4>Шаг 6. Дописать функцию</h4>
+        <p class="goal">Добавляем функцию <code>sum(a, b)</code> и печатаем результат.</p>
+        <pre><code><span class="c-kw">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">sum</span>(<span class="c-kw">int</span> a, <span class="c-kw">int</span> b) {
+    <span class="c-kw">return</span> a + b;
+}
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>(<span class="c-typ">void</span>) {
+    <span class="c-fn">printf</span>(<span class="c-str">"Hello, World!\n"</span>);
+    <span class="c-fn">printf</span>(<span class="c-str">"2 + 3 = %d\n"</span>, <span class="c-fn">sum</span>(<span class="c-num">2</span>, <span class="c-num">3</span>));
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}</code></pre>
+
+        <h5>Разбор кода</h5>
+        <ul class="explain">
+          <li><code>int sum(int a, int b)</code> — функция, возвращает сумму.</li>
+          <li><code>return a + b;</code> — тело функции. Пока она правильная — запомните эту строку.</li>
+          <li><code>printf("2 + 3 = %d\n", sum(2, 3));</code> — печатает строку, подставляя в <code>%d</code> результат <code>sum(2, 3)</code>. Ожидаем увидеть <code>2 + 3 = 5</code>.</li>
+        </ul>
+
+        <p>Смотрим diff:</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git diff</span>
+<span class="d-file">diff --git a/prog.c b/prog.c</span>
+<span class="d-hunk">@@ -1,6 +1,11 @@</span>
+<span class="d-ctx"> #include &lt;stdio.h&gt;</span>
+<span class="d-ctx"> </span>
+<span class="d-add">+int sum(int a, int b) {</span>
+<span class="d-add">+    return a + b;</span>
+<span class="d-add">+}</span>
+<span class="d-add">+</span>
+<span class="d-ctx"> int main(void) {</span>
+<span class="d-ctx">     printf("Hello, World!\n");</span>
+<span class="d-add">+    printf("2 + 3 = %d\n", sum(2, 3));</span>
+<span class="d-ctx">     return 0;</span>
+<span class="d-ctx"> }</span></code></pre>
+
+        <p class="state-after"><strong>Состояние:</strong> <code>prog.c</code> изменён, но не в индексе.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 7. Скомпилировать, запустить, закоммитить</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">gcc prog.c -o prog</span>
+<span class="prompt">$</span> <span class="cmd">./prog</span>
+<span class="out">Hello, World!
+2 + 3 = 5</span>
+
+<span class="prompt">$</span> <span class="cmd">git add prog.c</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Добавить функцию sum и вывод её результата"</span>
+<span class="out">[main <span class="hash">e4f5a6b</span>] Добавить функцию sum и вывод её результата
+ 1 file changed, 5 insertions(+)</span></code></pre>
+
+        <div class="callout key">
+          <span class="label">Снова: хеш у Вас другой</span>
+          <p>
+            <code>e4f5a6b</code> — пример. У Вас Git выведет свой.
+            Не пытайтесь использовать <code>e4f5a6b</code> в командах
+            — он не найдётся в Вашем репозитории.
+          </p>
+        </div>
+
+        <p class="state-after"><strong>Состояние:</strong> два коммита. Хеш второго запишите — он понадобится для сравнений.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="c3">
+      <h2>7. Коммит 3: цикл вывода чисел</h2>
+
+      <div class="step">
+        <h4>Шаг 8. Добавить цикл</h4>
+        <p class="goal">Новая функция <code>print_numbers(n)</code> печатает числа от 1 до n.</p>
+        <pre><code><span class="c-kw">#include</span> <span class="c-str">&lt;stdio.h&gt;</span>
+
+<span class="c-kw">int</span> <span class="c-fn">sum</span>(<span class="c-kw">int</span> a, <span class="c-kw">int</span> b) {
+    <span class="c-kw">return</span> a + b;
+}
+
+<span class="c-kw">void</span> <span class="c-fn">print_numbers</span>(<span class="c-kw">int</span> n) {
+    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">1</span>; i &lt;= n; i++) {
+        <span class="c-fn">printf</span>(<span class="c-str">"%d "</span>, i);
+    }
+    <span class="c-fn">printf</span>(<span class="c-str">"\n"</span>);
+}
+
+<span class="c-kw">int</span> <span class="c-fn">main</span>(<span class="c-typ">void</span>) {
+    <span class="c-fn">printf</span>(<span class="c-str">"Hello, World!\n"</span>);
+    <span class="c-fn">printf</span>(<span class="c-str">"2 + 3 = %d\n"</span>, <span class="c-fn">sum</span>(<span class="c-num">2</span>, <span class="c-num">3</span>));
+    <span class="c-fn">printf</span>(<span class="c-str">"Числа от 1 до 5: "</span>);
+    <span class="c-fn">print_numbers</span>(<span class="c-num">5</span>);
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+}</code></pre>
+
+        <h5>Разбор кода</h5>
+        <ul class="explain">
+          <li><code>void print_numbers(int n)</code> — ничего не возвращает (<code>void</code>), принимает одно число.</li>
+          <li><code>for (int i = 1; i &lt;= n; i++)</code> — цикл: <code>i</code> от 1 до n включительно.</li>
+          <li><code>printf("%d ", i)</code> — печатает число и пробел.</li>
+          <li>Второй <code>printf("\n")</code> — перевод строки после цикла.</li>
+        </ul>
+
+        <pre><code><span class="prompt">$</span> <span class="cmd">gcc prog.c -o prog</span>
+<span class="prompt">$</span> <span class="cmd">./prog</span>
+<span class="out">Hello, World!
+2 + 3 = 5
+Числа от 1 до 5: 1 2 3 4 5 </span>
+
+<span class="prompt">$</span> <span class="cmd">git add prog.c</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Добавить цикл вывода чисел"</span>
+<span class="out">[main <span class="hash">7c8d9e0</span>] Добавить цикл вывода чисел
+ 1 file changed, 10 insertions(+)</span></code></pre>
+
+        <div class="callout key">
+          <span class="label">Важно: этот хеш — последний «хороший»</span>
+          <p>
+            Коммит с сообщением «Добавить цикл вывода чисел» — <strong>последний,
+            в котором программа работала правильно</strong>. На него мы
+            будем перемещаться в разделе 10. Хеш <code>7c8d9e0</code> —
+            <strong>пример</strong>. Ваш собственный Вы найдёте в
+            <code>git log</code> или прямо в выводе
+            <code>git commit</code> выше. Запишите его <em>сейчас</em>,
+            пока он перед глазами.
+          </p>
+        </div>
+
+        <p class="state-after"><strong>Состояние:</strong> три коммита. Программа полностью работает.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="c4">
+      <h2>8. Коммит 4: ошибочное «улучшение»</h2>
+      <p>
+        Намеренно сделаем ошибку — так, как это часто бывает:
+        «оптимизировали» <code>sum</code> и случайно заменили
+        сложение на умножение.
+      </p>
+
+      <div class="step">
+        <h4>Шаг 9. Внести баг</h4>
+        <p class="goal">В функции <code>sum</code> меняем <code>a + b</code> на <code>a * b</code>.</p>
+        <pre><code><span class="c-kw">int</span> <span class="c-fn">sum</span>(<span class="c-kw">int</span> a, <span class="c-kw">int</span> b) {
+    <span class="c-kw">return</span> a * b;  <span class="comment">// ОШИБКА: должно быть a + b</span>
+}</code></pre>
+
+        <pre><code><span class="prompt">$</span> <span class="cmd">gcc prog.c -o prog</span>
+<span class="prompt">$</span> <span class="cmd">./prog</span>
+<span class="out">Hello, World!
+2 + 3 = 6
+Числа от 1 до 5: 1 2 3 4 5 </span>
+
+<span class="prompt">$</span> <span class="cmd">git add prog.c</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Оптимизировать sum"</span>
+<span class="out">[main <span class="hash">3f2a1b7</span>] Оптимизировать sum
+ 1 file changed, 1 insertion(+), 1 deletion(-)</span></code></pre>
+
+        <p class="state-after"><strong>Состояние:</strong> четыре коммита. Программа работает, но с багом. Хеш <code>3f2a1b7</code> — пример, у Вас другой.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="log">
+      <h2>9. Смотрим историю и выписываем свои хеши</h2>
+
+      <div class="step">
+        <h4>Шаг 10. git log — все коммиты</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out"><span class="hash">3f2a1b7</span> (HEAD -&gt; main) Оптимизировать sum
+<span class="hash">7c8d9e0</span> Добавить цикл вывода чисел
+<span class="hash">e4f5a6b</span> Добавить функцию sum и вывод её результата
+<span class="hash">a1b2c3d</span> Добавить Hello World на C</span></code></pre>
+
+        <h5>Разбор команды</h5>
+        <ul class="explain">
+          <li><code>git log</code> — история коммитов.</li>
+          <li><code>--oneline</code> — по одной строке: сокращённый хеш + сообщение.</li>
+        </ul>
+
+        <div class="callout danger">
+          <span class="label">Это пример вывода!</span>
+          <p>
+            Хеши <code>3f2a1b7</code>, <code>7c8d9e0</code>,
+            <code>e4f5a6b</code>, <code>a1b2c3d</code> — <strong>из
+            учебника, не из Вашего репозитория</strong>. У Вас в
+            терминале будут свои. Если Вы скопируете команду с этими
+            хешами — Git ответит <code>fatal: bad revision</code>.
+            Внимательно посмотрите на свой вывод.
+          </p>
+        </div>
+
+        <p class="state-after"><strong>Наблюдение:</strong> подозрительный коммит — «Оптимизировать sum». Именно после него появился баг. Последний «хороший» — «Добавить цикл вывода чисел».</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 11. Выпишите свои хеши — это обязательно</h4>
+        <p class="goal">Прежде чем идти дальше, составьте личную шпаргалку. Без неё следующие шаги делать неудобно.</p>
+        <p>
+          Возьмите лист бумаги, откройте заметки — или прямо здесь,
+          в этом документе, если читаете с возможностью правок —
+          выпишите хеши <strong>из своего вывода</strong>
+          <code>git log --oneline</code>. Сопоставьте каждое сообщение
+          с хешем, который Вы видите у себя.
+        </p>
+
+        <div class="my-hashes">
+          <h5>✍️ Мои хеши — заполните сами</h5>
+          <p>
+            В правом столбце вместо прочерков впишите <strong>свои</strong>
+            хеши из <code>git log --oneline</code>.
+            В левом — сообщения, чтобы не перепутать.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Сообщение коммита</th>
+                <th>Мой хеш (7 символов)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Добавить Hello World на C</td>
+                <td><span class="blank">____________</span></td>
+              </tr>
+              <tr>
+                <td>Добавить функцию sum и вывод её результата</td>
+                <td><span class="blank">____________</span></td>
+              </tr>
+              <tr>
+                <td>Добавить цикл вывода чисел ← «последний хороший»</td>
+                <td><span class="blank">____________</span></td>
+              </tr>
+              <tr>
+                <td>Оптимизировать sum ← «плохой, с багом»</td>
+                <td><span class="blank">____________</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <span class="label">Зачем это нужно</span>
+          <p>
+            В следующих шагах Вам нужно будет подставлять конкретные
+            хеши в команды. Если Вы будете брать их из учебника —
+            они не сработают. Своя шпаргалка — единственный способ
+            спокойно пройти практику. Если потеряете — не страшно,
+            всегда можно снова выполнить <code>git log --oneline</code>.
+          </p>
+        </div>
+
+        <p class="state-after"><strong>Готово:</strong> у Вас есть четыре своих хеша. Дальше — только они.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 12. Посмотреть подозрительный коммит</h4>
+        <p class="goal">Увидеть, что именно поменялось в коммите, где впервые появился баг.</p>
+
+        <div class="callout warn">
+          <span class="label">Замените хеш на свой</span>
+          <p>
+            В команде ниже <code>3f2a1b7</code> — пример. Подставьте
+            <strong>свой</strong> хеш коммита «Оптимизировать sum»
+            из Вашей шпаргалки. Если забыли — найдите командой
+            <code>git log --oneline --grep="Оптимизировать"</code>.
+          </p>
+        </div>
+
+        <pre><code><span class="prompt">$</span> <span class="cmd">git show ВАШ_ХЕШ_ОПТИМИЗИРОВАТЬ_SUM</span>
+<span class="out">commit <span class="hash">3f2a1b7</span>...
+Author: Иван Иванов &lt;ivan@example.com&gt;
+Date:   Mon Oct 20 15:01:23 2026 +0300
+
+    Оптимизировать sum
+
+<span class="d-file">diff --git a/prog.c b/prog.c</span>
+<span class="d-hunk">@@ -3,7 +3,7 @@</span>
+<span class="d-ctx"> int sum(int a, int b) {</span>
+<span class="d-del">-    return a + b;</span>
+<span class="d-add">+    return a * b;</span>
+<span class="d-ctx"> }</span></span></code></pre>
+
+        <h5>Разбор команды</h5>
+        <ul class="explain">
+          <li><code>git show &lt;хеш&gt;</code> — показывает подробности коммита: автора, дату, сообщение и diff относительно предыдущего.</li>
+          <li>Вам нужно подставить <strong>свой</strong> хеш.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git (пример)</div>
+          <dl>
+            <dt>commit 3f2a1b7...</dt>
+            <dd>Полный хеш Вашего коммита (у Вас другой).</dd>
+            <dt>-    return a + b;</dt>
+            <dd>Строка со знаком <code>-</code> — была в предыдущей версии, стала удалена.</dd>
+            <dt>+    return a * b;</dt>
+            <dd>Строка со знаком <code>+</code> — добавлена в этой версии. Вот баг.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Вывод:</strong> баг подтверждён. Теперь хочется посмотреть, как было «до».</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="detach">
+      <h2>10. Перемещаемся на старый коммит</h2>
+      <p>
+        Главный шаг практики: <strong>переместить рабочую папку</strong>
+        на коммит «Добавить цикл вывода чисел» — последний
+        «хороший». Файлы на диске заменятся на те, что были в тот
+        момент. Ничего не потеряется: последний коммит по-прежнему
+        в истории.
+      </p>
+
+      <div class="callout info">
+        <span class="label">Что такое detached HEAD</span>
+        <p>
+          В обычном состоянии <code>HEAD</code> указывает на ветку
+          (<code>main</code>), а ветка — на коммит. Когда Вы
+          перемещаетесь на конкретный коммит «в обход» ветки,
+          <code>HEAD</code> начинает указывать прямо на коммит. Это
+          состояние называется <strong>detached HEAD</strong>
+          («отсоединённый HEAD»). Оно нормальное и безопасное для
+          просмотра и компиляции. Опасность только одна: если в
+          этом состоянии сделать новый коммит и потом уйти — этот
+          коммит «потеряется», потому что на него не указывает ни
+          одна ветка. Поэтому: в detached HEAD можно смотреть,
+          компилировать, экспериментировать — но не коммитить, если
+          не собираетесь создать ветку (об этом в разделе 15).
+        </p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 13. Переместиться на «Добавить цикл вывода чисел»</h4>
+        <p class="goal">Рабочая папка откатывается к состоянию третьего коммита.</p>
+
+        <div class="callout key">
+          <span class="label">Найдите свой хеш</span>
+          <p>
+            В команде ниже <code>7c8d9e0</code> — <strong>пример</strong>.
+            Подставьте <strong>свой</strong> хеш коммита «Добавить цикл
+            вывода чисел» из Вашей шпаргалки. Если забыли — найдите:
+            <code>git log --oneline --grep="цикл"</code>.
+            Именно этот шаг чаще всего ломается, если скопировать
+            хеш из учебника — не делайте так.
+          </p>
+        </div>
+
+        <pre><code><span class="prompt">$</span> <span class="cmd">git switch --detach ВАШ_ХЕШ_ЦИКЛА</span>
+<span class="out">Note: switching to '<span class="hash">7c8d9e0</span>'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c &lt;new-branch-name&gt;
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at <span class="hash">7c8d9e0</span> Добавить цикл вывода чисел</span></code></pre>
+
+        <h5>Разбор команды</h5>
+        <ul class="explain">
+          <li><code>git switch</code> — команда переключения.</li>
+          <li><code>--detach</code> — режим «переключиться на конкретный коммит, а не на ветку».</li>
+          <li><code>ВАШ_ХЕШ_ЦИКЛА</code> — замените на <strong>свой</strong> хеш, например <code>a7f3b92</code>.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>Note: switching to '7c8d9e0'.</dt>
+            <dd>«Переключаюсь на указанный коммит». У Вас здесь будет <em>ваш</em> хеш, который Вы ввели.</dd>
+            <dt>You are in 'detached HEAD' state.</dt>
+            <dd>Предупреждение: сейчас <code>HEAD</code> не на ветке.</dd>
+            <dt>You can look around, make experimental changes and commit them...</dt>
+            <dd>Можно осматриваться, экспериментировать, даже коммитить, но при переключении на ветку такие коммиты потеряются.</dd>
+            <dt>If you want to create a new branch...</dt>
+            <dd>Подсказка про <code>git switch -c</code>. К этому вернёмся в разделе 15.</dd>
+            <dt>Or undo this operation with: git switch -</dt>
+            <dd>Быстрый возврат на предыдущую позицию — одной командой.</dd>
+            <dt>HEAD is now at 7c8d9e0 Добавить цикл вывода чисел</dt>
+            <dd>Итог: <code>HEAD</code> на нужном коммите. У Вас тут будет <em>ваш</em> хеш.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Состояние:</strong> рабочая папка откатилась на версию третьего коммита. Ветка <code>main</code> и все четыре коммита по-прежнему живы в истории.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 14. Проверить, что мы действительно на старом коммите</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">HEAD detached at <span class="hash">7c8d9e0</span>
+nothing to commit, working tree clean</span>
+
+<span class="prompt">$</span> <span class="cmd">cat prog.c</span>
+<span class="out">...
+int sum(int a, int b) {
+    return a + b;   ← снова правильная версия
+}
+...</span></code></pre>
+
+        <p class="state-after"><strong>Наблюдение:</strong> в файле <code>prog.c</code> — снова <code>return a + b;</code>. Бага здесь нет, потому что мы откатились на версию <em>до</em> ошибочного коммита.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="compile-old">
+      <h2>11. Компилируем старую версию</h2>
+
+      <div class="step">
+        <h4>Шаг 15. Компиляция старой версии</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">gcc prog.c -o prog</span>
+<span class="prompt">$</span> <span class="cmd">./prog</span>
+<span class="out">Hello, World!
+2 + 3 = 5
+Числа от 1 до 5: 1 2 3 4 5 </span></code></pre>
+
+        <p class="state-after"><strong>Вывод:</strong> на коммите «Добавить цикл» программа выдаёт <code>2 + 3 = 5</code> — правильный результат. Баг появился именно в следующем коммите.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="back">
+      <h2>12. Возвращаемся на main</h2>
+      <p>
+        Возвращаемся к самой свежей версии — на ветку <code>main</code>.
+        Рабочая папка снова поменяется: файл <code>prog.c</code> станет
+        тем, что было в последнем коммите (с багом).
+      </p>
+
+      <div class="step">
+        <h4>Шаг 16. Вернуться на main</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git switch main</span>
+<span class="out">Previous HEAD position was <span class="hash">7c8d9e0</span> Добавить цикл вывода чисел
+Switched to branch 'main'</span>
+
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+nothing to commit, working tree clean</span>
+
+<span class="prompt">$</span> <span class="cmd">./prog</span>
+<span class="out">Hello, World!
+2 + 3 = 6   ← снова баг
+Числа от 1 до 5: 1 2 3 4 5 </span></code></pre>
+
+        <div class="callout tip">
+          <span class="label">Быстрый возврат</span>
+          <p>
+            Если Вы только что были в detached HEAD и хотите вернуться
+            назад в него, используйте <code>git switch -</code>. Дефис
+            означает «предыдущее положение». То же самое работает и
+            между двумя ветками.
+          </p>
+        </div>
+
+        <p class="state-after"><strong>Состояние:</strong> снова на <code>main</code>, с багом. История цела, рабочая папка clean.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="compare">
+      <h2>13. Сравниваем коммиты</h2>
+      <p>
+        Diff внутри одного коммита мы видели (<code>git show</code>).
+        А можно сравнить <strong>любые два коммита между собой</strong>,
+        не переключаясь ни на один. Полезно, когда хочется понять,
+        «что изменилось с тех пор».
+      </p>
+
+      <div class="step">
+        <h4>Шаг 17. Сравнить хороший и плохой коммиты</h4>
+        <p class="goal">Увидеть ровно те изменения, которые внесли баг.</p>
+
+        <div class="callout key">
+          <span class="label">Оба хеша — свои</span>
+          <p>
+            В команде ниже <code>7c8d9e0</code> — «Добавить цикл»
+            (хороший), <code>3f2a1b7</code> — «Оптимизировать sum»
+            (плохой). <strong>Оба замените на свои</strong>. Порядок
+            важен: сначала «старый», потом «новый».
+          </p>
+        </div>
+
+        <pre><code><span class="prompt">$</span> <span class="cmd">git diff ВАШ_ХЕШ_ЦИКЛА ВАШ_ХЕШ_ОПТИМИЗИРОВАТЬ</span>
+<span class="d-file">diff --git a/prog.c b/prog.c</span>
+<span class="d-hunk">@@ -3,7 +3,7 @@</span>
+<span class="d-ctx"> int sum(int a, int b) {</span>
+<span class="d-del">-    return a + b;</span>
+<span class="d-add">+    return a * b;</span>
+<span class="d-ctx"> }</span></code></pre>
+
+        <h5>Разбор команды</h5>
+        <ul class="explain">
+          <li><code>git diff &lt;хеш1&gt; &lt;хеш2&gt;</code> — сравнивает два коммита. <code>хеш1</code> = «старый», <code>хеш2</code> = «новый».</li>
+          <li>То, что было в первом коммите, но не во втором — со знаком <code>-</code>; то, что появилось во втором — со знаком <code>+</code>.</li>
+          <li>Если поменять местами — <code>+</code> и <code>-</code> поменяются ролями.</li>
+        </ul>
+
+        <p class="state-after"><strong>Наблюдение:</strong> между «хорошим» и «плохим» коммитом изменение ровно одно — замена <code>+</code> на <code>*</code>.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 18. Сравнить первый и последний коммиты</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git diff ВАШ_ХЕШ_HELLO ВАШ_ХЕШ_ОПТИМИЗИРОВАТЬ --stat</span>
+<span class="out"> prog.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)</span></code></pre>
+
+        <p class="state-after"><strong>Наблюдение:</strong> за четыре коммита файл вырос на 15 строк и потерял одну — ту самую <code>a + b</code>, которая стала <code>a * b</code>.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="fix">
+      <h2>14. Исправляем баг</h2>
+      <p>
+        Исправим баг и закоммитим исправление отдельным коммитом.
+        Это правильный подход: <strong>история не переписывается,
+        багфикс виден отдельной записью</strong>.
+      </p>
+
+      <div class="step">
+        <h4>Шаг 19. Исправить код</h4>
+        <p class="goal">Вернуть <code>a + b</code> вместо <code>a * b</code>.</p>
+        <p>Откройте <code>prog.c</code> и поменяйте строку в функции <code>sum</code>:</p>
+        <pre><code><span class="c-kw">int</span> <span class="c-fn">sum</span>(<span class="c-kw">int</span> a, <span class="c-kw">int</span> b) {
+    <span class="c-kw">return</span> a + b;  <span class="comment">// исправлено</span>
+}</code></pre>
+
+        <pre><code><span class="prompt">$</span> <span class="cmd">gcc prog.c -o prog</span>
+<span class="prompt">$</span> <span class="cmd">./prog</span>
+<span class="out">Hello, World!
+2 + 3 = 5
+Числа от 1 до 5: 1 2 3 4 5 </span></code></pre>
+
+        <p class="state-after"><strong>Состояние:</strong> <code>2 + 3 = 5</code> — правильно. Изменения в рабочей папке, но не в индексе.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 20. Закоммитить исправление</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git add prog.c</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Исправить sum: вернуть сложение вместо умножения"</span>
+<span class="out">[main <span class="hash">9d1e4c2</span>] Исправить sum: вернуть сложение вместо умножения
+ 1 file changed, 1 insertion(+), 1 deletion(-)</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out"><span class="hash">9d1e4c2</span> (HEAD -&gt; main) Исправить sum: вернуть сложение вместо умножения
+<span class="hash">3f2a1b7</span> Оптимизировать sum
+<span class="hash">7c8d9e0</span> Добавить цикл вывода чисел
+<span class="hash">e4f5a6b</span> Добавить функцию sum и вывод её результата
+<span class="hash">a1b2c3d</span> Добавить Hello World на C</span></code></pre>
+
+        <p class="state-after"><strong>Готово:</strong> в истории пять коммитов. Плохой коммит не исчез — он остался рядом с исправлением. Это правильно: через полгода будет понятно, когда и как был внесён баг и когда исправлен.</p>
+      </div>
+
+      <div class="callout info">
+        <span class="label">Альтернатива: git revert</span>
+        <p>
+          Можно было бы выполнить <code>git revert ВАШ_ХЕШ_ОПТИМИЗИРОВАТЬ</code> —
+          Git сам создал бы коммит-исправление, возвращающий
+          <code>a + b</code>. Результат тот же, но код руками Вы бы
+          не писали. Плюс <code>revert</code> работает, даже если баг
+          в коммите был сложным, из нескольких файлов.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="bonus">
+      <h2>15. Бонус: ветка из старого коммита</h2>
+      <p>
+        Часто бывает: Вы смотрите старый коммит в detached HEAD и
+        понимаете, что хотите не просто «посмотреть», а
+        <strong>сделать от него отдельную линию</strong>. Для этого
+        из detached HEAD нужно <strong>создать ветку</strong>.
+      </p>
+
+      <div class="step">
+        <h4>Шаг 21. Создать ветку из «Добавить цикл»</h4>
+
+        <div class="callout key">
+          <span class="label">Снова свой хеш</span>
+          <p>
+            <code>7c8d9e0</code> — пример. Подставьте свой хеш
+            коммита «Добавить цикл вывода чисел».
+          </p>
+        </div>
+
+        <pre><code><span class="prompt">$</span> <span class="cmd">git switch --detach ВАШ_ХЕШ_ЦИКЛА</span>
+<span class="out">...
+HEAD is now at <span class="hash">7c8d9e0</span> Добавить цикл вывода чисел</span>
+
+<span class="prompt">$</span> <span class="cmd">git switch -c experiment-without-bug</span>
+<span class="out">Switched to a new branch 'experiment-without-bug'</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline --graph --all</span>
+<span class="out">* <span class="hash">9d1e4c2</span> (main) Исправить sum: вернуть сложение вместо умножения
+* <span class="hash">3f2a1b7</span> Оптимизировать sum
+* <span class="hash">7c8d9e0</span> (HEAD -&gt; experiment-without-bug) Добавить цикл вывода чисел
+* <span class="hash">e4f5a6b</span> Добавить функцию sum и вывод её результата
+* <span class="hash">a1b2c3d</span> Добавить Hello World на C</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>git switch --detach ВАШ_ХЕШ_ЦИКЛА</code> — снова на старый коммит.</li>
+          <li><code>git switch -c experiment-without-bug</code> — <strong>создаёт новую ветку</strong> с этим именем и сразу переключается на неё. Флаг <code>-c</code> = create. Теперь мы не в detached HEAD: <code>HEAD</code> указывает на новую ветку, а она — на тот же коммит.</li>
+          <li><code>git log --oneline --graph --all</code> — история всех веток с графом.</li>
+        </ul>
+
+        <p class="state-after"><strong>Что получили:</strong> две ветки, растущие из общего коммита. <code>main</code> содержит баг и его исправление, <code>experiment-without-bug</code> — «чистую» линию без бага. Это и есть настоящая сила Git.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="errors">
+      <h2>16. Если Git ругается: fatal: bad revision</h2>
+      <p>
+        Самая частая ошибка при прохождении этой практики — скопировать
+        команду с хешем из учебника и выполнить. Git ответит:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git switch --detach 7c8d9e0</span>
+<span class="out">fatal: bad revision '7c8d9e0'</span></code></pre>
+
+      <div class="output-breakdown">
+        <div class="ob-title">Что это значит</div>
+        <dl>
+          <dt>fatal:</dt>
+          <dd>«Фатальная ошибка» — команда не выполнена.</dd>
+          <dt>bad revision '7c8d9e0'</dt>
+          <dd>«Плохая ревизия» — в Вашем репозитории нет коммита с
+          таким хешем. Git не нашёл его в истории.</dd>
+        </dl>
+      </div>
+
+      <h3>16.1. Что делать</h3>
+      <ol>
+        <li>
+          Выполните <code>git log --oneline</code> — посмотрите
+          <strong>свои</strong> хеши.
+        </li>
+        <li>
+          Найдите строку с нужным сообщением («Добавить цикл вывода
+          чисел», «Оптимизировать sum» и т.п.).
+        </li>
+        <li>
+          Возьмите первые 7 символов слева от сообщения —
+          это и есть нужный хеш.
+        </li>
+        <li>
+          Повторите команду, подставив <em>свой</em> хеш.
+        </li>
+      </ol>
+
+      <h3>16.2. Другие полезные ошибки</h3>
+      <table>
+        <thead>
+          <tr><th>Сообщение</th><th>Что значит</th><th>Что делать</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>fatal: bad revision '...'</code></td>
+            <td>Такого коммита нет.</td>
+            <td>Проверить хеш через <code>git log --oneline</code>.</td>
+          </tr>
+          <tr>
+            <td><code>fatal: ambiguous argument '...'</code></td>
+            <td>Хеш слишком короткий или содержит опечатку.</td>
+            <td>Взять хотя бы 7 символов из <code>git log</code>.</td>
+          </tr>
+          <tr>
+            <td><code>error: Your local changes ... would be overwritten by switch</code></td>
+            <td>В рабочей папке есть незакоммиченные изменения, которые переключение уничтожит.</td>
+            <td>Либо закоммитить (<code>git add ... &amp;&amp; git commit</code>), либо отменить (<code>git restore .</code>), либо спрятать (<code>git stash</code> — в следующих главах).</td>
+          </tr>
+          <tr>
+            <td><code>fatal: not a git repository</code></td>
+            <td>Терминал открыт вне репозитория.</td>
+            <td><code>cd</code> в папку проекта.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <span class="label">Главное</span>
+        <p>
+          Ошибка <code>fatal: bad revision</code> <strong>ничего не
+          ломает</strong>. Git просто отказался выполнять команду.
+          Ваши файлы, история и рабочая папка — в полном порядке.
+          Замените хеш и попробуйте ещё раз.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="summary">
+      <h2>17. Итоги и задания</h2>
+
+      <h3>17.1. Чему Вы научились</h3>
+      <ul>
+        <li>Создавать проект на C и превращать его в Git-репозиторий.</li>
+        <li>Настраивать <code>.gitignore</code>, чтобы скомпилированные файлы не попадали в историю.</li>
+        <li>Делать несколько последовательных коммитов — каждый логически завершённый шаг.</li>
+        <li><strong>Читать хеши коммитов</strong> из <code>git log --oneline</code> и подставлять <em>свои</em> в команды.</li>
+        <li>Смотреть историю: <code>git log --oneline</code>, <code>git show &lt;хеш&gt;</code>.</li>
+        <li>Сравнивать коммиты: <code>git diff &lt;хеш1&gt; &lt;хеш2&gt;</code>, <code>git diff &lt;хеш1&gt; &lt;хеш2&gt; --stat</code>.</li>
+        <li><strong>Перемещаться на любой коммит</strong>: <code>git switch --detach &lt;хеш&gt;</code>.</li>
+        <li>Понимать, что такое <strong>detached HEAD</strong> и почему это безопасно для просмотра.</li>
+        <li>Возвращаться на ветку: <code>git switch main</code> или <code>git switch -</code>.</li>
+        <li>Создавать ветку из старого коммита: <code>git switch -c &lt;имя&gt;</code>.</li>
+        <li>Исправлять баг «вперёд» — новым коммитом, не переписывая историю.</li>
+        <li>Понимать ошибку <code>fatal: bad revision</code> и что с ней делать.</li>
+      </ul>
+
+      <h3>17.2. Главные команды практики</h3>
+      <table>
+        <thead><tr><th>Команда</th><th>Что делает</th></tr></thead>
+        <tbody>
+          <tr><td><code>git log --oneline</code></td><td>Краткая история коммитов.</td></tr>
+          <tr><td><code>git log --oneline --grep="..."</code></td><td>Поиск коммитов по сообщению.</td></tr>
+          <tr><td><code>git show &lt;хеш&gt;</code></td><td>Подробности одного коммита.</td></tr>
+          <tr><td><code>git diff &lt;хеш1&gt; &lt;хеш2&gt;</code></td><td>Разница между двумя коммитами.</td></tr>
+          <tr><td><code>git switch --detach &lt;хеш&gt;</code></td><td>Перейти на коммит (detached HEAD).</td></tr>
+          <tr><td><code>git switch main</code></td><td>Вернуться на ветку main.</td></tr>
+          <tr><td><code>git switch -</code></td><td>Вернуться туда, где были только что.</td></tr>
+          <tr><td><code>git switch -c &lt;имя&gt;</code></td><td>Создать ветку и переключиться на неё.</td></tr>
+          <tr><td><code>git log --oneline --graph --all</code></td><td>История всех веток с графом.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>17.3. Задания для самостоятельной работы</h3>
+      <p>
+        Попробуйте выполнить, не подглядывая. Если что-то не получается —
+        вернитесь к нужному шагу.
+      </p>
+      <ol>
+        <li><strong>Расширьте программу.</strong> Добавьте функцию
+          <code>int multiply(int a, int b)</code> и вызов в
+          <code>main</code>. Сделайте отдельный коммит. Запишите
+          его хеш.</li>
+        <li><strong>Найдите по сообщению.</strong> Выполните
+          <code>git log --oneline --grep="multiply"</code>. Сколько
+          коммитов нашлось?</li>
+        <li><strong>Переместитесь на второй коммит</strong> (с функцией
+          <code>sum</code>, до цикла). Скомпилируйте и запустите —
+          убедитесь, что <code>print_numbers</code> в нём нет. Используйте
+          <em>свой</em> хеш.</li>
+        <li><strong>Вернитесь на main.</strong> Какая команда это
+          делает?</li>
+        <li><strong>Сравните</strong> второй и последний коммиты через
+          <code>git diff &lt;хеш2&gt; &lt;последний&gt;</code>. Сколько
+          функций появилось?</li>
+        <li><strong>Создайте ветку</strong> <code>clean-version</code>
+          из коммита «Добавить цикл». Переключитесь на неё, добавьте
+          функцию <code>multiply</code>, сделайте коммит. Теперь у
+          Вас две ветки с разными функциями.</li>
+        <li><strong>Вернитесь на main</strong> и убедитесь, что
+          функции <code>multiply</code> здесь нет — она только в ветке
+          <code>clean-version</code>.</li>
+        <li><strong>Нарочно ошибетесь.</strong> Выполните
+          <code>git switch --detach deadbeef</code>. Прочитайте
+          сообщение об ошибке. Объясните сами себе, что оно значит,
+          и исправьте ошибку.</li>
+      </ol>
+
+      
+    </section>
+
+    <footer class="chapter-footer">
+      
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>

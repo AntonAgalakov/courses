@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Глава 3. Рабочий цикл и отмена изменений</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --code-bg: #f1f5f9;
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --warn-bg: #fffbeb;
+    --warn-border: #fde68a;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --tip-bg: #ecfdf5;
+    --tip-border: #a7f3d0;
+    --green: #059669;
+    --amber: #d97706;
+    --red: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 17px;
+  }
+  header.chapter {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    padding: 56px 24px 48px;
+  }
+  header.chapter .inner { max-width: 900px; margin: 0 auto; }
+  header.chapter .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin: 0 0 12px;
+  }
+  header.chapter h1 {
+    font-size: 38px;
+    line-height: 1.2;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  header.chapter .lede {
+    color: #cbd5e1;
+    font-size: 18px;
+    max-width: 640px;
+    margin: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+  main { margin-top: 40px; }
+
+  nav.toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  nav.toc h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { margin-bottom: 6px; }
+  nav.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav.toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  @media (max-width: 640px) {
+    nav.toc ol { columns: 1; }
+    header.chapter h1 { font-size: 28px; }
+  }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section h2 {
+    font-size: 27px;
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+  }
+  section h3 { font-size: 20px; margin: 32px 0 12px; font-weight: 650; }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 24px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 650; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: #0f172a;
+  }
+
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 0 0 20px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    border: 1px solid #1e293b;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  pre .prompt { color: #64748b; user-select: none; }
+  pre .cmd { color: #93c5fd; }
+  pre .out { color: #cbd5e1; }
+  pre .comment { color: #64748b; font-style: italic; }
+  /* diff-строки */
+  pre .d-file  { color: #fbbf24; font-weight: 600; }
+  pre .d-hunk  { color: #a78bfa; }
+  pre .d-add   { color: #86efac; }
+  pre .d-del   { color: #fca5a5; }
+  pre .d-ctx   { color: #cbd5e1; }
+  /* git status / log — строки-«плюсы» */
+  pre .s-add { color: #86efac; }
+  pre .s-mod { color: #fbbf24; }
+  pre .s-del { color: #fca5a5; }
+
+  .callout { border-left: 4px solid; padding: 16px 20px; border-radius: 8px; margin: 0 0 20px; font-size: 16px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .callout.info { background: var(--info-bg); border-color: var(--info-border); }
+  .callout.info .label { color: var(--accent); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.warn .label { color: var(--amber); }
+  .callout.danger { background: var(--danger-bg); border-color: var(--danger-border); }
+  .callout.danger .label { color: var(--red); }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.tip .label { color: var(--green); }
+
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    margin: 8px 0 24px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .diagram-caption { font-size: 13px; color: var(--muted); text-align: center; margin-top: 18px; font-style: italic; }
+
+  /* Diff diagram */
+  .diff-areas {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .diff-area {
+    flex: 1 1 180px;
+    min-width: 160px;
+    border-radius: 10px;
+    padding: 14px 14px;
+    text-align: center;
+    border: 2px solid;
+    font-size: 13px;
+  }
+  .diff-area .n { font-weight: 700; font-size: 14.5px; margin-bottom: 2px; }
+  .diff-area .s { opacity: 0.75; font-size: 12px; }
+  .diff-area.wd { background: #fef3c7; border-color: #f59e0b; color: #78350f; }
+  .diff-area.sa { background: #dbeafe; border-color: #3b82f6; color: #1e3a8a; }
+  .diff-area.re { background: #d1fae5; border-color: #10b981; color: #064e3b; }
+  .diff-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .diff-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .diff-line .cmd { font-family: monospace; font-size: 13.5px; white-space: nowrap; }
+  .diff-line .desc { color: var(--muted); }
+  @media (max-width: 640px) {
+    .diff-line { flex-direction: column; align-items: flex-start; gap: 4px; }
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 22px; font-size: 15.5px; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 650; font-size: 14px; color: #334155; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 13.5px; }
+
+  /* Danger badges для таблицы отмены */
+  .badge-s { display: inline-block; padding: 1px 8px; border-radius: 5px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .badge-safe   { background: #d1fae5; color: #065f46; }
+  .badge-care   { background: #fef3c7; color: #92400e; }
+  .badge-danger { background: #fee2e2; color: #991b1b; }
+
+  .step { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 22px 24px; margin: 0 0 26px; }
+  .step h4 { margin: 0 0 6px; font-size: 18px; font-weight: 650; color: var(--accent); }
+  .step .goal { color: var(--muted); font-size: 14.5px; margin: 0 0 18px; }
+  .step pre { margin-bottom: 14px; }
+  .step h5 { font-size: 15px; font-weight: 650; margin: 18px 0 8px; color: #334155; }
+  .step ul.explain { margin: 0 0 14px; padding-left: 22px; font-size: 15px; }
+  .step ul.explain li { margin-bottom: 6px; }
+  .step ul.explain code { font-size: 13.5px; }
+  .step .state-after { font-size: 14px; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .step .state-after strong { color: var(--text); }
+
+  .output-breakdown {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 0 0 16px;
+    font-size: 14.5px;
+  }
+  .output-breakdown .ob-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .output-breakdown dl { margin: 0; }
+  .output-breakdown dt {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    background: #e2e8f0;
+    color: #0f172a;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .output-breakdown dd { margin: 4px 0 0 0; padding-left: 0; color: var(--text); }
+
+  footer.chapter-footer { border-top: 2px solid var(--border); padding-top: 28px; margin-top: 40px; color: var(--muted); font-size: 15px; }
+
+/* Кнопка «На главную» в шапке */
+header .back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.15s, color 0.15s;
+}
+header .back-home:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Ссылка «На главную» в футере */
+.back-home-footer {
+  color: var(--accent, #2563eb);
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-home-footer:hover {
+  text-decoration: underline;
+}
+
+</style>
+</head>
+<body>
+
+<header class="chapter">
+  <div class="inner">
+    <a href="start.html" class="back-home">← На главную</a>
+    <p class="kicker">Глава 3</p>
+    <h1>Рабочий цикл и отмена изменений</h1>
+    <p class="lede">
+      В главах 1 и 2 Git установлен и настроен, первый коммит сделан.
+      Пора разобраться в ежедневном цикле подробно: что именно показывает
+      <code>status</code>, как читать <code>diff</code>, какие бывают
+      варианты <code>add</code> и <code>commit</code>, как настроить
+      <code>.gitignore</code> и — главное — как безопасно отменять
+      изменения, если что-то пошло не так.
+    </p>
+  </div>
+</header>
+
+<div class="container">
+  <main>
+
+    <nav class="toc">
+      <h2>Содержание главы</h2>
+      <ol>
+        <li><a href="#intro">Введение</a></li>
+        <li><a href="#status">git status подробно</a></li>
+        <li><a href="#diff">git diff: что именно изменилось</a></li>
+        <li><a href="#add">git add: варианты</a></li>
+        <li><a href="#commit">git commit: варианты</a></li>
+        <li><a href="#gitignore">.gitignore: что не коммитить</a></li>
+        <li><a href="#undo">Отмена изменений: большая таблица</a></li>
+        <li><a href="#undo-detail">Разбор каждой команды отмены</a></li>
+        <li><a href="#practice">Практика: сделал ошибку — исправил</a></li>
+        <li><a href="#mistakes">Частые ошибки</a></li>
+        <li><a href="#summary">Итоги главы</a></li>
+      </ol>
+    </nav>
+
+    <!-- ============================================================ -->
+    <section id="intro">
+      <h2>1. Введение</h2>
+      <p>
+        В главе 1 мы прошли минимальный цикл: <code>add</code> →
+        <code>commit</code>. Этого хватает, чтобы сделать первый коммит,
+        но не хватает для ежедневной работы. Как только проект становится
+        чуть сложнее, возникают вопросы:
+      </p>
+      <ul>
+        <li>«А что я вообще успел изменить с прошлого коммита?»</li>
+        <li>«Как посмотреть, что попадёт в следующий коммит, до того как его сделаю?»</li>
+        <li>«Я случайно добавил в индекс <code>node_modules</code> — как убрать?»</li>
+        <li>«Забыл файл в коммите — что делать, новый коммит или как-то исправить?»</li>
+        <li>«Как вообще не коммитить мусор вроде логов и секретов?»</li>
+        <li>«Я сделал коммит, а в нём ошибка — как откатить?»</li>
+      </ul>
+      <p>
+        На все эти вопросы отвечает эта глава. Причём сначала мы
+        разберёмся с безопасными инструментами (посмотреть, добавить,
+        закоммитить, настроить <code>.gitignore</code>), а уже потом —
+        с отменой. Отмена — самая «страшная» тема для новичка, и
+        правильно её изучать не первой, а после того, как инструмент
+        стал привычным.
+      </p>
+      <p>
+        Все команды выполняются в терминале (на Windows — в Git Bash),
+        в том репозитории, где Вы работаете. Продолжаем проект
+        <code>hello-git</code> из главы 1 — если он у Вас есть, откройте
+        его; если нет, создайте новый через <code>git init</code> по
+        примеру из главы 1.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="status">
+      <h2>2. git status подробно</h2>
+      <p>
+        <code>git status</code> — самая часто используемая команда Git.
+        Она показывает текущее состояние репозитория: на какой ветке Вы
+        находитесь, какие файлы изменены, что уже в индексе, а что ещё
+        нет. В главе 1 мы видели её в двух-трёх ситуациях; здесь разберём
+        все возможные варианты вывода.
+      </p>
+
+      <h3>2.1. Все возможные блоки вывода</h3>
+      <p>
+        Вывод <code>git status</code> состоит из заголовка и одного
+        или нескольких блоков — по числу категорий, в которых сейчас
+        есть файлы. Порядок блоков всегда одинаковый.
+      </p>
+      <table>
+        <thead><tr><th>Блок</th><th>Что означает</th><th>Файлы в нём</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>On branch main</code></td>
+            <td>На какой ветке вы находитесь.</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>Your branch is up to date with 'origin/main'</code></td>
+            <td>Есть ли расхождение с удалённой веткой (появится после подключения к серверу, глава 7).</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><code>Changes to be committed:</code></td>
+            <td>Файлы, которые находятся в индексе (staging area) и попадут в следующий коммит.</td>
+            <td>те, что добавлены через <code>git add</code></td>
+          </tr>
+          <tr>
+            <td><code>Changes not staged for commit:</code></td>
+            <td>Файлы, которые уже отслеживаются, но изменены и пока не добавлены в индекс.</td>
+            <td>изменённые <code>modified</code>, удалённые <code>deleted</code></td>
+          </tr>
+          <tr>
+            <td><code>Untracked files:</code></td>
+            <td>Файлы, которые есть в рабочей папке, но ещё ни разу не входили в коммит.</td>
+            <td>новые файлы</td>
+          </tr>
+          <tr>
+            <td><code>nothing to commit, working tree clean</code></td>
+            <td>Всё закоммичено, изменений нет. Это «здоровое» состояние репозитория.</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>2.2. Пример: всё сразу в одном статусе</h3>
+      <p>
+        Допустим, в репозитории четыре файла, и они находятся в
+        разных состояниях. Вывод <code>git status</code> покажет
+        все блоки сразу:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+Changes to be committed:
+  (use "git restore --staged &lt;file&gt;..." to unstage)
+	<span class="s-add">new file:   index.html</span>
+
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git restore &lt;file&gt;..." to discard changes in working directory)
+	<span class="s-mod">modified:   README.md</span>
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+	style.css
+	script.js</span></code></pre>
+
+      <div class="output-breakdown">
+        <div class="ob-title">Разбор вывода</div>
+        <dl>
+          <dt>On branch main</dt>
+          <dd>Вы на ветке <code>main</code>. Единственная ветка в репозитории, с которой пока работаем.</dd>
+          <dt>Changes to be committed:</dt>
+          <dd>Файлы, которые попадут в следующий коммит. Здесь — только <code>index.html</code>, потому что его добавили через <code>git add</code>.</dd>
+          <dt>new file: index.html</dt>
+          <dd>Файл <strong>новый</strong>: он будет добавлен в историю впервые этим коммитом.</dd>
+          <dt>Changes not staged for commit:</dt>
+          <dd>Файлы, которые уже отслеживаются Git (были в прошлых коммитах), но сейчас отличаются от последнего снимка — и не добавлены в индекс.</dd>
+          <dt>modified: README.md</dt>
+          <dd>Файл <strong>изменён</strong>: он был в прошлом коммите, но в рабочей папке его содержимое теперь другое. Если сейчас сделать <code>git commit</code>, старая версия <code>README.md</code> попадёт в снимок, а новые правки — нет.</dd>
+          <dt>Untracked files:</dt>
+          <dd>Файлы, которые есть в рабочей папке, но ни разу не входили в коммит. Git их видит, но «не ведёт».</dd>
+          <dt>style.css</dt>
+          <dd>Новый файл, о котором Git ничего не знает. Чтобы он попал в историю, нужен <code>git add</code>.</dd>
+          <dt>script.js</dt>
+          <dd>Тоже новый файл, тоже без <code>git add</code>.</dd>
+        </dl>
+      </div>
+
+      <div class="callout info">
+        <span class="label">Почему подсказки в скобках</span>
+        <p>
+          Git не только сообщает состояние, но и подсказывает команды.
+          <code>(use "git add &lt;file&gt;..." to update what will be committed)</code> —
+          «используйте git add, чтобы добавить файл к коммиту».
+          <code>(use "git restore --staged &lt;file&gt;..." to unstage)</code> —
+          «используйте git restore --staged, чтобы убрать файл из индекса».
+          Подсказки меняются в зависимости от состояния — их полезно читать.
+        </p>
+      </div>
+
+      <h3>2.3. «Чистое» состояние</h3>
+      <p>
+        Когда все изменения закоммичены, <code>git status</code> выводит
+        лаконичное сообщение:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+nothing to commit, working tree clean</span></code></pre>
+      <p>
+        Строка <code>working tree clean</code> означает, что рабочая
+        папка полностью соответствует последнему коммиту: изменённых
+        файлов нет, неотслеживаемых нет. Это то состояние, к которому
+        стоит стремиться перед тем, как переключаться на другую задачу.
+      </p>
+
+      <h3>2.4. Короткий формат: <code>git status -s</code></h3>
+      <p>
+        Полный вывод информативен, но длинный. Флаг <code>-s</code>
+        (от <em>short</em>) выводит ту же информацию двумя колонками
+        символов — очень удобно, когда файлов много.
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git status -s</span>
+<span class="out"><span class="s-add">A</span>  index.html
+<span class="s-mod"> M</span> README.md
+<span class="s-add">??</span> style.css
+<span class="s-add">??</span> script.js</span></code></pre>
+
+      <div class="output-breakdown">
+        <div class="ob-title">Как читать двухбуквенный код</div>
+        <dl>
+          <dt>A  index.html</dt>
+          <dd><code>A</code> в первой колонке = <em>Added</em> (добавлен в индекс). Пробел во второй колонке = в рабочей папке изменений нет. Файл будет в следующем коммите.</dd>
+          <dt>&nbsp;M README.md</dt>
+          <dd>Пробел в первой колонке = в индексе файла нет. <code>M</code> во второй = <em>Modified</em> (изменён в рабочей папке, не добавлен в индекс).</dd>
+          <dt>?? style.css</dt>
+          <dd><code>??</code> = <em>untracked</em>. Файл не отслеживается.</dd>
+          <dt>?? script.js</dt>
+          <dd>Тоже неотслеживаемый.</dd>
+        </dl>
+      </div>
+      <p>
+        Возможные символы: <code>M</code> — modified, <code>A</code> —
+        added, <code>D</code> — deleted, <code>R</code> — renamed,
+        <code>??</code> — untracked. Если символ стоит в первой
+        колонке — изменение в индексе; если во второй — в рабочей папке.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="diff">
+      <h2>3. git diff: что именно изменилось</h2>
+      <p>
+        <code>git status</code> говорит, <em>какие</em> файлы изменились.
+        <code>git diff</code> показывает, <em>что именно</em> в них
+        изменилось — построчно. Это следующий шаг после <code>status</code>:
+        сначала смотрим список файлов, потом — их содержимое.
+      </p>
+
+      <h3>3.1. Три варианта diff</h3>
+      <p>
+        У <code>git diff</code> есть три режима, и их легко перепутать.
+        Различаются они тем, <strong>какие две области</strong> сравнивают.
+      </p>
+
+      <div class="diagram">
+        <div class="diff-areas">
+          <div class="diff-area wd"><div class="n">Working Directory</div><div class="s">рабочая папка</div></div>
+          <div class="diff-area sa"><div class="n">Staging Area</div><div class="s">индекс</div></div>
+          <div class="diff-area re"><div class="n">Repository</div><div class="s">последний коммит</div></div>
+        </div>
+        <div class="diff-legend">
+          <div class="diff-line">
+            <span class="cmd">git diff</span>
+            <span class="desc">рабочая папка ↔ индекс — «что изменено, но ещё не добавлено»</span>
+          </div>
+          <div class="diff-line">
+            <span class="cmd">git diff --staged</span>
+            <span class="desc">индекс ↔ последний коммит — «что попадёт в следующий коммит»</span>
+          </div>
+          <div class="diff-line">
+            <span class="cmd">git diff HEAD</span>
+            <span class="desc">рабочая папка ↔ последний коммит — «всё, что изменилось с прошлого коммита»</span>
+          </div>
+        </div>
+        <p class="diagram-caption">Рис. 1. Три варианта git diff и что каждый из них сравнивает</p>
+      </div>
+
+      <p>
+        Запомнить просто: <code>git diff</code> без флагов — «что я
+        поменял и ещё не добавил». <code>--staged</code> — «что я уже
+        добавил и собираюсь закоммитить». <code>HEAD</code> — «всё, что
+        изменилось с момента последнего коммита, независимо от индекса».
+      </p>
+
+      <div class="callout info">
+        <span class="label">Что такое HEAD</span>
+        <p>
+          <code>HEAD</code> — это указатель на текущий коммит, тот,
+          на котором Вы сейчас находитесь (подробнее — в главе 1,
+          раздел 9). В контексте <code>git diff HEAD</code> это
+          означает «сравни рабочую папку с тем, что записано в HEAD».
+        </p>
+      </div>
+
+      <h3>3.2. Как читать вывод diff</h3>
+      <p>
+        Допустим, в файле <code>README.md</code> была одна строка,
+        а Вы дописали вторую. Вот что покажет <code>git diff</code>:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git diff</span>
+<span class="d-file">diff --git a/README.md b/README.md</span>
+<span class="d-file">index 3f2a1b7..9d1e4c2 100644</span>
+<span class="d-file">--- a/README.md</span>
+<span class="d-file">+++ b/README.md</span>
+<span class="d-hunk">@@ -1 +1,2 @@</span>
+<span class="d-ctx"> # Мой проект</span>
+<span class="d-add">+Вторая строка</span></code></pre>
+
+      <div class="output-breakdown">
+        <div class="ob-title">Разбор вывода</div>
+        <dl>
+          <dt>diff --git a/README.md b/README.md</dt>
+          <dd>Заголовок diff-блока. <code>a/</code> — «старая» версия файла, <code>b/</code> — «новая». Оба пути одинаковы, потому что это один и тот же файл, просто до и после правки.</dd>
+          <dt>index 3f2a1b7..9d1e4c2 100644</dt>
+          <dd>Служебная строка: сокращённые хеши версии «до» (<code>3f2a1b7</code>) и «после» (<code>9d1e4c2</code>), а также режим доступа <code>100644</code> (обычный файл). Для нас не критично — можно не читать.</dd>
+          <dt>--- a/README.md</dt>
+          <dd>«Старая» версия файла. Строки, которые есть в ней и удалены в новой, помечаются ниже знаком <code>-</code>.</dd>
+          <dt>+++ b/README.md</dt>
+          <dd>«Новая» версия файла. Строки, которые появились, помечаются ниже знаком <code>+</code>.</dd>
+          <dt>@@ -1 +1,2 @@</dt>
+          <dd>«Хунк» (hunk) — заголовок блока изменений. <code>-1</code> означает «в старой версии начиная со строки 1 затронута 1 строка». <code>+1,2</code> означает «в новой версии начиная со строки 1 затронуто 2 строки». Если файл большой, таких блоков будет несколько.</dd>
+          <dt>&nbsp;# Мой проект</dt>
+          <dd>Строка с пробелом в начале — <strong>контекст</strong>. Она одинакова в обеих версиях, но показана, чтобы было понятно, где именно происходит изменение.</dd>
+          <dt>+Вторая строка</dt>
+          <dd>Строка со знаком <code>+</code> в начале — <strong>добавлена</strong> в новой версии. Если бы мы что-то удалили, была бы строка со знаком <code>-</code>.</dd>
+        </dl>
+      </div>
+
+      <p>Если бы мы что-то <em>удалили</em>, вывод был бы таким:</p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git diff</span>
+<span class="d-file">diff --git a/README.md b/README.md</span>
+<span class="d-hunk">@@ -1,2 +1 @@</span>
+<span class="d-ctx"> # Мой проект</span>
+<span class="d-del">-Вторая строка</span></code></pre>
+      <p>
+        Строка с <code>-</code> — <strong>удалена</strong> в новой версии.
+        В нашем примере удалили строку «Вторая строка».
+      </p>
+
+      <div class="callout tip">
+        <span class="label">Мнемоника</span>
+        <p>
+          В <code>git diff</code> знак <code>+</code> — «добавлено
+          в новой версии», <code>-</code> — «было в старой, стало
+          удалено». Не наоборот: плюс всегда означает «то, что появится
+          после применения изменений».
+        </p>
+      </div>
+
+      <h3>3.3. Краткая статистика: <code>git diff --stat</code></h3>
+      <p>
+        Если файлов много и хочется увидеть, где сколько строк
+        изменилось, — флаг <code>--stat</code>:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git diff --stat</span>
+<span class="out"> README.md  | 1 +
+ index.html | 5 ++---
+ style.css  | 2 ++
+ 3 files changed, 6 insertions(+), 2 deletions(-)</span></code></pre>
+
+      <div class="output-breakdown">
+        <div class="ob-title">Разбор вывода</div>
+        <dl>
+          <dt>README.md  | 1 +</dt>
+          <dd>В файле одна добавленная строка.</dd>
+          <dt>index.html | 5 ++---</dt>
+          <dd>В файле 5 изменённых строк: 2 добавлено (<code>++</code>), 3 удалено (<code>---</code>).</dd>
+          <dt>style.css  | 2 ++</dt>
+          <dd>Две добавленные строки.</dd>
+          <dt>3 files changed, 6 insertions(+), 2 deletions(-)</dt>
+          <dd>Итого: три файла, шесть добавленных строк, две удалённые. Строка <code>index.html</code> показала 5 изменённых строк, но в итоге «добавлений — 2, удалений — 3», что в сумме 5.</dd>
+        </dl>
+      </div>
+
+      <h3>3.4. Практический сценарий</h3>
+      <p>
+        Типичный порядок работы с diff — перед <code>git add</code>:
+      </p>
+      <ol>
+        <li><code>git status</code> — понять, какие файлы затронуты.</li>
+        <li><code>git diff</code> — посмотреть изменения в них.</li>
+        <li>Убедиться, что всё нужное — и ничего лишнего.</li>
+        <li><code>git add &lt;файл&gt;</code> — добавить в индекс.</li>
+        <li><code>git diff --staged</code> — ещё раз проверить, что именно попадёт в коммит.</li>
+        <li><code>git commit -m "..."</code>.</li>
+      </ol>
+      <p>
+        Пятый пункт особенно полезен: после <code>add</code> можно
+        ещё раз посмотреть глазами на то, что уйдёт в историю. Если
+        случайно добавили лишнее — убрать (как это сделать — в разделе 7).
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="add">
+      <h2>4. git add: варианты</h2>
+      <p>
+        <code>git add</code> в базовом виде мы уже знаем:
+        <code>git add &lt;файл&gt;</code> добавляет один файл в индекс.
+        Но у команды есть несколько вариантов, и у каждого — своё
+        назначение.
+      </p>
+
+      <h3>4.1. Все варианты</h3>
+      <table>
+        <thead><tr><th>Команда</th><th>Что добавляет</th><th>Когда использовать</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>git add file.txt</code></td>
+            <td>Один конкретный файл.</td>
+            <td>Когда нужно добавить только его — самый точный и безопасный вариант.</td>
+          </tr>
+          <tr>
+            <td><code>git add folder/</code></td>
+            <td>Всю папку целиком (все файлы внутри, включая вложенные).</td>
+            <td>Когда изменения локализованы в одной папке.</td>
+          </tr>
+          <tr>
+            <td><code>git add .</code></td>
+            <td>Все файлы и папки из <strong>текущей папки</strong> и ниже.</td>
+            <td>Когда находитесь в корне проекта и хотите добавить всё сразу.</td>
+          </tr>
+          <tr>
+            <td><code>git add -A</code></td>
+            <td>Всё из <strong>корня репозитория</strong>, независимо от того, где Вы находитесь.</td>
+            <td>Когда хотите добавить всё, даже если терминал открыт в подпапке.</td>
+          </tr>
+          <tr>
+            <td><code>git add -u</code></td>
+            <td>Только <strong>уже отслеживаемые</strong> файлы: изменённые и удалённые. Новые (untracked) не добавятся.</td>
+            <td>Когда новые файлы добавлять не нужно, а изменения в старых — нужно.</td>
+          </tr>
+          <tr>
+            <td><code>git add *.txt</code></td>
+            <td>Все файлы в текущей папке с расширением <code>.txt</code>.</td>
+            <td>Когда нужна выборка по шаблону.</td>
+          </tr>
+          <tr>
+            <td><code>git add -p</code></td>
+            <td>Интерактивный режим: Git показывает по одному «куску» изменений и спрашивает, добавлять его или нет.</td>
+            <td>Когда из десяти правок в файле нужно закоммитить только три.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4.2. <code>git add .</code> и <code>git add -A</code> — в чём разница</h3>
+      <p>
+        Для начинающего разница почти незаметна, потому что обычно
+        терминал открыт в корне проекта. Но разница есть:
+      </p>
+      <ul>
+        <li><code>git add .</code> берёт <strong>текущую папку</strong> и всё, что в ней.</li>
+        <li><code>git add -A</code> берёт <strong>весь репозиторий</strong>, независимо от того, где открыт терминал.</li>
+      </ul>
+      <p>
+        Если терминал в корне — они дадут одинаковый результат. Если
+        Вы внутри подпапки <code>src/</code> и выполните
+        <code>git add .</code>, добавятся только файлы из
+        <code>src/</code>. А <code>git add -A</code> добавит файлы
+        из всего репозитория. Когда работаете из корня — разницы нет,
+        берите любое.
+      </p>
+
+      <div class="callout warn">
+        <span class="label">Осторожно с `git add .`</span>
+        <p>
+          <code>git add .</code> — самая частая причина «случайно
+          закоммитил мусор» у новичков. Он добавляет всё, включая
+          неотслеживаемые файлы: результаты сборки, логи, временные
+          файлы, <code>.env</code>. Прежде чем выполнять его,
+          убедитесь, что <code>.gitignore</code> настроен (раздел 6)
+          и что <code>git status</code> не показывает ничего лишнего.
+          Если сомневаетесь — добавляйте конкретные файлы явно.
+        </p>
+      </div>
+
+      <h3>4.3. Что делать, если добавили не то</h3>
+      <p>
+        Это бывает со всеми. Решение — <code>git restore --staged</code>:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git restore --staged node_modules/</span></code></pre>
+      <p>
+        Команда убирает указанное из индекса, но <strong>не трогает
+        содержимое файла</strong> в рабочей папке. После этого файл
+        снова в состоянии «изменён, но не добавлен» (или untracked,
+        если он никогда не коммитился). Подробно — в разделе 8.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="commit">
+      <h2>5. git commit: варианты</h2>
+      <p>
+        <code>git commit</code> — команда, которая создаёт снимок.
+        В главе 1 мы использовали её с флагом <code>-m</code>.
+        Есть и другие варианты.
+      </p>
+
+      <h3>5.1. Все варианты</h3>
+      <table>
+        <thead><tr><th>Команда</th><th>Что делает</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>git commit -m "Сообщение"</code></td>
+            <td>Стандартный вариант: коммит с сообщением прямо в командной строке. Самый частый.</td>
+          </tr>
+          <tr>
+            <td><code>git commit</code></td>
+            <td>Открывает редактор для ввода сообщения. Используется, когда сообщение длинное (первая строка + подробное описание).</td>
+          </tr>
+          <tr>
+            <td><code>git commit -am "Сообщение"</code></td>
+            <td>Сокращение для <code>git add -u &amp;&amp; git commit -m</code>: сам добавит в индекс <strong>изменённые и удалённые</strong> файлы и сразу закоммитит. <strong>Новые</strong> (untracked) файлы не добавит.</td>
+          </tr>
+          <tr>
+            <td><code>git commit --amend -m "..."</code></td>
+            <td>Исправляет <strong>последний</strong> коммит: переписывает сообщение и, если в индексе есть изменения, — добавляет их в тот же коммит. Создаёт новый коммит на месте старого.</td>
+          </tr>
+          <tr>
+            <td><code>git commit --amend --no-edit</code></td>
+            <td>То же самое, но <strong>не трогает сообщение</strong>. Удобно, когда забыли добавить файл в последний коммит.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>5.2. <code>git commit</code> без <code>-m</code>: редактор</h3>
+      <p>
+        Если запустить <code>git commit</code> без <code>-m</code>,
+        откроется редактор — по умолчанию Vim. Вы увидите примерно такой
+        экран:
+      </p>
+      <pre><code><span class="comment"># Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch main
+# Changes to be committed:
+#	new file:   hello.txt
+#</span></code></pre>
+      <p>
+        Верхние строки — заготовка для Вашего сообщения. Строки,
+        начинающиеся с <code>#</code>, — служебные, в сообщение не
+        попадут. Вам нужно:
+      </p>
+      <ol>
+        <li>Написать сообщение в начале файла (над комментариями).</li>
+        <li>В Vim: нажать <code>Esc</code>, затем набрать <code>:wq</code> и нажать <code>Enter</code> — сохранить и выйти.</li>
+        <li>Если передумали — <code>Esc</code>, затем <code>:q!</code> и <code>Enter</code> — выйти без сохранения; коммит будет отменён.</li>
+      </ol>
+      <p>
+        Если редактор Vim неудобен — просто всегда используйте
+        <code>-m</code>. Для большинства коммитов этого достаточно:
+        одна строка сообщения умещается прямо в командной строке.
+      </p>
+
+      <h3>5.3. <code>git commit -am</code>: когда удобно и когда опасно</h3>
+      <p>
+        Флаг <code>-am</code> — это два флага сразу: <code>-a</code>
+        (добавить все <strong>отслеживаемые</strong> изменения) и
+        <code>-m</code> (с сообщением). Команда:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git commit -am "Исправить опечатку в README"</span></code></pre>
+      <p>
+        Работает так: Git сам пройдётся по уже отслеживаемым файлам,
+        добавит их изменения в индекс и сразу закоммитит. Одна команда
+        вместо двух.
+      </p>
+      <div class="callout warn">
+        <span class="label">Что НЕ попадёт в коммит с -am</span>
+        <p>
+          <strong>Новые (untracked) файлы.</strong> Флаг <code>-a</code>
+          работает только с теми файлами, которые Git уже отслеживает
+          (то есть они были хотя бы в одном прошлом коммите). Если
+          Вы создали новый файл, <code>git commit -am</code> его
+          проигнорирует — сначала нужно <code>git add &lt;новый файл&gt;</code>.
+        </p>
+      </div>
+
+      <h3>5.4. <code>git commit --amend</code>: исправить последний коммит</h3>
+      <p>
+        Ситуация: сделали коммит, а потом поняли, что забыли файл,
+        или в сообщении опечатка. Вместо того чтобы делать новый коммит
+        «сверху», можно переписать последний:
+      </p>
+      <pre><code><span class="comment"># вариант 1: исправить только сообщение</span>
+<span class="prompt">$</span> <span class="cmd">git commit --amend -m "Более точное сообщение"</span>
+
+<span class="comment"># вариант 2: добавить забытый файл в тот же коммит</span>
+<span class="prompt">$</span> <span class="cmd">git add forgotten-file.txt</span>
+<span class="prompt">$</span> <span class="cmd">git commit --amend --no-edit</span></code></pre>
+      <p>
+        Оба варианта создают <strong>новый коммит</strong> на месте
+        старого — с новым хешем. Старый коммит как бы «исчезает»
+        из истории, а вместо него появляется исправленный.
+      </p>
+
+      <div class="callout warn">
+        <span class="label">Не делайте amend для опубликованных коммитов</span>
+        <p>
+          <code>--amend</code> изменяет историю. Если коммит ещё
+          никуда не отправлялся (<code>git push</code>) — это безопасно.
+          Если он уже на сервере и с ним работают другие люди — amend
+          создаст расхождение, и всем придётся разбираться. Правило:
+          <code>--amend</code> только для локальных коммитов, ещё не
+          запушенных. Про <code>push</code> — в главе 7.
+        </p>
+        <p>
+          Важно: мы пока <strong>не подключали удалённый репозиторий</strong> —
+          это будет в главе 7. Все коммиты, которые Вы делаете сейчас,
+          лежат <strong>только на Вашем компьютере</strong>; «опубликованных»
+          среди них нет, поэтому <code>--amend</code> для них безопасен.
+          Слова про опубликованные коммиты — задел на будущее.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="gitignore">
+      <h2>6. .gitignore: что не коммитить</h2>
+      <p>
+        Не все файлы в проекте должны попадать в историю. Типичные
+        примеры:
+      </p>
+      <ul>
+        <li><strong>Зависимости</strong> — папка <code>node_modules/</code> в Node.js или <code>venv/</code> в Python. Они восстанавливаются командой установки, хранить их в Git бессмысленно и тяжело.</li>
+        <li><strong>Результаты сборки</strong> — папки <code>dist/</code>, <code>build/</code>, <code>target/</code>. Они генерируются из исходников.</li>
+        <li><strong>Секреты</strong> — файлы <code>.env</code>, <code>*.pem</code>, <code>config.local.json</code>. Они не должны попасть в публичный репозиторий.</li>
+        <li><strong>Логи и временные файлы</strong> — <code>*.log</code>, <code>*.tmp</code>, <code>.DS_Store</code> (macOS), <code>Thumbs.db</code> (Windows).</li>
+        <li><strong>Настройки редакторов</strong> — папка <code>.vscode/</code>, <code>.idea/</code>, если они у каждого свои.</li>
+      </ul>
+      <p>
+        Для всего этого есть файл <code>.gitignore</code> — обычный
+        текстовый файл в корне репозитория, в котором перечислены
+        шаблоны имён. Всё, что совпадает с шаблоном, Git не видит
+        при <code>git add</code> и не показывает в <code>git status</code>.
+      </p>
+
+      <h3>6.1. Синтаксис</h3>
+      <table>
+        <thead><tr><th>Строка в .gitignore</th><th>Что означает</th></tr></thead>
+        <tbody>
+          <tr><td><code>node_modules/</code></td><td>Папка с таким именем в любом месте проекта.</td></tr>
+          <tr><td><code>*.log</code></td><td>Все файлы, оканчивающиеся на <code>.log</code>.</td></tr>
+          <tr><td><code>build/</code></td><td>Папка <code>build</code>.</td></tr>
+          <tr><td><code>config.json</code></td><td>Файл <code>config.json</code> в любом месте проекта.</td></tr>
+          <tr><td><code>/config.json</code></td><td>Файл <code>config.json</code> только в корне репозитория (слэш в начале «прибивает» к корню).</td></tr>
+          <tr><td><code>docs/**/*.pdf</code></td><td>Все PDF в папке <code>docs</code> и во всех её подпапках (<code>**</code> = любая глубина).</td></tr>
+          <tr><td><code>!important.log</code></td><td>Исключение: этот файл игнорировать не надо, даже если он подходит под шаблон <code>*.log</code>. Восклицательный знак — «не игнорировать».</td></tr>
+          <tr><td><code># комментарий</code></td><td>Строки, начинающиеся с <code>#</code>, — комментарии.</td></tr>
+          <tr><td><code>пустая строка</code></td><td>Игнорируется. Используется для визуального разделения.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>6.2. Типичный .gitignore</h3>
+      <p>
+        Вот пример для проекта на Node.js. Для другого стека будут
+        свои строки, но структура та же.
+      </p>
+      <pre><code><span class="comment"># зависимости</span>
+node_modules/
+
+<span class="comment"># результаты сборки</span>
+dist/
+build/
+
+<span class="comment"># логи</span>
+*.log
+npm-debug.log*
+
+<span class="comment"># секреты и локальные настройки</span>
+.env
+.env.local
+*.pem
+
+<span class="comment"># системный мусор</span>
+.DS_Store
+Thumbs.db
+
+<span class="comment"># настройки редактора</span>
+.vscode/
+.idea/</code></pre>
+
+      <h3>6.3. Как создать и проверить</h3>
+      <p>
+        Создать файл можно любым способом: в редакторе или в терминале.
+        Через терминал — так же, как создавали <code>hello.txt</code>:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">echo "node_modules/" &gt; .gitignore</span>
+<span class="prompt">$</span> <span class="cmd">echo "*.log" &gt;&gt; .gitignore</span>
+<span class="prompt">$</span> <span class="cmd">echo ".env" &gt;&gt; .gitignore</span></code></pre>
+      <p>
+        Первая команда создаёт файл <code>.gitignore</code> с первой
+        строкой. Вторая и третья — <em>дописывают</em> ещё две строки.
+        <code>&gt;</code> перезаписывает, <code>&gt;&gt;</code> дописывает.
+      </p>
+      <p>
+        Проверить, что файл работает:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+	.gitignore</span></code></pre>
+      <p>
+        В списке untracked появился только <code>.gitignore</code> — но
+        не <code>node_modules/</code> и не <code>.env</code>, даже если
+        они есть в папке. Это значит, что <code>.gitignore</code>
+        работает: файлы, подходящие под шаблоны, исчезли из
+        <code>git status</code>.
+      </p>
+      <p>
+        Если хочется проверить конкретно: <code>git status --ignored</code>
+        покажет и игнорируемые файлы тоже (в отдельном блоке).
+      </p>
+
+      <div class="callout tip">
+        <span class="label">.gitignore тоже нужно закоммитить</span>
+        <p>
+          Файл <code>.gitignore</code> — часть проекта. Он должен
+          попасть в репозиторий, чтобы все, кто клонирует проект,
+          получили те же правила игнорирования. Не забудьте
+          <code>git add .gitignore</code> и коммит.
+        </p>
+      </div>
+
+      <h3>6.4. Особый случай: файл уже отслеживается</h3>
+      <p>
+        <code>.gitignore</code> работает только с файлами, которых
+        Git <em>ещё не знает</em>. Если файл уже был закоммичен раньше,
+        добавление его в <code>.gitignore</code> ничего не даст — Git
+        продолжит его отслеживать.
+      </p>
+      <p>
+        Чтобы «отвязать» такой файл от Git, но оставить его на диске:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git rm --cached config.json</span></code></pre>
+      <p>
+        Флаг <code>--cached</code> означает «удалить из индекса, но
+        не с диска». После этого файл станет обычным untracked — и
+        если он есть в <code>.gitignore</code>, Git про него забудет.
+        Удаление из индекса нужно будет закоммитить:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git commit -m "Убрать config.json из репозитория"</span></code></pre>
+      <p>
+        В следующий коммит попадёт «удаление» файла из истории.
+        Сам файл на диске останется.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="undo">
+      <h2>7. Отмена изменений: большая таблица</h2>
+      <p>
+        Это самая важная часть главы. Если Вы умеете безопасно отменять
+        — Вы перестаёте бояться экспериментировать. А это половина
+        продуктивности в Git.
+      </p>
+      <p>
+        Важно понимать: в Git нет одной «отменить». Разные ситуации
+        требуют разных команд, и у них разная степень опасности.
+        Вот полная таблица — от самых безопасных к самым опасным.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Что хотите</th>
+            <th>Команда</th>
+            <th>Опасность</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Убрать файл из индекса (оставить правки в файле)</td>
+            <td><code>git restore --staged &lt;файл&gt;</code></td>
+            <td><span class="badge-s badge-safe">безопасно</span></td>
+          </tr>
+          <tr>
+            <td>Отменить правки в файле (вернуть как в последнем коммите)</td>
+            <td><code>git restore &lt;файл&gt;</code></td>
+            <td><span class="badge-s badge-care">правки теряются</span></td>
+          </tr>
+          <tr>
+            <td>Исправить сообщение последнего коммита</td>
+            <td><code>git commit --amend -m "..."</code></td>
+            <td><span class="badge-s badge-care">только для неопубликованных</span></td>
+          </tr>
+          <tr>
+            <td>Добавить забытый файл в последний коммит</td>
+            <td><code>git add &lt;файл&gt; &amp;&amp; git commit --amend --no-edit</code></td>
+            <td><span class="badge-s badge-care">только для неопубликованных</span></td>
+          </tr>
+          <tr>
+            <td>Откатить последний коммит, <strong>сохранив</strong> изменения в индексе</td>
+            <td><code>git reset --soft HEAD~1</code></td>
+            <td><span class="badge-s badge-safe">безопасно</span></td>
+          </tr>
+          <tr>
+            <td>Откатить последний коммит, <strong>сохранив</strong> изменения в рабочей папке</td>
+            <td><code>git reset HEAD~1</code></td>
+            <td><span class="badge-s badge-safe">безопасно</span></td>
+          </tr>
+          <tr>
+            <td>Откатить последний коммит <strong>и уничтожить</strong> изменения</td>
+            <td><code>git reset --hard HEAD~1</code></td>
+            <td><span class="badge-s badge-danger">необратимо</span></td>
+          </tr>
+          <tr>
+            <td>Отменить опубликованный коммит (создать «антикоммит»)</td>
+            <td><code>git revert &lt;хеш&gt;</code></td>
+            <td><span class="badge-s badge-safe">безопасно</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <span class="label">Про «опубликованные» коммиты</span>
+        <p>
+          В этой главе мы ещё <strong>не подключались к удалённому
+          серверу</strong> — это будет в главе 7. Пока все коммиты
+          лежат <strong>локально</strong>, только на Вашем компьютере,
+          и «опубликованных» среди них нет. Всё, что в таблице и далее
+          сказано про опубликованные коммиты, — задел на будущее:
+          когда появится <code>git push</code>, эти правила станут
+          актуальными.
+        </p>
+      </div>
+
+      <h3>7.1. Что такое <code>HEAD~1</code></h3>
+      <p>
+        В нескольких командах выше встречается <code>HEAD~1</code>.
+        Это сокращение означает «<strong>на один коммит назад от
+        HEAD</strong>». То есть <code>HEAD</code> — последний коммит,
+        <code>HEAD~1</code> — предпоследний, <code>HEAD~2</code> —
+        на два назад, и так далее.
+      </p>
+      <p>
+        <code>git reset HEAD~1</code> буквально означает «переместить
+        указатель HEAD на один коммит назад». Что при этом произойдёт
+        с файлами — зависит от флага (<code>--soft</code>,
+        <code>--mixed</code>, <code>--hard</code>), см. раздел 8.
+      </p>
+
+      <h3>7.2. Reset vs revert: в чём принципиальная разница</h3>
+      <p>
+        У этих двух команд разные философии:
+      </p>
+      <ul>
+        <li><strong><code>reset</code></strong> — «перемотать историю назад». Коммит как бы исчезает, будто его не было. Опасно, если коммит уже кто-то скачал.</li>
+        <li><strong><code>revert</code></strong> — «добавить в конец новый коммит, который отменяет изменения старого». История не переписывается, старый коммит остаётся. Безопасно для любых ситуаций.</li>
+      </ul>
+      <p>
+        Для локальной работы удобнее <code>reset</code>. Для общих
+        веток, где уже кто-то работает, — <code>revert</code>.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="undo-detail">
+      <h2>8. Разбор каждой команды отмены</h2>
+      <p>
+        Проходим по каждой команде из таблицы и смотрим подробно,
+        что она делает и когда применять.
+      </p>
+
+      <h3>8.1. <code>git restore --staged &lt;файл&gt;</code> — убрать из индекса</h3>
+      <p>
+        Ситуация: выполнили <code>git add</code>, но передумали —
+        файл не должен попасть в коммит.
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git restore --staged config.json</span></code></pre>
+      <ul>
+        <li><code>restore</code> — команда восстановления файла.</li>
+        <li><code>--staged</code> — режим «работаем с индексом» (staging area).</li>
+        <li><code>config.json</code> — файл.</li>
+      </ul>
+      <p>
+        Файл исчезает из индекса, но <strong>его содержимое на диске
+        не меняется</strong>. Если файл был новым (untracked до
+        <code>git add</code>) — снова становится untracked. Если
+        отслеживаемым — возвращается в состояние «изменён, но не
+        добавлен».
+      </p>
+      <div class="callout tip">
+        <span class="label">Старый синтаксис</span>
+        <p>
+          В старых версиях Git и в старых учебниках встречается
+          <code>git reset HEAD &lt;файл&gt;</code> — работает так же.
+          <code>git restore --staged</code> — современный и более
+          понятный вариант.
+        </p>
+      </div>
+
+      <h3>8.2. <code>git restore &lt;файл&gt;</code> — отменить правки в файле</h3>
+      <p>
+        Ситуация: изменили файл, но поняли, что изменение никуда
+        не годится, хотите вернуть как было в последнем коммите.
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git restore hello.txt</span></code></pre>
+      <ul>
+        <li><code>restore</code> — восстановить.</li>
+        <li>Без флага <code>--staged</code> — работаем с рабочей папкой.</li>
+        <li><code>hello.txt</code> — файл, который нужно восстановить.</li>
+      </ul>
+      <div class="callout danger">
+        <span class="label">⚠️ Правки теряются безвозвратно</span>
+        <p>
+          <code>git restore</code> <strong>уничтожает</strong> все
+          несохранённые правки в файле. Отменить это действие нельзя —
+          Git заменит файл версией из последнего коммита. Если
+          сомневаетесь — сначала <code>git diff</code>, чтобы увидеть,
+          что именно будет потеряно.
+        </p>
+      </div>
+
+      <h3>8.3. <code>git commit --amend</code> — исправить последний коммит</h3>
+      <p>
+        Уже разобрали в разделе 5.4. Напомню два варианта:
+      </p>
+      <pre><code><span class="comment"># только сообщение</span>
+<span class="prompt">$</span> <span class="cmd">git commit --amend -m "Новое сообщение"</span>
+
+<span class="comment"># добавить забытый файл, сообщение не менять</span>
+<span class="prompt">$</span> <span class="cmd">git add forgotten.txt</span>
+<span class="prompt">$</span> <span class="cmd">git commit --amend --no-edit</span></code></pre>
+      <p>
+        Работает <strong>только для последнего</strong> коммита и
+        <strong>только пока он не запушен</strong>. Если коммит уже
+        на сервере — amend перепишет историю, и у других людей
+        возникнет расхождение.
+      </p>
+
+      <h3>8.4. <code>git reset --soft HEAD~1</code> — откатить коммит, оставить в индексе</h3>
+      <p>
+        Ситуация: сделали коммит, но поняли, что закоммитили не то
+        (например, слишком много файлов или плохое сообщение), и хотите
+        переделать коммит целиком.
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git reset --soft HEAD~1</span></code></pre>
+      <ul>
+        <li><code>reset</code> — переместить указатель.</li>
+        <li><code>--soft</code> — мягкий режим: <strong>не трогать</strong> ни индекс, ни рабочую папку.</li>
+        <li><code>HEAD~1</code> — на один коммит назад.</li>
+      </ul>
+      <p>
+        Что происходит: указатель <code>HEAD</code> и текущая ветка
+        откатываются на один коммит назад. Но изменения из отменённого
+        коммита <strong>остаются в индексе</strong> — как будто Вы их
+        только что выполнили <code>git add</code>. Теперь можно
+        поправить сообщение, убрать лишнее из индекса, добавить
+        недостающее — и сделать новый коммит.
+      </p>
+
+      <h3>8.5. <code>git reset HEAD~1</code> — откатить коммит, оставить в рабочей папке</h3>
+      <p>
+        То же самое, но изменения <strong>выгружаются в рабочую
+        папку</strong> и становятся «не добавленными»:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git reset HEAD~1</span></code></pre>
+      <p>
+        Без флага <code>reset</code> работает как <code>--mixed</code>:
+        коммит исчезает, индекс очищается, а изменения файлов остаются
+        на диске. Дальше можно спокойно просматривать их через
+        <code>git diff</code> и решать, что с ними делать.
+      </p>
+      <p>
+        Разница с <code>--soft</code>: после <code>--soft</code>
+        изменения уже в индексе (можно сразу коммитить),
+        после <code>--mixed</code> — в рабочей папке (нужно снова
+        <code>git add</code>).
+      </p>
+
+      <h3>8.6. <code>git reset --hard HEAD~1</code> — откатить и уничтожить</h3>
+      <div class="callout danger">
+        <span class="label">⚠️ Необратимо</span>
+        <p>
+          <code>git reset --hard HEAD~1</code> откатывает указатель на
+          один коммит назад и <strong>уничтожает все изменения</strong>
+          в рабочей папке и индексе. Файлы станут ровно такими, какими
+          были в предыдущем коммите. Восстановить «потерянное» можно
+          только через <code>git reflog</code>, и это уже продвинутая
+          тема. Не используйте <code>--hard</code>, пока не уверены
+          на 100%.
+        </p>
+      </div>
+      <p>
+        Применяется, когда Вы точно хотите «выбросить» последний
+        коммит и все его изменения, не сохраняя ничего.
+      </p>
+
+      <h3>8.7. <code>git revert &lt;хеш&gt;</code> — отменить опубликованный коммит</h3>
+      <p>
+        Ситуация: коммит уже отправлен на сервер, его скачали другие,
+        переписывать историю нельзя. Нужно «отменить» его содержимое,
+        не трогая историю.
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git revert 3f2a1b7</span></code></pre>
+      <ul>
+        <li><code>revert</code> — «откатить», но по-другому, чем <code>reset</code>.</li>
+        <li><code>3f2a1b7</code> — хеш коммита, который надо отменить (первые 7 символов достаточно).</li>
+      </ul>
+      <p>
+        Что происходит: Git создаёт <strong>новый коммит</strong>,
+        который вносит изменения, противоположные указанному коммиту.
+        Если тот коммит добавил строку — revert её удалит. Если удалил
+        файл — revert его вернёт. История не переписывается: старый
+        коммит остаётся, рядом появляется «антикоммит».
+      </p>
+      <p>
+        Git откроет редактор для сообщения коммита-отмены. По умолчанию
+        там будет что-то вроде «Revert "Добавить приветствие в hello.txt"».
+        Можно согласиться (<code>:wq</code> в Vim) или изменить.
+      </p>
+
+      <div class="callout warn">
+        <span class="label">Хеш у Вас будет другой</span>
+        <p>
+          <code>3f2a1b7</code> — это <strong>пример</strong> хеша из
+          учебного репозитория. У Вас хеши будут совершенно другие:
+          они зависят от содержимого коммита, автора, времени и других
+          данных. <strong>Не копируйте команду с этим хешем буквально</strong> —
+          посмотрите свой хеш через <code>git log --oneline</code>
+          и подставьте его. То же самое касается хешей
+          <code>9d1e4c2</code>, <code>4b5c6d7</code> и любых других
+          в этой главе.
+        </p>
+      </div>
+
+      <div class="callout info">
+        <span class="label">Почему revert безопаснее reset</span>
+        <p>
+          <code>reset</code> удаляет коммиты из истории — если их
+          кто-то уже скачал, у него останется «лишний» коммит, и
+          синхронизация сломается. <code>revert</code> ничего не
+          удаляет, только добавляет — это всегда безопасно для общих
+          веток. Поэтому в командах действует правило: «в своей
+          локальной ветке — reset, в общей — revert».
+        </p>
+        <p>
+          Напомню: пока все наши коммиты локальные (см. врезку в
+          разделе 7), поэтому на практике в этой главе
+          <code>revert</code> Вам вряд ли понадобится — он нужен,
+          когда появится удалённый репозиторий в главе 7.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="practice">
+      <h2>9. Практика: сделал ошибку — исправил</h2>
+      <p>
+        Пройдём сценарий: намеренно сделаем несколько типичных ошибок
+        и исправим каждую. Все команды в терминале, в папке проекта
+        <code>hello-git</code>.
+      </p>
+
+      <div class="step">
+        <h4>Шаг 1. Исходное состояние</h4>
+        <p class="goal">Убедимся, что репозиторий в «чистом» состоянии и есть хотя бы один коммит.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+nothing to commit, working tree clean</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out">9d1e4c2 (HEAD -&gt; main) Добавить вторую строку в hello.txt
+3f2a1b7 Добавить приветствие в hello.txt</span></code></pre>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>nothing to commit, working tree clean</dt>
+            <dd>Всё закоммичено, изменений нет. Хорошая отправная точка.</dd>
+            <dt>9d1e4c2 (HEAD -&gt; main) ...</dt>
+            <dd>Два коммита в истории. HEAD на самом последнем. Хеши <code>9d1e4c2</code> и <code>3f2a1b7</code> — пример; у Вас они будут другими, смотрите свой вывод <code>git log --oneline</code>.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Состояние:</strong> чисто, два коммита в истории.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 2. Ошибка: изменили файл не туда</h4>
+        <p class="goal">Испортим <code>hello.txt</code> — допишем мусорную строку — и отменим правки через <code>git restore</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "ЭТО МУСОР, НЕ НУЖНО" &gt;&gt; hello.txt</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git restore &lt;file&gt;..." to discard changes in working directory)
+	modified:   hello.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")</span>
+
+<span class="prompt">$</span> <span class="cmd">git diff</span>
+<span class="d-file">diff --git a/hello.txt b/hello.txt</span>
+<span class="d-hunk">@@ -1,2 +1,3 @@</span>
+<span class="d-ctx"> Привет, Git!</span>
+<span class="d-ctx"> Вторая строка</span>
+<span class="d-add">+ЭТО МУСОР, НЕ НУЖНО</span>
+
+<span class="prompt">$</span> <span class="cmd">git restore hello.txt</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+nothing to commit, working tree clean</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>echo "..." &gt;&gt; hello.txt</code> — дописываем строку в файл.</li>
+          <li><code>git status</code> — видим, что файл изменён, но не в индексе.</li>
+          <li><code>git diff</code> — видим сами изменения: добавлена одна строка.</li>
+          <li><code>git restore hello.txt</code> — откатываем изменения. Файл возвращается к версии из последнего коммита.</li>
+          <li><code>git status</code> — снова чисто.</li>
+        </ul>
+
+        <p class="state-after"><strong>Исправлено:</strong> мусорная строка удалена, файл в исходном состоянии. Если бы мы сделали <code>git restore</code> не подумав, изменения бы потерялись навсегда — но здесь мы как раз этого и хотели.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 3. Ошибка: случайно добавили не тот файл в индекс</h4>
+        <p class="goal">Создадим «секретный» файл и случайно добавим его в индекс. Уберём через <code>git restore --staged</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "password=12345" &gt; secret.txt</span>
+<span class="prompt">$</span> <span class="cmd">echo "Правка в README" &gt;&gt; README.md</span>
+<span class="prompt">$</span> <span class="cmd">git add .</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+Changes to be committed:
+  (use "git restore --staged &lt;file&gt;..." to unstage)
+	<span class="s-mod">modified:   README.md</span>
+	<span class="s-add">new file:   secret.txt</span></span>
+
+<span class="prompt">$</span> <span class="cmd">git restore --staged secret.txt</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+Changes to be committed:
+	<span class="s-mod">modified:   README.md</span>
+
+Untracked files:
+	secret.txt</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>echo "password=12345" &gt; secret.txt</code> — создаём файл с «секретом». <code>&gt;</code> создаёт новый файл.</li>
+          <li><code>echo "..." &gt;&gt; README.md</code> — дописываем в README. Это мы хотим закоммитить.</li>
+          <li><code>git add .</code> — добавляем всё, включая нежелательный <code>secret.txt</code>.</li>
+          <li><code>git restore --staged secret.txt</code> — убираем <code>secret.txt</code> из индекса. Файл на диске остаётся, просто перестаёт быть подготовленным к коммиту.</li>
+        </ul>
+
+        <p class="state-after"><strong>Исправлено:</strong> в индексе только <code>README.md</code>. <code>secret.txt</code> снова untracked и в коммит не попадёт. Правильный следующий шаг — добавить <code>secret.txt</code> в <code>.gitignore</code> (см. следующий шаг).</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 4. Создадим .gitignore, чтобы это не повторялось</h4>
+        <p class="goal">Настроим игнорирование, чтобы <code>secret.txt</code> и подобное больше не попадали в <code>git status</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "secret.txt" &gt; .gitignore</span>
+<span class="prompt">$</span> <span class="cmd">echo "*.log" &gt;&gt; .gitignore</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+Changes to be committed:
+	<span class="s-mod">modified:   README.md</span>
+
+Untracked files:
+	.gitignore</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li>Создаём <code>.gitignore</code> с двумя шаблонами: <code>secret.txt</code> (конкретный файл) и <code>*.log</code> (все логи).</li>
+          <li><code>git status</code> показывает: <code>secret.txt</code> исчез из списка untracked (его теперь игнорирует Git), а <code>.gitignore</code> появился — его как раз надо закоммитить.</li>
+        </ul>
+
+        <p class="state-after"><strong>Исправлено:</strong> <code>secret.txt</code> больше не попадает в статус. В индексе — README, к коммиту готовы также <code>.gitignore</code>.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 5. Коммит — но с ошибкой в сообщении</h4>
+        <p class="goal">Закоммитим всё правильно, но с плохим сообщением. Исправим через <code>git commit --amend</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git add .gitignore README.md</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "asdf"</span>
+<span class="out">[main 7c8d9e0] asdf
+ 2 files changed, 2 insertions(+)
+ create mode 100644 .gitignore</span>
+
+<span class="prompt">$</span> <span class="cmd">git commit --amend -m "Добавить .gitignore и обновить README"</span>
+<span class="out">[main e1f2a3b] Добавить .gitignore и обновить README
+ 2 files changed, 2 insertions(+)
+ create mode 100644 .gitignore</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out">e1f2a3b (HEAD -&gt; main) Добавить .gitignore и обновить README
+9d1e4c2 Добавить вторую строку в hello.txt
+3f2a1b7 Добавить приветствие в hello.txt</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>git add .gitignore README.md</code> — добавляем два файла в индекс. Обратите внимание: <code>secret.txt</code> не добавлен, потому что он в <code>.gitignore</code>.</li>
+          <li><code>git commit -m "asdf"</code> — коммитим с плохим сообщением. Git выдаёт строку с хешем <code>7c8d9e0</code>.</li>
+          <li><code>git commit --amend -m "..."</code> — переписываем последний коммит: сообщение меняется, хеш тоже меняется (становится <code>e1f2a3b</code>). Содержимое коммита остаётся прежним.</li>
+          <li><code>git log --oneline</code> — убеждаемся: в истории только правильный коммит <code>e1f2a3b</code>, а «<code>asdf</code>» пропал.</li>
+        </ul>
+
+        <p class="state-after"><strong>Исправлено:</strong> сообщение теперь осмысленное. Коммит переписан — важно, что он ещё никуда не отправлялся (мы работаем только локально).</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 6. Ошибка: забыли файл в последнем коммите</h4>
+        <p class="goal">Представим, что в предыдущий коммит забыли добавить ещё один файл. Добавим его через <code>--amend --no-edit</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "Установка: ..." &gt; INSTALL.md</span>
+<span class="prompt">$</span> <span class="cmd">git add INSTALL.md</span>
+<span class="prompt">$</span> <span class="cmd">git commit --amend --no-edit</span>
+<span class="out">[main 4b5c6d7] Добавить .gitignore и обновить README
+ 3 files changed, 3 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 INSTALL.md</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out">4b5c6d7 (HEAD -&gt; main) Добавить .gitignore и обновить README
+9d1e4c2 Добавить вторую строку в hello.txt
+3f2a1b7 Добавить приветствие в hello.txt</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>git add INSTALL.md</code> — добавляем забытый файл в индекс.</li>
+          <li><code>git commit --amend --no-edit</code> — переписываем последний коммит, <strong>добавив в него всё, что сейчас в индексе</strong>. Флаг <code>--no-edit</code> означает «не открывай редактор, оставь сообщение как было».</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>[main 4b5c6d7] Добавить .gitignore и обновить README</dt>
+            <dd>Коммит переписан, новый хеш — <code>4b5c6d7</code> (был <code>e1f2a3b</code>). Сообщение осталось тем же.</dd>
+            <dt>3 files changed, 3 insertions(+)</dt>
+            <dd>Теперь в коммите три файла вместо двух: <code>.gitignore</code>, <code>README.md</code> и <code>INSTALL.md</code>.</dd>
+            <dt>create mode 100644 INSTALL.md</dt>
+            <dd>Новый файл в коммите. Строки с <code>create mode</code> показывают файлы, созданные этим коммитом.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Исправлено:</strong> забытый файл в том же коммите, история по-прежнему из трёх коммитов.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 7. Ошибка: коммит вообще не нужен</h4>
+        <p class="goal">Сделаем «лишний» коммит и откатим его через <code>git reset --soft HEAD~1</code>, сохранив изменения в индексе.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "Эксперимент" &gt; experiment.txt</span>
+<span class="prompt">$</span> <span class="cmd">git add experiment.txt</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Экспериментальный коммит"</span>
+<span class="out">[main 5e6f7a8] Экспериментальный коммит
+ 1 file changed, 1 insertion(+)
+ create mode 100644 experiment.txt</span>
+
+<span class="prompt">$</span> <span class="cmd">git reset --soft HEAD~1</span>
+
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+Changes to be committed:
+	<span class="s-add">new file:   experiment.txt</span></span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out">4b5c6d7 (HEAD -&gt; main) Добавить .gitignore и обновить README
+9d1e4c2 Добавить вторую строку в hello.txt
+3f2a1b7 Добавить приветствие в hello.txt</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li>Сначала создаём файл <code>experiment.txt</code>, добавляем в индекс и коммитим — как будто это нормальная работа.</li>
+          <li><code>git reset --soft HEAD~1</code> — откатываем последний коммит: указатель <code>HEAD</code> и ветка <code>main</code> уходят на один коммит назад. Но <strong>изменения остаются в индексе</strong> — то есть файл по-прежнему staged.</li>
+          <li><code>git status</code> показывает: <code>experiment.txt</code> готов к коммиту, но самого коммита в истории уже нет.</li>
+        </ul>
+
+        <p class="state-after"><strong>Исправлено:</strong> «Экспериментальный коммит» исчез из истории, но файл остался в индексе. Теперь можно либо закоммитить его заново, либо убрать через <code>git restore --staged</code>, либо откатить правки через <code>git restore</code>.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 8. Убираем эксперимент насовсем</h4>
+        <p class="goal">Файл <code>experiment.txt</code> нам не нужен. Уберём его из индекса и удалим с диска.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git restore --staged experiment.txt</span>
+<span class="prompt">$</span> <span class="cmd">rm experiment.txt</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+nothing to commit, working tree clean</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out">4b5c6d7 (HEAD -&gt; main) Добавить .gitignore и обновить README
+9d1e4c2 Добавить вторую строку в hello.txt
+3f2a1b7 Добавить приветствие в hello.txt</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>git restore --staged experiment.txt</code> — убираем файл из индекса. Теперь он снова untracked.</li>
+          <li><code>rm experiment.txt</code> — обычное удаление файла с диска (не Git-команда).</li>
+          <li><code>git status</code> — чисто. Git про файл ничего не знал, поэтому его удаление для Git незаметно.</li>
+        </ul>
+
+        <p class="state-after"><strong>Готово:</strong> эксперимент полностью убран, история в порядке, рабочая папка чиста.</p>
+      </div>
+
+      <div class="callout tip">
+        <span class="label">Итог практики</span>
+        <p>
+          Мы исправили семь типичных ошибок без потери данных и без
+          единого «страшного» действия. Обратите внимание: ни разу
+          не понадобился <code>git reset --hard</code> — и это правильно.
+          В реальной работе <code>--hard</code> нужен очень редко.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="mistakes">
+      <h2>10. Частые ошибки</h2>
+
+      <h3><code>git add .</code> без <code>.gitignore</code></h3>
+      <p>
+        Самая частая причина «закоммитил node_modules». Файл
+        <code>.gitignore</code> должен появиться в проекте <strong>сразу</strong>,
+        до первого <code>git add</code>. Если уже закоммитили лишнее —
+        убрать так: <code>git rm --cached &lt;файл&gt;</code> (или папку
+        целиком через <code>-r</code>), добавить в <code>.gitignore</code>,
+        сделать новый коммит с удалением.
+      </p>
+
+      <h3>Путаница между <code>git diff</code> и <code>git diff --staged</code></h3>
+      <p>
+        Очень легко подумать «у меня нет изменений», выполнив
+        <code>git diff</code>, и не заметив, что все изменения уже
+        в индексе. Привычка: если <code>git status</code> показывает
+        блок <code>Changes to be committed:</code>, то
+        <code>git diff</code> по этим файлам будет пустым — смотреть
+        их нужно через <code>git diff --staged</code>.
+      </p>
+
+      <h3><code>git commit -am</code> не захватывает новые файлы</h3>
+      <p>
+        Флаг <code>-a</code> работает только с отслеживаемыми файлами.
+        Если Вы создали новый файл и выполнили
+        <code>git commit -am "..."</code>, файл в коммит не попадёт,
+        и <code>git status</code> по-прежнему покажет его как untracked.
+        Для новых файлов нужен явный <code>git add</code>.
+      </p>
+
+      <h3>Попытка «отменить» через <code>reset --hard</code> на общих ветках</h3>
+      <p>
+        <code>git reset --hard</code> переписывает историю ветки. Если
+        эту ветку уже скачали другие, их локальные копии разойдутся
+        с сервером, и следующие <code>git pull</code> вызовут конфликты.
+        Для общих веток — только <code>git revert</code>.
+      </p>
+
+      <h3><code>git restore &lt;файл&gt;</code> «вместо» <code>git restore --staged</code></h3>
+      <p>
+        Две команды звучат почти одинаково, но делают совершенно разное:
+      </p>
+      <ul>
+        <li><code>git restore file</code> — <strong>уничтожает</strong> правки в файле;</li>
+        <li><code>git restore --staged file</code> — только <strong>убирает из индекса</strong>, правки в файле остаются.</li>
+      </ul>
+      <p>
+        Если файл добавлен в индекс и Вы хотите «просто убрать его
+        из коммита» — нужен <code>--staged</code>. Без него Вы потеряете
+        правки.
+      </p>
+
+      <h3><code>git commit --amend</code> после <code>push</code></h3>
+      <p>
+        <code>--amend</code> переписывает коммит и меняет его хеш.
+        Если коммит уже на сервере, следующий <code>git push</code>
+        потребует force-пуша и создаст проблемы для всех, кто этот
+        коммит скачал. Правило: <code>--amend</code> только для
+        локальных коммитов, ещё не отправленных.
+      </p>
+
+      <h3>Кириллица в сообщениях коммита</h3>
+      <p>
+        Современный Git корректно работает с кириллицей в сообщениях.
+        Но если Вы работаете в команде с иностранцами или на
+        международном проекте — пишите сообщения на английском.
+        Это не правило Git, а правило хорошего тона в команде.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="summary">
+      <h2>11. Итоги главы</h2>
+      <p>Что нужно вынести из главы 3:</p>
+      <ul>
+        <li><code>git status</code> показывает состояние в нескольких блоках: <code>Changes to be committed</code> (в индексе), <code>Changes not staged</code> (изменено, но не в индексе), <code>Untracked files</code> (новые).</li>
+        <li><code>git status -s</code> — короткий формат двумя колонками.</li>
+        <li><code>git diff</code> — рабочая папка ↔ индекс. <code>git diff --staged</code> — индекс ↔ последний коммит. <code>git diff HEAD</code> — рабочая папка ↔ последний коммит.</li>
+        <li>В diff: <code>+</code> — добавленная строка, <code>-</code> — удалённая, пробел в начале — контекст.</li>
+        <li><code>git add</code> бывает разный: файл, папка, <code>.</code>, <code>-A</code>, <code>-u</code>, <code>-p</code>. <code>git add .</code> — опасен без <code>.gitignore</code>.</li>
+        <li><code>git commit -m</code> — обычный. <code>git commit -am</code> — с авто-добавлением отслеживаемых (новые файлы не захватит). <code>--amend</code> — переписать последний (только локальный).</li>
+        <li><code>.gitignore</code> — список шаблонов для игнорирования. Файл должен быть в корне репозитория и закоммичен. Уже отслеживаемый файл убирается через <code>git rm --cached</code>.</li>
+        <li>Отмена: <code>git restore</code> (файл), <code>git restore --staged</code> (индекс), <code>git commit --amend</code> (последний коммит), <code>git reset --soft/--hard HEAD~1</code> (откат), <code>git revert &lt;хеш&gt;</code> (безопасная отмена опубликованного).</li>
+        <li><code>git reset --hard</code> — необратимо. Использовать только когда полностью уверены.</li>
+        <li>Для общих веток — <code>revert</code>, для локальных — <code>reset</code>.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="label">Проверьте себя</span>
+        <p>Попробуйте ответить, не подглядывая:</p>
+        <ul style="margin-bottom:0">
+          <li>Чем отличается <code>git diff</code> от <code>git diff --staged</code>?</li>
+          <li>В файле была строка, Вы её удалили. Как это будет выглядеть в <code>git diff</code> — со знаком <code>+</code> или <code>-</code>?</li>
+          <li>Вы добавили <code>secret.env</code> в индекс, потом передумали. Какая команда уберёт его из индекса, не тронув файл?</li>
+          <li>Чем <code>git commit -am</code> отличается от <code>git add . &amp;&amp; git commit -m</code>?</li>
+          <li>Почему <code>.gitignore</code> не работает для файла, который уже был закоммичен?</li>
+          <li>В чём разница между <code>git reset --soft HEAD~1</code> и <code>git reset --hard HEAD~1</code>?</li>
+          <li>Почему <code>git revert</code> безопаснее <code>git reset</code> для общей ветки?</li>
+          <li>Вы сделали коммит, но ещё не запушили. Хотите исправить сообщение. Как?</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="chapter-footer">
+      
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>

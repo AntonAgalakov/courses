@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Программирование на C с использованием Git</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #fff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --code-bg: #f1f5f9;
+    --green: #059669;
+    --amber: #d97706;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.65;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 16.5px;
+  }
+  header {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    padding: 56px 24px 48px;
+  }
+  header .inner { max-width: 900px; margin: 0 auto; }
+  header .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin: 0 0 12px;
+    font-weight: 600;
+  }
+  header h1 {
+    font-size: clamp(28px, 5vw, 38px);
+    line-height: 1.15;
+    margin: 0 0 14px;
+  }
+  header p {
+    color: #cbd5e1;
+    font-size: 17px;
+    max-width: 680px;
+    margin: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 64px; }
+  main { margin-top: 36px; }
+
+  section { margin-bottom: 44px; }
+  section h2 {
+    font-size: 24px;
+    margin: 0 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+  }
+  p { margin: 0 0 14px; }
+  code {
+    font-family: Consolas, Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 5px;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Card-list of links */
+  .list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .list a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    transition: background 0.1s;
+  }
+  .list a:last-child { border-bottom: none; }
+  .list a:hover { background: #f8fafc; }
+  .list a:hover .title { color: var(--accent); }
+  .list .num {
+    min-width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--code-bg);
+    color: #334155;
+    font-family: Consolas, monospace;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .list .num.b-git { background: #dbeafe; color: #1e3a8a; }
+  .list .num.b-cu { background: #d1fae5; color: #065f46; }
+  .list .num.b-fin { background: #fef3c7; color: #92400e; }
+  .list .body { flex: 1; min-width: 0; }
+  .list .title { font-weight: 650; font-size: 15.5px; }
+  .list .desc { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+  .list .time {
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--code-bg);
+    padding: 3px 9px;
+    border-radius: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Section label */
+  .sec-label {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 5px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .sec-label.git { background: #dbeafe; color: #1e3a8a; }
+  .sec-label.cu { background: #d1fae5; color: #065f46; }
+  .sec-label.fin { background: #fef3c7; color: #92400e; }
+
+  /* Callout */
+  .note {
+    border-left: 4px solid var(--accent);
+    background: #eff6ff;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0 0;
+    font-size: 15px;
+  }
+  .note.warn { border-color: #fde68a; background: #fffbeb; }
+
+  /* Code pre */
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 18px;
+    overflow-x: auto;
+    margin: 0 0 14px;
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+
+  footer {
+    border-top: 2px solid var(--border);
+    padding-top: 20px;
+    margin-top: 30px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  @media (max-width: 600px) {
+    .list a { flex-wrap: wrap; }
+    .list .time { margin-left: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <p class="kicker">Учебный курс</p>
+    <h1>Технологии разработки программного обеспечения</h1>
+    <p>Освойте Git и CUnit, затем выполните контрольную работу: функции на C, модульные тесты и аккуратная история коммитов.</p>
+  </div>
+</header>
+
+<div class="container">
+  <main>
+
+    <!-- 1. УСТАНОВКА -->
+    <section>
+      <h2>1. Установка ПО</h2>
+      <p>Нужны Git, GCC, Make и CUnit. Выберите свою систему:</p>
+
+      <div class="list">
+        <a href="windows.html">
+          <span class="num b-cu">W</span>
+          <div class="body">
+            <div class="title">Windows — MSYS2 UCRT64</div>
+            <div class="desc">Установка MSYS2, пакетов и проверка инструментов.</div>
+          </div>
+          <span class="time">~30 мин</span>
+        </a>
+        <a href="linux.html">
+          <span class="num b-cu">L</span>
+          <div class="body">
+            <div class="title">Linux — Debian / Ubuntu</div>
+            <div class="desc">apt install git build-essential libcunit1-dev.</div>
+          </div>
+          <span class="time">~20 мин</span>
+        </a>
+      </div>
+
+      <p style="margin-top:16px">Проверка после установки (в терминале):</p>
+      <pre><code>git --version
+gcc --version
+make --version</code></pre>
+    </section>
+
+    <!-- 2. GIT -->
+    <section>
+      <h2>2. <span class="sec-label git">Git</span> Основы</h2>
+      <p>4 главы — проходите по порядку. Всё с примерами в терминале.</p>
+
+      <div class="list">
+        <a href="Git-lesson1.html">
+          <span class="num">01</span>
+          <div class="body">
+            <div class="title">Что такое Git и зачем он нужен</div>
+            <div class="desc">Три области, жизненный цикл файла, первый коммит.</div>
+          </div>
+          <span class="time">~2 ч</span>
+        </a>
+        <a href="Git-lesson2.html">
+          <span class="num">02</span>
+          <div class="body">
+            <div class="title">Первичная настройка Git</div>
+            <div class="desc">Имя, email, уровни конфигурации.</div>
+          </div>
+          <span class="time">~30 мин</span>
+        </a>
+        <a href="Git-lesson3.html">
+          <span class="num">03</span>
+          <div class="body">
+            <div class="title">Рабочий цикл и отмена изменений</div>
+            <div class="desc">Status, diff, add, commit, restore, reset, revert.</div>
+          </div>
+          <span class="time">~2 ч</span>
+        </a>
+        <a href="Git-lesson4.html">
+          <span class="num">04</span>
+          <div class="body">
+            <div class="title">Ветки: создание и слияние</div>
+            <div class="desc">switch и checkout, fast-forward, три-стороннее слияние.</div>
+          </div>
+          <span class="time">~1.5 ч</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 3. CUNIT -->
+    <section>
+      <h2>3. <span class="sec-label cu">CUnit</span> Тестирование</h2>
+      <p>Окружение уже установлено — разберите минимальный проект с тестами.</p>
+
+      <div class="list">
+        <a href="project.html">
+          <span class="num">→</span>
+          <div class="body">
+            <div class="title">Минимальный проект с CUnit</div>
+            <div class="desc">func.c, func.h, main.c, test_main.c, Makefile. Сборка и запуск тестов.</div>
+          </div>
+          <span class="time">~40 мин</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 4. КОНТРОЛЬНАЯ -->
+    <section>
+      <h2>4. <span class="sec-label fin">Итог</span> Контрольная работа</h2>
+      <p>19 заданий на C, тесты CUnit, история Git по требованиям.</p>
+
+      <div class="list">
+        <a href="Git-Finalwork.html">
+          <span class="num b-fin">★</span>
+          <div class="body">
+            <div class="title">Открыть задание</div>
+            <div class="desc">Структура, правила Git, все 19 заданий, критерии оценки.</div>
+          </div>
+        </a>
+      </div>
+
+      <p style="margin-top:16px">Оценка:</p>
+      <ul>
+        <li><strong>3</strong> — 10 заданий.</li>
+        <li><strong>4</strong> — 15 заданий, обязательно № 14, 15, 17.</li>
+        <li><strong>5</strong> — 18 заданий.</li>
+      </ul>
+    </section>
+
+    <!-- 5. КАК ПРОХОДИТЬ -->
+    <section>
+      <h2>5. Как проходить</h2>
+      <ol>
+        <li>Установите ПО по инструкции выше.</li>
+        <li>Пройдите главы Git по порядку — с практикой в терминале.</li>
+        <li>Разберите проект с CUnit.</li>
+        <li>Выполните контрольную работу.</li>
+      </ol>
+      <div class="note warn">
+        Все команды — только в терминале. Графические клиенты пока не используем.
+      </div>
+    </section>
+
+    
+
+  </main>
+</div>
+
+</body>
+</html>

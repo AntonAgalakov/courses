@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Первый проект CUnit</title><link rel="stylesheet" href="style.css"></head><body>
+<header><div class="inner"><div class="eyebrow">Практика</div><h1>Минимальный проект с CUnit</h1><p>Пример показывает, как отделить код программы от тестов. Функция складывает два числа, а тест проверяет результат.</p><nav><a href="index.html">Главная</a><a href="windows.html">Windows</a><a href="linux.html">Linux</a><a href="project.html" aria-current="page">Простой проект</a></nav></div></header>
+<main><section class="card"><h2>1. Структура проекта</h2><pre><code>example/
+├── Makefile
+├── main.c
+├── func.c
+├── func.h
+└── test_main.c</code></pre><p>Все файлы также находятся в папке <a href="example.zip">example</a> в комплекте. Откройте их обычным текстовым редактором.</p></section>
+<section class="card"><h2>2. Объявление функции — <code>func.h</code></h2><pre><code>#ifndef FUNC_H
+#define FUNC_H
+
+int func_1(int a, int b);
+
+#endif</code></pre><p>Заголовок содержит прототип, чтобы функцию можно было вызывать из <code>main.c</code> и тестов.</p></section>
+<section class="card"><h2>3. Реализация — <code>func.c</code></h2><pre><code>#include "func.h"
+
+int func_1(int a, int b)
+{
+    return a + b;
+}</code></pre></section>
+<section class="card"><h2>4. Основная программа — <code>main.c</code></h2><pre><code>#include &lt;stdio.h&gt;
+#include "func.h"
+
+int main(void)
+{
+    printf("2 + 3 = %d\n", func_1(2, 3));
+    return 0;
+}</code></pre></section>
+<section class="card"><h2>5. Тест CUnit — <code>test_main.c</code></h2><pre><code>#include &lt;CUnit/Basic.h&gt;
+#include &lt;stdlib.h&gt;
+#include "func.h"
+
+static void test_func_1_adds_numbers(void)
+{
+    CU_ASSERT_EQUAL(func_1(2, 3), 5);
+    CU_ASSERT_EQUAL(func_1(-2, 2), 0);
+    CU_ASSERT_EQUAL(func_1(0, 0), 0);
+}
+
+int main(void)
+{
+    if (CU_initialize_registry() != CUE_SUCCESS) {
+        return EXIT_FAILURE;
+    }
+
+    CU_pSuite suite = CU_add_suite("func_1 tests", NULL, NULL);
+    if (suite == NULL) {
+        CU_cleanup_registry();
+        return EXIT_FAILURE;
+    }
+
+    if (CU_add_test(suite, "adds integers", test_func_1_adds_numbers) == NULL) {
+        CU_cleanup_registry();
+        return EXIT_FAILURE;
+    }
+
+    CU_basic_set_mode(CU_BRM_VERBOSE);
+    CU_basic_run_tests();
+
+    unsigned int failures = CU_get_number_of_failures();
+    CU_cleanup_registry();
+    return failures == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
+}</code></pre><p>Тест проверяет три случая. Если результат хотя бы одной проверки отличается от ожидаемого, CUnit покажет ошибку, а программа тестов завершится с ненулевым кодом.</p></section>
+<section class="card"><h2>6. Сборка — <code>Makefile</code></h2><pre><code>CC ?= cc
+CFLAGS ?= -std=c11 -Wall -Wextra -Wpedantic -O2
+CPPFLAGS ?=
+LDFLAGS ?=
+LDLIBS ?=
+CUNIT_LIBS ?= -lcunit
+
+.PHONY: all test clean
+
+all: main
+
+main: main.o func.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+test: test_main
+	./test_main
+
+test_main: test_main.o func.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(CUNIT_LIBS) $(LDLIBS)
+
+%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $&lt; -o $@
+
+main.o: main.c func.h
+func.o: func.c func.h
+test_main.o: test_main.c func.h
+
+clean:
+	rm -f *.o main test_main</code></pre><p class="muted small">В строках команд перед <code>$(CC)</code>, <code>./test_main</code> и <code>rm</code> в реальном файле Makefile используются символы табуляции, а не пробелы. Готовый Makefile в папке example уже содержит табуляцию.</p></section>
+<section class="card"><h2>7. Запуск</h2><p>Откройте терминал в папке <code>example</code> и выполните:</p><pre><code>make
+./main
+make test
+make clean</code></pre><table><thead><tr><th>Команда</th><th>Назначение</th></tr></thead><tbody><tr><td><code>make</code></td><td>Собрать обычную программу <code>main</code>.</td></tr><tr><td><code>./main</code></td><td>Запустить программу; ожидаемый вывод: <code>2 + 3 = 5</code>.</td></tr><tr><td><code>make test</code></td><td>Собрать и запустить модульные тесты CUnit.</td></tr><tr><td><code>make clean</code></td><td>Удалить объектные файлы и собранные исполняемые файлы.</td></tr></tbody></table><div class="note success">Если тесты успешны, CUnit покажет ноль ошибок. Попробуйте изменить функцию или ожидаемое значение в одном из тестов, чтобы увидеть, как выглядит проваленная проверка; затем верните исходный код.</div></section>
+<section class="card"><h2>Типичные ошибки</h2><ul><li>Не найден заголовок <code>CUnit/Basic.h</code> — не установлены файлы разработки CUnit или используется другое окружение компилятора.</li><li>Не найдена библиотека <code>-lcunit</code> — проверьте установку пакета и совпадение архитектуры/окружения.</li><li><code>missing separator</code> от Make — в строках команд Makefile должны начинаться с табуляции.</li></ul></section></main><footer>Перед использованием CUnit выполните инструкцию для своей системы: <a href="windows.html">Windows</a> или <a href="linux.html">Linux</a>.</footer></body></html>

@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Глава 2. Первичная настройка Git</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --code-bg: #f1f5f9;
+    --code-border: #e2e8f0;
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --warn-bg: #fffbeb;
+    --warn-border: #fde68a;
+    --tip-bg: #ecfdf5;
+    --tip-border: #a7f3d0;
+    --green: #059669;
+    --amber: #d97706;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 17px;
+  }
+  header.chapter {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    padding: 56px 24px 48px;
+  }
+  header.chapter .inner { max-width: 900px; margin: 0 auto; }
+  header.chapter .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin: 0 0 12px;
+  }
+  header.chapter h1 {
+    font-size: 38px;
+    line-height: 1.2;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  header.chapter .lede {
+    color: #cbd5e1;
+    font-size: 18px;
+    max-width: 640px;
+    margin: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+  main { margin-top: 40px; }
+
+  nav.toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  nav.toc h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { margin-bottom: 6px; }
+  nav.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav.toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  @media (max-width: 640px) {
+    nav.toc ol { columns: 1; }
+    header.chapter h1 { font-size: 28px; }
+  }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section h2 {
+    font-size: 27px;
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+  }
+  section h3 { font-size: 20px; margin: 32px 0 12px; font-weight: 650; }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 24px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 650; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: #0f172a;
+  }
+  a.inline { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(37, 99, 235, 0.3); }
+  a.inline:hover { border-bottom-color: var(--accent); }
+
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 0 0 20px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    border: 1px solid #1e293b;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  pre .prompt { color: #64748b; user-select: none; }
+  pre .cmd { color: #93c5fd; }
+  pre .out { color: #cbd5e1; }
+  pre .comment { color: #64748b; font-style: italic; }
+
+  .callout { border-left: 4px solid; padding: 16px 20px; border-radius: 8px; margin: 0 0 20px; font-size: 16px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .callout.info { background: var(--info-bg); border-color: var(--info-border); }
+  .callout.info .label { color: var(--accent); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.warn .label { color: var(--amber); }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.tip .label { color: var(--green); }
+
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    margin: 8px 0 24px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .diagram-caption { font-size: 13px; color: var(--muted); text-align: center; margin-top: 18px; font-style: italic; }
+
+  .levels { display: flex; flex-direction: column; gap: 10px; max-width: 680px; margin: 0 auto; }
+  .level-card {
+    display: flex; align-items: flex-start; gap: 16px;
+    border-radius: 10px; padding: 14px 18px;
+    border: 2px solid;
+  }
+  .level-card .badge {
+    font-family: monospace; font-size: 13px; font-weight: 700;
+    padding: 4px 10px; border-radius: 6px; white-space: nowrap;
+    margin-top: 2px;
+  }
+  .level-card .body { flex: 1; }
+  .level-card .name { font-weight: 700; font-size: 15.5px; margin-bottom: 4px; }
+  .level-card .desc { font-size: 13.5px; opacity: 0.85; margin-bottom: 4px; }
+  .level-card .file { font-family: monospace; font-size: 12.5px; opacity: 0.9; }
+  .level-card.system { background: #f1f5f9; border-color: #94a3b8; color: #334155; }
+  .level-card.system .badge { background: #475569; color: #fff; }
+  .level-card.global { background: #dbeafe; border-color: #3b82f6; color: #1e3a8a; }
+  .level-card.global .badge { background: #2563eb; color: #fff; }
+  .level-card.local { background: #d1fae5; border-color: #10b981; color: #064e3b; }
+  .level-card.local .badge { background: #059669; color: #fff; }
+  .priority-note {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .priority-note code { font-size: 12px; }
+
+  .commit-card {
+    max-width: 620px;
+    margin: 0 auto;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 22px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 22px; font-size: 15.5px; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 650; font-size: 14px; color: #334155; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 13.5px; }
+
+  .step { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 22px 24px; margin: 0 0 26px; }
+  .step h4 { margin: 0 0 6px; font-size: 18px; font-weight: 650; color: var(--accent); }
+  .step .goal { color: var(--muted); font-size: 14.5px; margin: 0 0 18px; }
+  .step pre { margin-bottom: 14px; }
+  .step h5 {
+    font-size: 15px;
+    font-weight: 650;
+    margin: 18px 0 8px;
+    color: #334155;
+  }
+  .step ul.explain { margin: 0 0 14px; padding-left: 22px; font-size: 15px; }
+  .step ul.explain li { margin-bottom: 6px; }
+  .step ul.explain code { font-size: 13.5px; }
+  .step .state-after { font-size: 14px; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .step .state-after strong { color: var(--text); }
+
+  .output-breakdown {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 0 0 16px;
+    font-size: 14.5px;
+  }
+  .output-breakdown .ob-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .output-breakdown dl { margin: 0; }
+  .output-breakdown dt {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    background: #e2e8f0;
+    color: #0f172a;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .output-breakdown dd { margin: 4px 0 0 0; padding-left: 0; color: var(--text); }
+
+  footer.chapter-footer { border-top: 2px solid var(--border); padding-top: 28px; margin-top: 40px; color: var(--muted); font-size: 15px; }
+
+  /* Кнопка «На главную» в шапке */
+header .back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.15s, color 0.15s;
+}
+header .back-home:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Ссылка «На главную» в футере */
+.back-home-footer {
+  color: var(--accent, #2563eb);
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-home-footer:hover {
+  text-decoration: underline;
+}
+
+</style>
+</head>
+<body>
+
+<header class="chapter">
+  <div class="inner">
+    <a href="start.html" class="back-home">← На главную</a>
+    <p class="kicker">Глава 2</p>
+    <h1>Первичная настройка Git</h1>
+    
+  </div>
+</header>
+
+<div class="container">
+  <main>
+
+    <nav class="toc">
+      <h2>Содержание главы</h2>
+      <ol>
+        <li><a href="#intro">Введение</a></li>
+        <li><a href="#why-config">Зачем настраивать Git</a></li>
+        <li><a href="#levels">Три уровня конфигурации</a></li>
+        <li><a href="#user">Имя и email: обязательный минимум</a></li>
+        <li><a href="#change">Изменение и удаление настроек</a></li>
+        <li><a href="#summary">Итоги главы</a></li>
+      </ol>
+    </nav>
+
+    <!-- ============================================================ -->
+    <section id="intro">
+      <h2>1. Введение</h2>
+      <p>
+        В главе 1 мы установили Git и убедились, что команда
+        <code>git --version</code> выводит номер версии. С этого момента
+        Git может выполнять команды, но ещё не готов к полноценной работе:
+        он не знает, кто Вы, и не сможет подписать Ваш первый коммит.
+      </p>
+      <p>
+        Хорошая новость: для старта нужно настроить всего
+        <strong>две вещи</strong> — имя и email. Всё остальное у Git уже
+        имеет разумные значения по умолчанию. Редактор, имя главной ветки,
+        обработку окончаний строк и псевдонимы можно настроить позже —
+        когда появится реальная потребность. В этой главе мы их не трогаем,
+        чтобы не усложнять старт.
+      </p>
+      <p>
+        Ещё одна хорошая новость: настройка выполняется один раз.
+        Все настройки сохраняются в обычных текстовых файлах, Git читает
+        их при каждом запуске и применяет автоматически. После этой главы
+        о настройке можно забыть до тех пор, пока не понадобится что-то
+        поменять.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="why-config">
+      <h2>2. Зачем настраивать Git</h2>
+      <p>
+        Git — инструмент, который по умолчанию работает «как есть».
+        Но одну вещь он знать обязан: <strong>кто автор коммита</strong>.
+        В каждый коммит Git записывает имя и email того, кто его создал.
+        Без этих данных команда <code>git commit</code> просто
+        откажется выполняться и попросит их указать.
+      </p>
+      <p>
+        Настройка в Git — это пара «ключ → значение». Например,
+        <code>user.name</code> → «Иван Иванов», <code>user.email</code>
+        → «ivan@example.com». Ключ и значение разделяются пробелом.
+        В командах <code>git config</code> это выглядит так:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git config --global user.name "Иван Иванов"</span></code></pre>
+      <p>
+        Здесь <code>user.name</code> — ключ, <code>"Иван Иванов"</code> —
+        значение, а <code>--global</code> — уровень, на котором
+        сохраняется настройка. Об уровнях — в следующем разделе.
+      </p>
+
+      <div class="callout info">
+        <span class="label">Универсальный синтаксис</span>
+        <p>
+          Все команды настройки в Git имеют общий вид:
+          <code>git config [уровень] &lt;ключ&gt; "&lt;значение&gt;"</code>.
+          Уровень — <code>--system</code>, <code>--global</code> или
+          <code>--local</code>. В командах настройки мы почти всегда
+          будем использовать <code>--global</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="levels">
+      <h2>3. Три уровня конфигурации</h2>
+      <p>
+        Git хранит настройки в трёх разных местах. Это не случайно:
+        уровни позволяют задать значение один раз для всех пользователей
+        компьютера, отдельно для себя и отдельно для конкретного проекта.
+        Пока достаточно понимать, что они существуют и какой из них
+        использовать в каком случае.
+      </p>
+
+      <div class="diagram">
+        <div class="levels">
+          <div class="level-card system">
+            <span class="badge">--system</span>
+            <div class="body">
+              <div class="name">Системный уровень</div>
+              <div class="desc">Действует на всех пользователей компьютера. Трогать почти никогда не нужно.</div>
+              <div class="file">Linux/macOS: /etc/gitconfig · Windows: C:\Program Files\Git\etc\gitconfig</div>
+            </div>
+          </div>
+          <div class="level-card global">
+            <span class="badge">--global</span>
+            <div class="body">
+              <div class="name">Пользовательский (глобальный) уровень</div>
+              <div class="desc">Действует на текущего пользователя во всех его репозиториях. Сюда попадает всё, что мы будем настраивать.</div>
+              <div class="file">Linux/macOS: ~/.gitconfig · Windows: C:\Users\&lt;имя&gt;\.gitconfig</div>
+            </div>
+          </div>
+          <div class="level-card local">
+            <span class="badge">--local</span>
+            <div class="body">
+              <div class="name">Локальный уровень</div>
+              <div class="desc">Действует только в текущем репозитории. Нужен, когда проект требует особых настроек — например, другой email для рабочего репозитория.</div>
+              <div class="file">Внутри репозитория: .git/config</div>
+            </div>
+          </div>
+        </div>
+        <div class="priority-note">
+          Приоритет: <code>local</code> перекрывает <code>global</code>,
+          а <code>global</code> перекрывает <code>system</code>.
+        </div>
+        <p class="diagram-caption">Рис. 1. Три уровня конфигурации Git, где что лежит и чей приоритет выше</p>
+      </div>
+
+      <h3>3.1. Какой уровень выбирать</h3>
+      <p>
+        Практически всегда используется <code>--global</code> — это
+        Ваши личные настройки, они одинаковы во всех Ваших проектах.
+        <code>--local</code> нужен редко, только для «особого» проекта.
+        <code>--system</code> — почти никогда, оставьте его администратору
+        компьютера.
+      </p>
+
+      <h3>3.2. Что будет, если задать один и тот же ключ на разных уровнях</h3>
+      <p>
+        Побеждает «более близкий к репозиторию»:
+      </p>
+      <table>
+        <thead><tr><th>Где задано</th><th>Что увидит Git</th></tr></thead>
+        <tbody>
+          <tr><td>Только <code>--system</code></td><td>Значение из системной настройки.</td></tr>
+          <tr><td><code>--system</code> и <code>--global</code></td><td>Значение из <code>--global</code>.</td></tr>
+          <tr><td><code>--system</code>, <code>--global</code> и <code>--local</code></td><td>Значение из <code>--local</code>.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <span class="label">Классическая ошибка</span>
+        <p>
+          Забыть флаг <code>--global</code>. Команда
+          <code>git config user.name "..."</code> без флага по умолчанию
+          пишет в <strong>локальный</strong> конфиг текущего репозитория.
+          Если Вы выполняете её вне репозитория — Git выдаст ошибку
+          <code>fatal: not in a git directory</code>. Если внутри —
+          настройка применится только к нему, а в остальных проектах
+          имя будет считаться незаданным. Всегда проверяйте, что
+          <code>--global</code> на месте, если хотите настройку
+          «для себя везде».
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="user">
+      <h2>4. Имя и email: обязательный минимум</h2>
+      <p>
+        В каждый коммит Git записывает, кто его сделал. Эти данные берутся
+        из двух настроек: <code>user.name</code> и <code>user.email</code>.
+        Без них <code>git commit</code> не выполнится и попросит их указать.
+        Это единственное, что <strong>обязательно</strong> настроить,
+        чтобы начать работать.
+      </p>
+
+      <div class="diagram">
+        <div class="commit-card">
+          commit 3f2a1b7...<br>
+          Author: Иван Иванов &lt;ivan@example.com&gt;  <span style="color:#64748b;">← из user.name и user.email</span><br>
+          Date:&nbsp;&nbsp; Mon Oct 20 14:32:11 2026 +0300<br>
+          <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;Добавить приветствие в hello.txt
+        </div>
+        <p class="diagram-caption">Рис. 2. Поля user.name и user.email попадают в каждый коммит</p>
+      </div>
+
+      <h3>4.1. Как задать имя и email</h3>
+      <p>Две команды, выполняются по очереди в терминале:</p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git config --global user.name "Иван Иванов"</span>
+<span class="prompt">$</span> <span class="cmd">git config --global user.email "ivan@example.com"</span></code></pre>
+
+      <p>Разбор первой команды:</p>
+      <ul>
+        <li><code>git config</code> — команда управления настройками Git.</li>
+        <li><code>--global</code> — уровень: текущий пользователь, все репозитории.</li>
+        <li><code>user.name</code> — ключ. Префикс <code>user.</code> обозначает раздел «пользователь», <code>name</code> — имя настройки.</li>
+        <li><code>"Иван Иванов"</code> — значение, в кавычках. Кавычки обязательны, если в значении есть пробелы — иначе терминал разобьёт его на два аргумента и Git выдаст ошибку.</li>
+      </ul>
+      <p>
+        Вторая команда устроена точно так же, только ключ —
+        <code>user.email</code>, а значение — адрес электронной почты.
+        Кавычки здесь не обязательны (в адресе нет пробелов), но
+        привычнее всегда использовать их.
+      </p>
+
+      <h3>4.2. Какое имя и какой email указывать</h3>
+      <ul>
+        <li><strong>Имя</strong> — любое, как Вам удобно. Оно попадёт в историю коммитов и будет видно всем, кто её смотрит. Обычно пишут реальное имя или никнейм.</li>
+        <li><strong>Email</strong> — должен быть настоящим, если планируете пользоваться GitHub / GitLab. По email сервисы связывают коммиты с Вашим аккаунтом.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="label">Важно</span>
+        <p>
+          Значения <code>user.name</code> и <code>user.email</code>
+          <strong>не проверяются</strong> на существование. Если опечататься
+          в email, Git этого не заметит и запишет опечатку в коммиты.
+          Проверяйте себя командой проверки (см. ниже).
+        </p>
+      </div>
+
+      <h3>4.3. Проверить, что настройки применились</h3>
+      <p>
+        После ввода команд полезно убедиться, что Git их запомнил.
+        Команда <code>git config &lt;ключ&gt;</code> без значения выводит
+        текущее значение ключа:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git config --global user.name</span>
+<span class="out">Иван Иванов</span>
+
+<span class="prompt">$</span> <span class="cmd">git config --global user.email</span>
+<span class="out">ivan@example.com</span></code></pre>
+
+      <h5>Разбор команд</h5>
+      <ul>
+        <li><code>git config</code> — команда настройки.</li>
+        <li><code>--global</code> — смотрим именно глобальный уровень (а не «итоговое значение с учётом всех уровней»).</li>
+        <li><code>user.name</code> — ключ, значение которого хотим увидеть.</li>
+        <li>Значения после ключа нет — значит, это запрос, а не установка.</li>
+      </ul>
+
+      <h5>Разбор вывода</h5>
+      <div class="output-breakdown">
+        <div class="ob-title">Что вывел Git</div>
+        <dl>
+          <dt>Иван Иванов</dt>
+          <dd>Значение ключа <code>user.name</code> на уровне <code>--global</code>. Именно это имя попадёт в следующие коммиты.</dd>
+          <dt>ivan@example.com</dt>
+          <dd>Значение ключа <code>user.email</code> на уровне <code>--global</code>.</dd>
+        </dl>
+      </div>
+      <p>
+        Если команда ничего не вывела — значит, настройка не сохранилась
+        (например, была опечатка в ключе). Вернитесь к шагу 4.1 и
+        выполните команду заново.
+      </p>
+
+      <div class="callout tip">
+        <span class="label">Совет на будущее</span>
+        <p>
+          Когда Вы сделаете первый <code>git commit</code> без флага
+          <code>-m</code>, Git откроет текстовый редактор для ввода
+          сообщения коммита. По умолчанию это Vim — редактор мощный, но
+          для новичка неудобный. Чтобы выйти из него, не сохраняя
+          ничего, нажмите <code>Esc</code>, затем наберите
+          <code>:q!</code> и нажмите <code>Enter</code>. Пока
+          осваиваетесь — просто всегда используйте <code>git commit -m "сообщение"</code>,
+          тогда редактор не откроется вовсе.
+        </p>
+      </div>
+
+      <h3>4.4. Разные email для работы и личных проектов</h3>
+      <p>
+        Частая ситуация: на работе нужен корпоративный email, дома —
+        личный. Решается локальными настройками внутри конкретного
+        репозитория:
+      </p>
+      <pre><code><span class="comment"># один раз глобально — личные данные</span>
+<span class="prompt">$</span> <span class="cmd">git config --global user.name "Иван Иванов"</span>
+<span class="prompt">$</span> <span class="cmd">git config --global user.email "ivan@personal.com"</span>
+
+<span class="comment"># внутри рабочего репозитория — переопределяем</span>
+<span class="prompt">$</span> <span class="cmd">cd work-project</span>
+<span class="prompt">$</span> <span class="cmd">git config --local user.email "i.ivanov@company.com"</span></code></pre>
+      <p>
+        После этого в <code>work-project</code> коммиты будут подписаны
+        рабочим email, а во всех остальных репозиториях — личным.
+        Это тот самый приоритет уровней: <code>--local</code> перекрывает
+        <code>--global</code>.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="change">
+      <h2>5. Изменение и удаление настроек</h2>
+      <p>
+        Настройки — это просто пары ключ-значение. Их можно менять
+        сколько угодно раз: новая команда <code>git config</code> с тем же
+        ключом просто перезапишет старое значение. Старое значение нигде
+        не сохраняется.
+      </p>
+
+      <h3>5.1. Изменить значение</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git config --global user.name "Пётр Петров"</span></code></pre>
+      <p>
+        Ключ <code>user.name</code> уже был — теперь его значение
+        заменено на «Пётр Петров». Следующие коммиты будут подписаны
+        новым именем.
+      </p>
+
+      <h3>5.2. Удалить настройку</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git config --global --unset user.name</span></code></pre>
+
+      <h5>Разбор команды</h5>
+      <ul>
+        <li><code>git config</code> — команда настройки.</li>
+        <li><code>--global</code> — уровень, из которого удаляем.</li>
+        <li><code>--unset</code> — флаг «удалить ключ» (в отличие от обычного поведения, когда значение устанавливается).</li>
+        <li><code>user.name</code> — ключ, который удаляем.</li>
+      </ul>
+      <p>
+        После выполнения <code>git config --global user.name</code> уже
+        ничего не выведет — ключ удалён. И <code>git commit</code> снова
+        будет просить имя.
+      </p>
+
+      <h3>5.3. Посмотреть все настройки</h3>
+      <p>
+        Если хотите увидеть сразу все настройки (не только имя и email),
+        есть команда <code>git config --list</code>:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git config --list</span>
+<span class="out">diff.astextplain.textconv=astextplain
+filter.lfs.clean=git-lfs clean -- %f
+http.sslbackend=openssl
+user.name=Иван Иванов
+user.email=ivan@example.com</span></code></pre>
+
+      <h5>Разбор команды</h5>
+      <ul>
+        <li><code>--list</code> — вывести все настройки, а не одну.</li>
+        <li>Выводятся настройки <em>всех</em> уровней, объединённые в один список.</li>
+      </ul>
+
+      <h5>Разбор вывода</h5>
+      <div class="output-breakdown">
+        <div class="ob-title">Что вывел Git (пример)</div>
+        <dl>
+          <dt>diff.astextplain.textconv=astextplain</dt>
+          <dd>Служебная настройка, поставленная вместе с Git. Не трогаем.</dd>
+          <dt>filter.lfs.clean=git-lfs clean -- %f</dt>
+          <dd>Настройки Git LFS (Large File Storage) — расширения для больших файлов. Установлены вместе с Git. Не трогаем.</dd>
+          <dt>http.sslbackend=openssl</dt>
+          <dd>Библиотека для HTTPS-соединений. Служебное.</dd>
+          <dt>user.name=Иван Иванов</dt>
+          <dd>Ваше имя для подписи коммитов — то, что мы настроили.</dd>
+          <dt>user.email=ivan@example.com</dt>
+          <dd>Ваш email — тоже из наших настроек.</dd>
+        </dl>
+      </div>
+      <p>
+        Список будет короче или длиннее в зависимости от версии Git и от
+        того, что Вы уже успели настроить. Главное — найти в нём строки
+        <code>user.name</code> и <code>user.email</code> и убедиться,
+        что значения правильные.
+      </p>
+
+      <div class="callout tip">
+        <span class="label">Проверка после любых изменений</span>
+        <p>
+          После изменения или удаления настройки полезно сразу проверить
+          результат: <code>git config --global &lt;ключ&gt;</code> покажет
+          именно тот уровень, который Вы меняли, а
+          <code>git config --list</code> — всё сразу.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="summary">
+      <h2>6. Итоги главы</h2>
+      <p>Что нужно вынести из главы 2:</p>
+      <ul>
+        <li>Git хранит настройки в виде пар «ключ → значение» в текстовых файлах.</li>
+        <li>Три уровня конфигурации: <code>--system</code>, <code>--global</code>, <code>--local</code>. Приоритет: local &gt; global &gt; system.</li>
+        <li>Почти все личные настройки задаются на уровне <code>--global</code>.</li>
+        <li>Обязательный минимум для начала работы: <code>user.name</code> и <code>user.email</code>. Без них <code>git commit</code> не выполняется.</li>
+        <li>Проверить настройку: <code>git config --global &lt;ключ&gt;</code>. Посмотреть всё: <code>git config --list</code>.</li>
+        <li>Изменить настройку — просто повторно вызвать <code>git config</code> с тем же ключом. Удалить — флаг <code>--unset</code>.</li>
+        <li>Остальные настройки (редактор, ветка по умолчанию, окончания строк, псевдонимы) можно оставить по умолчанию. К ним можно вернуться позже, когда появится потребность.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="label">Проверьте себя</span>
+        <p>Попробуйте ответить, не подглядывая:</p>
+        <ul style="margin-bottom:0">
+          <li>Почему для <code>user.name</code> и <code>user.email</code> рекомендуют уровень <code>--global</code>, а не <code>--local</code>?</li>
+          <li>Если <code>user.email</code> задан и на <code>--global</code>, и на <code>--local</code>, какое значение применится?</li>
+          <li>Что произойдёт, если выполнить <code>git config user.name "Иван"</code> вне репозитория?</li>
+          <li>Какая команда покажет текущее значение <code>user.email</code> на глобальном уровне?</li>
+          <li>Чем отличается поведение команд <code>git config --global user.name "..."</code> и <code>git config --global --unset user.name</code>?</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="chapter-footer">
+      
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>

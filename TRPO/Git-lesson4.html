@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Глава 4. Ветки: создание и слияние</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --code-bg: #f1f5f9;
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --warn-bg: #fffbeb;
+    --warn-border: #fde68a;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --tip-bg: #ecfdf5;
+    --tip-border: #a7f3d0;
+    --green: #059669;
+    --amber: #d97706;
+    --red: #dc2626;
+    --purple: #7c3aed;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.75;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 17px;
+  }
+  header.chapter {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    padding: 56px 24px 48px;
+  }
+  header.chapter .inner { max-width: 900px; margin: 0 auto; }
+  header.chapter .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin: 0 0 12px;
+  }
+  header.chapter h1 {
+    font-size: 36px;
+    line-height: 1.2;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  header.chapter .lede {
+    color: #cbd5e1;
+    font-size: 18px;
+    max-width: 700px;
+    margin: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+  main { margin-top: 40px; }
+
+  nav.toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  nav.toc h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { margin-bottom: 6px; }
+  nav.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav.toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  @media (max-width: 640px) {
+    nav.toc ol { columns: 1; }
+    header.chapter h1 { font-size: 26px; }
+  }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section h2 {
+    font-size: 27px;
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+  }
+  section h3 { font-size: 20px; margin: 32px 0 12px; font-weight: 650; }
+  section h4 { font-size: 17px; margin: 24px 0 10px; font-weight: 650; color: #334155; }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 24px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 650; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: #0f172a;
+  }
+
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 0 0 20px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    border: 1px solid #1e293b;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  pre .prompt { color: #64748b; user-select: none; }
+  pre .cmd { color: #93c5fd; }
+  pre .out { color: #cbd5e1; }
+  pre .comment { color: #64748b; font-style: italic; }
+  pre .hash  { color: #fcd34d; background: rgba(252,211,77,0.08); padding: 0 4px; border-radius: 3px; }
+  pre .branch-cur  { color: #fcd34d; font-weight: 700; }
+
+  /* ============ Схемы-графы (SVG) ============ */
+  .git-graph {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    margin: 4px auto 8px;
+    overflow: visible;
+  }
+  .git-graph .commit-rect {
+    fill: #0f172a;
+    stroke: #1e293b;
+    stroke-width: 1;
+  }
+  .git-graph .commit-rect.merge {
+    fill: #4c1d95;
+    stroke: #7c3aed;
+    stroke-width: 2;
+  }
+  .git-graph .commit-text {
+    fill: #86efac;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  .git-graph .commit.merge .commit-text {
+    fill: #e9d5ff;
+  }
+  .git-graph .arrow {
+    stroke: #64748b;
+    stroke-width: 1.5;
+    fill: none;
+    marker-end: url(#arrowhead);
+  }
+  .git-graph .arrow.merge {
+    stroke: #7c3aed;
+    stroke-width: 2;
+    marker-end: url(#arrowhead-merge);
+  }
+  .git-graph .arrow.dashed {
+    stroke-dasharray: 4 3;
+  }
+  .git-graph .branch-badge {
+    fill: #2563eb;
+  }
+  .git-graph .branch-badge.feature {
+    fill: #dbeafe;
+    stroke: #93c5fd;
+    stroke-width: 1;
+  }
+  .git-graph .branch-badge-text {
+    fill: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+    letter-spacing: 0.01em;
+  }
+  .git-graph .badge.feature .branch-badge-text {
+    fill: #1e3a8a;
+  }
+
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 22px 14px;
+    margin: 8px 0 24px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .diagram-caption {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-style: italic;
+  }
+  .diagram-caption strong { color: var(--text); font-style: normal; }
+
+  .callout { border-left: 4px solid; padding: 16px 20px; border-radius: 8px; margin: 0 0 20px; font-size: 16px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .callout.info { background: var(--info-bg); border-color: var(--info-border); }
+  .callout.info .label { color: var(--accent); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.warn .label { color: var(--amber); }
+  .callout.danger { background: var(--danger-bg); border-color: var(--danger-border); }
+  .callout.danger .label { color: var(--red); }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.tip .label { color: var(--green); }
+  .callout.key { background: #fef3c7; border-color: #f59e0b; }
+  .callout.key .label { color: var(--amber); }
+  .callout.legacy { background: #fef2f2; border-color: #fecaca; }
+  .callout.legacy .label { color: #b91c1c; }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 22px; font-size: 15.5px; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 650; font-size: 14px; color: #334155; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 13.5px; }
+  table.compare th:nth-child(1) { width: 30%; }
+  table.compare th:nth-child(2) { width: 35%; }
+  table.compare th:nth-child(3) { width: 35%; }
+  table.compare td.legacy-cell code { color: #b91c1c; }
+  table.compare td.modern-cell code { color: #0f766e; font-weight: 600; }
+
+  .step { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 10px; padding: 22px 24px; margin: 0 0 26px; }
+  .step h4 { margin: 0 0 6px; font-size: 18px; font-weight: 650; color: var(--accent); }
+  .step .goal { color: var(--muted); font-size: 14.5px; margin: 0 0 18px; }
+  .step pre { margin-bottom: 14px; }
+  .step h5 { font-size: 15px; font-weight: 650; margin: 18px 0 8px; color: #334155; }
+  .step ul.explain { margin: 0 0 14px; padding-left: 22px; font-size: 15px; }
+  .step ul.explain li { margin-bottom: 6px; }
+  .step ul.explain code { font-size: 13.5px; }
+  .step .state-after { font-size: 14px; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .step .state-after strong { color: var(--text); }
+
+  .output-breakdown {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 0 0 16px;
+    font-size: 14.5px;
+  }
+  .output-breakdown .ob-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .output-breakdown dl { margin: 0; }
+  .output-breakdown dt {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    background: #e2e8f0;
+    color: #0f172a;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .output-breakdown dd { margin: 4px 0 0 0; padding-left: 0; color: var(--text); }
+
+  footer.chapter-footer { border-top: 2px solid var(--border); padding-top: 28px; margin-top: 40px; color: var(--muted); font-size: 15px; }
+
+  /* Кнопка «На главную» в шапке */
+header .back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.15s, color 0.15s;
+}
+header .back-home:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Ссылка «На главную» в футере */
+.back-home-footer {
+  color: var(--accent, #2563eb);
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-home-footer:hover {
+  text-decoration: underline;
+}
+
+</style>
+</head>
+<body>
+
+<!-- Глобальные маркеры стрелок для всех схем -->
+<svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowhead-merge" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+</svg>
+
+<header class="chapter">
+  <div class="inner">
+
+    <a href="start.html" class="back-home">← На главную</a>
+    <p class="kicker">Глава 4</p>
+    <h1>Ветки: создание и слияние</h1>
+    <p class="lede">
+      Ветка — это самая мощная и самая простая идея Git. Мы научимся
+      создавать ветки, переключаться между ними, делать на них
+      коммиты и сливать обратно в <code>main</code>. Вы увидите оба
+      способа переключения — современный <code>git switch</code> и
+      классический <code>git checkout</code>.
+    </p>
+  </div>
+</header>
+
+<div class="container">
+  <main>
+
+    <nav class="toc">
+      <h2>Содержание главы</h2>
+      <ol>
+        <li><a href="#intro">Введение</a></li>
+        <li><a href="#what-is-branch">Что такое ветка</a></li>
+        <li><a href="#view">Как смотреть ветки: git branch</a></li>
+        <li><a href="#create">Как создавать и переключаться</a></li>
+        <li><a href="#checkout">switch и checkout: два способа</a></li>
+        <li><a href="#practice-ff">Практика 1: fast-forward merge</a></li>
+        <li><a href="#practice-3way">Практика 2: три-стороннее слияние</a></li>
+        <li><a href="#delete">Удаление ветки</a></li>
+        <li><a href="#hashes">Про хеши в этой главе</a></li>
+        <li><a href="#mistakes">Частые ошибки</a></li>
+        <li><a href="#summary">Итоги главы</a></li>
+      </ol>
+    </nav>
+
+    <!-- ============================================================ -->
+    <section id="intro">
+      <h2>1. Введение</h2>
+      <p>
+        До сих пор мы работали на одной ветке — <code>main</code>.
+        Каждый коммит добавлялся прямо в неё, и это было нормально,
+        пока проект был простой. Но представим типичную ситуацию:
+      </p>
+      <ul>
+        <li>В <code>main</code> — рабочая версия программы, которая всех устраивает.</li>
+        <li>Хочется добавить новую функцию, но эксперимент может не удаться.</li>
+        <li>Хочется, чтобы <code>main</code> всё это время оставался рабочим.</li>
+      </ul>
+      <p>
+        Ветки решают эту задачу: можно <strong>попробовать новую идею
+        на отдельной ветке</strong>, не трогая <code>main</code>. Если
+        получилось — слить обратно. Если нет — выбросить ветку,
+        и <code>main</code> останется нетронутым.
+      </p>
+      <p>
+        Хорошая новость: ветки в Git — это очень просто.
+        <strong>Ветка — это всего лишь указатель на коммит</strong>.
+        Не копия файлов, не отдельный каталог — просто «стикер» с
+        именем, приклеенный к одному коммиту. Поэтому создание ветки
+        мгновенное и не занимает места, даже если в проекте тысячи
+        файлов.
+      </p>
+
+      <div class="callout key">
+        <span class="label">Про хеши в этой главе</span>
+        <p>
+          В схемах и в примерах вывода будут встречаться хеши вроде
+          <code>a1b2c3d</code>. Это <strong>примеры</strong> — у Вас
+          они будут свои. Но главное: <strong>в командах этой главы
+          используются имена веток, а не хеши</strong>, поэтому
+          команды можно копировать и вставлять безопасно.
+        </p>
+      </div>
+
+      <div class="callout legacy">
+        <span class="label">Про switch и checkout</span>
+        <p>
+          В этой главе для переключения веток мы будем использовать
+          <code>git switch</code> — современную (с 2019 года) команду.
+          Но Вы наверняка встретите и <code>git checkout</code> — он
+          появился гораздо раньше и до сих пор жив. В разделе 5
+          мы подробно разберём оба и составим таблицу соответствий.
+          <strong>Обе команды работают, обе правильные.</strong>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="what-is-branch">
+      <h2>2. Что такое ветка</h2>
+      <p>
+        Прежде чем вводить команды, важно понять одну вещь, которая
+        снимает 90% путаницы:
+      </p>
+      <p>
+        <strong>Ветка — это указатель на коммит.</strong> Не папка,
+        не копия файлов, не «параллельная вселенная». Просто имя,
+        которое ссылается на конкретный коммит.
+      </p>
+
+      <div class="diagram">
+        <svg class="git-graph" viewBox="0 0 130 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Один коммит, ветка main">
+          <g class="commit">
+            <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+            <text class="commit-text" x="65" y="33">a1b2c3d</text>
+          </g>
+          <g class="badge">
+            <rect class="branch-badge" x="15" y="61" width="100" height="22" rx="6"/>
+            <text class="branch-badge-text" x="65" y="72">main · HEAD</text>
+          </g>
+        </svg>
+        <p class="diagram-caption">
+          Рис. 1. В начале проекта есть только одна ветка <code>main</code>,
+          которая указывает на единственный коммит. <code>HEAD</code> —
+          «Вы сейчас здесь».
+        </p>
+      </div>
+
+      <p>
+        Что означает «указатель на коммит»? Вот что:
+      </p>
+      <ul>
+        <li>Ветка не хранит файлы. Файлы хранит коммит, на который она указывает.</li>
+        <li>Создание новой ветки не копирует проект. Просто появляется второе имя, указывающее на тот же коммит.</li>
+        <li>Когда Вы делаете коммит, <strong>указатель текущей ветки сдвигается</strong> на новый коммит. Остальные ветки стоят на месте.</li>
+      </ul>
+
+      <h3>2.1. Создание ветки: что происходит</h3>
+      <p>
+        Вот что происходит при выполнении <code>git switch -c feature</code>
+        (или <code>git checkout -b feature</code> — разницы нет):
+      </p>
+
+      <div class="diagram">
+        <svg class="git-graph" viewBox="0 0 130 124" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Один коммит, две ветки смотрят на него">
+          <g class="commit">
+            <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+            <text class="commit-text" x="65" y="33">a1b2c3d</text>
+          </g>
+          <g class="badge">
+            <rect class="branch-badge" x="15" y="61" width="100" height="22" rx="6"/>
+            <text class="branch-badge-text" x="65" y="72">main</text>
+          </g>
+          <g class="badge feature">
+            <rect class="branch-badge feature" x="15" y="87" width="100" height="22" rx="6"/>
+            <text class="branch-badge-text" x="65" y="98">feature · HEAD</text>
+          </g>
+        </svg>
+        <p class="diagram-caption">
+          Рис. 2. После создания ветки <code>feature</code> есть две ветки,
+          но обе указывают на <strong>один и тот же</strong> коммит.
+          Файлы физически не скопированы — их и так один экземпляр.
+        </p>
+      </div>
+
+      <h3>2.2. Коммит на ветке: что происходит</h3>
+      <p>
+        Если теперь на ветке <code>feature</code> сделать коммит —
+        сдвинется только указатель <code>feature</code>:
+      </p>
+
+      <div class="diagram">
+        <svg class="git-graph" viewBox="0 0 270 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="main на старом коммите, feature на новом">
+          <line class="arrow" x1="155" y1="33" x2="117" y2="33"/>
+          <g class="commit">
+            <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+            <text class="commit-text" x="65" y="33">a1b2c3d</text>
+          </g>
+          <g class="commit">
+            <rect class="commit-rect" x="155" y="15" width="100" height="36" rx="8"/>
+            <text class="commit-text" x="205" y="33">abc1234</text>
+          </g>
+          <g class="badge">
+            <rect class="branch-badge" x="15" y="61" width="100" height="22" rx="6"/>
+            <text class="branch-badge-text" x="65" y="72">main</text>
+          </g>
+          <g class="badge feature">
+            <rect class="branch-badge feature" x="155" y="61" width="100" height="22" rx="6"/>
+            <text class="branch-badge-text" x="205" y="72">feature · HEAD</text>
+          </g>
+        </svg>
+        <p class="diagram-caption">
+          Рис. 3. Ветка <code>feature</code> ушла вперёд, а <code>main</code>
+          остался на прежнем коммите. Стрелка означает «родитель»:
+          коммит <code>abc1234</code> указывает на <code>a1b2c3d</code>.
+          Теперь <code>abc1234</code> существует только в контексте
+          ветки <code>feature</code>.
+        </p>
+      </div>
+
+      <p>
+        <strong>Именно поэтому</strong>, переключившись обратно на
+        <code>main</code>, Вы не увидите нового коммита в
+        <code>git log</code>, а в файлах — новых правок: рабочая папка
+        «перематывается» к тому состоянию, на которое указывает
+        текущая ветка.
+      </p>
+
+      <h3>2.3. Слияние: что происходит</h3>
+      <p>
+        Когда Вы делаете <code>git merge feature</code>, находясь на
+        <code>main</code>, Git смотрит: «куда указывает feature?» — и
+        если <code>main</code> не сдвигался со своего места, просто
+        <strong>передвигает указатель <code>main</code></strong> туда же,
+        куда указывает <code>feature</code>. Всё. Обе ветки снова
+        вместе.
+      </p>
+
+      <div class="diagram">
+        <svg class="git-graph" viewBox="0 0 270 124" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="После fast-forward слияния обе ветки на одном коммите">
+          <line class="arrow" x1="155" y1="33" x2="117" y2="33"/>
+          <g class="commit">
+            <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+            <text class="commit-text" x="65" y="33">a1b2c3d</text>
+          </g>
+          <g class="commit">
+            <rect class="commit-rect" x="155" y="15" width="100" height="36" rx="8"/>
+            <text class="commit-text" x="205" y="33">abc1234</text>
+          </g>
+          <g class="badge">
+            <rect class="branch-badge" x="155" y="61" width="100" height="22" rx="6"/>
+            <text class="branch-badge-text" x="205" y="72">main · HEAD</text>
+          </g>
+          <g class="badge feature">
+            <rect class="branch-badge feature" x="155" y="87" width="100" height="22" rx="6"/>
+            <text class="branch-badge-text" x="205" y="98">feature</text>
+          </g>
+        </svg>
+        <p class="diagram-caption">
+          Рис. 4. После слияния обе ветки указывают на один и тот же
+          коммит <code>abc1234</code>. Никаких копий, никаких новых
+          коммитов — просто передвинулся указатель <code>main</code>.
+          Это называется <strong>fast-forward</strong> (быстрая перемотка).
+        </p>
+      </div>
+
+      <div class="callout info">
+        <span class="label">Почему «слияние» — это не страшно</span>
+        <p>
+          В простейшем случае (fast-forward) слияние вообще не
+          создаёт новых коммитов и не трогает файлы — просто двигает
+          указатель. Более сложный случай, когда <code>main</code>
+          тоже ушёл вперёд, мы разберём в разделе 7.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="view">
+      <h2>3. Как смотреть ветки: git branch</h2>
+      <p>
+        Первая команда для работы с ветками — <code>git branch</code>.
+        Она выводит список веток в репозитории.
+      </p>
+
+      <h3>3.1. Синтаксис и вывод</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git branch</span>
+<span class="out"><span class="branch-cur">* main</span></span></code></pre>
+
+      <h5>Разбор команды</h5>
+      <ul>
+        <li><code>git branch</code> — без аргументов: показать список веток.</li>
+        <li>У текущей ветки стоит звёздочка <code>*</code>.</li>
+      </ul>
+
+      <h5>Разбор вывода</h5>
+      <div class="output-breakdown">
+        <div class="ob-title">Что вывел Git</div>
+        <dl>
+          <dt>* main</dt>
+          <dd>Единственная ветка в репозитории. Звёздочка означает, что <strong>Вы сейчас на ней</strong>.</dd>
+        </dl>
+      </div>
+
+      <h3>3.2. Когда веток несколько</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git branch</span>
+<span class="out">  feature-second-line
+<span class="branch-cur">* main</span></span></code></pre>
+      <p>
+        Здесь две ветки: <code>feature-second-line</code> и
+        <code>main</code>. Звёздочка у <code>main</code> — Вы сейчас
+        на ней.
+      </p>
+
+      <h3>3.3. Дополнительные сведения: <code>git branch -v</code></h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git branch -v</span>
+<span class="out">  feature-second-line <span class="hash">abc1234</span> Добавить вторую строку
+<span class="branch-cur">* main</span>               <span class="hash">abc1234</span> Добавить вторую строку</span></code></pre>
+      <p>
+        Обе ветки на одном коммите <code>abc1234</code>. Если они
+        разойдутся, хеши будут разные — это сразу станет видно.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="create">
+      <h2>4. Как создавать и переключаться</h2>
+      <p>
+        Для создания ветки в современном Git используется
+        <code>git switch</code> с флагом <code>-c</code>. Одна команда
+        — и создаёт ветку, и переключается на неё.
+      </p>
+
+      <h3>4.1. Создать и сразу переключиться</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git switch -c feature-second-line</span>
+<span class="out">Switched to a new branch 'feature-second-line'</span></code></pre>
+
+      <h5>Разбор команды</h5>
+      <ul>
+        <li><code>git switch</code> — команда переключения между ветками.</li>
+        <li><code>-c</code> — флаг <em>create</em>: создать новую ветку.</li>
+        <li><code>feature-second-line</code> — имя новой ветки. Без пробелов, лучше латиницей: <code>feature-login</code>, <code>fix-typo</code>.</li>
+      </ul>
+
+      <h5>Разбор вывода</h5>
+      <div class="output-breakdown">
+        <div class="ob-title">Что вывел Git</div>
+        <dl>
+          <dt>Switched to a new branch 'feature-second-line'</dt>
+          <dd>«Переключился на новую ветку feature-second-line». Одна строка говорит сразу о двух действиях: ветка создана и Вы на неё перешли.</dd>
+        </dl>
+      </div>
+
+      <h3>4.2. Переключиться на существующую ветку</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git switch main</span>
+<span class="out">Switched to branch 'main'</span></code></pre>
+      <ul>
+        <li><code>git switch</code> — команда переключения.</li>
+        <li><code>main</code> — имя <strong>существующей</strong> ветки.</li>
+        <li>Без <code>-c</code> — если ветки нет, Git выдаст ошибку.</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="label">Незакоммиченные изменения при переключении</span>
+        <p>
+          Если в рабочей папке есть незакоммиченные изменения и Вы
+          переключаетесь на ветку, где эти же файлы отличаются —
+          Git откажется переключаться и предупредит, что изменения
+          будут уничтожены. Решение: закоммитить или отменить
+          изменения (<code>git restore ...</code>).
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="checkout">
+      <h2>5. switch и checkout: два способа</h2>
+      <p>
+        Это важно понять один раз и запомнить на всю жизнь: у Git есть
+        <strong>две команды для переключения между ветками</strong>,
+        и они делают одно и то же.
+      </p>
+
+      <h3>5.1. Немного истории</h3>
+      <p>
+        До 2019 года для переключения веток использовалась только одна
+        команда — <code>git checkout</code>. Она умела делать сразу
+        несколько разных вещей:
+      </p>
+      <ul>
+        <li>переключать ветки;</li>
+        <li>создавать ветки и сразу переключаться на них;</li>
+        <li>восстанавливать файлы (отменять изменения);</li>
+        <li>перемещаться на конкретный коммит (detached HEAD).</li>
+      </ul>
+      <p>
+        Из-за этого <code>checkout</code> было легко перепутать:
+        например, <code>git checkout my-file.txt</code> отменяет
+        изменения в файле, а <code>git checkout my-branch</code>
+        переключает на ветку — синтаксис похожий, а действия
+        совершенно разные. Чтобы убрать путаницу, в Git 2.23
+        (2019 год) команду <code>checkout</code> <strong>разделили
+        на две</strong>:
+      </p>
+      <ul>
+        <li><code>git switch</code> — только переключение веток;</li>
+        <li><code>git restore</code> — только восстановление файлов.</li>
+      </ul>
+      <p>
+        <strong>При этом сам <code>checkout</code> никуда не исчез.</strong>
+        Он работает, как раньше, и используется по сей день.
+      </p>
+
+      <h3>5.2. Таблица соответствий</h3>
+      <table class="compare">
+        <thead>
+          <tr>
+            <th>Что нужно сделать</th>
+            <th>Современный способ (switch)</th>
+            <th>Классический способ (checkout)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Переключиться на существующую ветку</td>
+            <td class="modern-cell"><code>git switch main</code></td>
+            <td class="legacy-cell"><code>git checkout main</code></td>
+          </tr>
+          <tr>
+            <td>Создать ветку и сразу переключиться</td>
+            <td class="modern-cell"><code>git switch -c new-feature</code></td>
+            <td class="legacy-cell"><code>git checkout -b new-feature</code></td>
+          </tr>
+          <tr>
+            <td>Перейти на конкретный коммит (detached HEAD)</td>
+            <td class="modern-cell"><code>git switch --detach &lt;хеш&gt;</code></td>
+            <td class="legacy-cell"><code>git checkout &lt;хеш&gt;</code></td>
+          </tr>
+          <tr>
+            <td>Вернуться на предыдущую позицию</td>
+            <td class="modern-cell"><code>git switch -</code></td>
+            <td class="legacy-cell"><code>git checkout -</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout info">
+        <span class="label">Заметили разницу?</span>
+        <p>
+          В современных командах создание ветки — это
+          <code>switch -c</code> (<em>create</em>), а в классических
+          — <code>checkout -b</code> (<em>branch</em>). Это самая
+          частая точка путаницы: «c» против «b». Просто запомните
+          обе буквы.
+        </p>
+      </div>
+
+      <h3>5.3. Что выбрать</h3>
+      <p>
+        В этом учебнике мы используем <code>git switch</code>, потому что:
+      </p>
+      <ul>
+        <li>это современный стандарт;</li>
+        <li>он делает только одно — переключает ветки, и его невозможно перепутать с отменой правок в файле;</li>
+        <li>если Вы его случайно наберёте с именем файла вместо ветки — Git сразу скажет, что такой ветки нет, и ничего не сломает.</li>
+      </ul>
+      <p>
+        Но <strong><code>git checkout</code> знать нужно обязательно</strong>:
+        Вы встретите его в документации, в интернете, в командах
+        коллег. И если однажды увидите
+        <code>git checkout -b my-feature</code> — Вы уже знаете,
+        что это то же самое, что <code>git switch -c my-feature</code>.
+      </p>
+
+      <h3>5.4. Одна тонкость: <code>checkout</code> умеет ещё и файлы</h3>
+      <p>
+        У <code>checkout</code> есть возможность, которой у
+        <code>switch</code> нет: восстанавливать файлы. Команда
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git checkout notes.txt</span></code></pre>
+      <p>
+        отменяет все незакоммиченные изменения в файле
+        <code>notes.txt</code>. В современном Git для этого есть
+        отдельная команда <code>git restore notes.txt</code> — она
+        делает ровно то же самое. А вот <code>git switch notes.txt</code>
+        <strong>не сработает</strong> — switch не работает с файлами.
+      </p>
+
+      <div class="callout legacy">
+        <span class="label">Итого</span>
+        <p>
+          <code>git switch</code> = «переключение веток» (только это).<br>
+          <code>git restore</code> = «восстановление файлов» (только это).<br>
+          <code>git checkout</code> = «и то, и другое» — старая команда,
+          которая делает обе работы.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="practice-ff">
+      <h2>6. Практика 1: fast-forward merge</h2>
+      <p>
+        Сценарий: создадим проект с одним файлом, сделаем на нём
+        ветку, добавим изменение, сольём обратно в <code>main</code>.
+        Каждый шаг сопровождается схемой — где сейчас ветки.
+      </p>
+
+      <div class="step">
+        <h4>Шаг 1. Создать проект</h4>
+        <p class="goal">Пустая папка, <code>git init</code>, один файл и первый коммит.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">mkdir branches-practice</span>
+<span class="prompt">$</span> <span class="cmd">cd branches-practice</span>
+<span class="prompt">$</span> <span class="cmd">git init</span>
+<span class="out">Initialized empty Git repository in /home/user/branches-practice/.git/</span>
+
+<span class="prompt">$</span> <span class="cmd">echo "Первая строка" &gt; notes.txt</span>
+<span class="prompt">$</span> <span class="cmd">git add notes.txt</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Начальный коммит"</span>
+<span class="out">[main (root-commit) <span class="hash">a1b2c3d</span>] Начальный коммит
+ 1 file changed, 1 insertion(+)
+ create mode 100644 notes.txt</span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>mkdir branches-practice</code> — создаём папку проекта.</li>
+          <li><code>cd branches-practice</code> — заходим в неё.</li>
+          <li><code>git init</code> — превращаем в репозиторий.</li>
+          <li><code>echo "Первая строка" &gt; notes.txt</code> — создаём файл с одной строкой.</li>
+          <li><code>git add notes.txt</code> — файл в индекс.</li>
+          <li><code>git commit -m "Начальный коммит"</code> — первый коммит.</li>
+        </ul>
+
+        <p class="state-after"><strong>Состояние:</strong> одна ветка <code>main</code>, один коммит.</p>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 2. Проверить, на какой ветке Вы</h4>
+        <p class="goal">Убедиться, что Вы на <code>main</code> и других веток нет.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git branch</span>
+<span class="out"><span class="branch-cur">* main</span></span></code></pre>
+
+        <p class="state-after"><strong>Схема:</strong></p>
+        <div class="diagram">
+          <svg class="git-graph" viewBox="0 0 130 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Начальное состояние: один коммит, ветка main">
+            <g class="commit">
+              <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="65" y="33">a1b2c3d</text>
+            </g>
+            <g class="badge">
+              <rect class="branch-badge" x="15" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="65" y="72">main · HEAD</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 3. Создать ветку и переключиться на неё</h4>
+        <p class="goal">Создаём ветку <code>feature-second-line</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git switch -c feature-second-line</span>
+<span class="out">Switched to a new branch 'feature-second-line'</span>
+
+<span class="prompt">$</span> <span class="cmd">git branch</span>
+<span class="out">  main
+<span class="branch-cur">* feature-second-line</span></span></code></pre>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>git switch -c feature-second-line</code> — создаёт ветку и сразу переключается.</li>
+          <li><code>git branch</code> — проверяем: теперь две ветки, звёздочка у новой.</li>
+        </ul>
+
+        <div class="callout legacy">
+          <span class="label">Эквивалент через checkout</span>
+          <p>
+            То же самое делает <code>git checkout -b feature-second-line</code>.
+            Обратите внимание на <code>-b</code> вместо <code>-c</code>.
+          </p>
+        </div>
+
+        <p class="state-after"><strong>Схема:</strong> обе ветки смотрят на один и тот же коммит.</p>
+        <div class="diagram">
+          <svg class="git-graph" viewBox="0 0 130 124" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Две ветки на одном коммите">
+            <g class="commit">
+              <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="65" y="33">a1b2c3d</text>
+            </g>
+            <g class="badge">
+              <rect class="branch-badge" x="15" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="65" y="72">main</text>
+            </g>
+            <g class="badge feature">
+              <rect class="branch-badge feature" x="15" y="87" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="65" y="98">feature-second-line · HEAD</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 4. Сделать коммит на новой ветке</h4>
+        <p class="goal">Добавляем вторую строку и коммитим — только на ветке.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">echo "Вторая строка" &gt;&gt; notes.txt</span>
+<span class="prompt">$</span> <span class="cmd">cat notes.txt</span>
+<span class="out">Первая строка
+Вторая строка</span>
+
+<span class="prompt">$</span> <span class="cmd">git add notes.txt</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Добавить вторую строку"</span>
+<span class="out">[feature-second-line <span class="hash">abc1234</span>] Добавить вторую строку
+ 1 file changed, 1 insertion(+)</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out"><span class="hash">abc1234</span> (HEAD -&gt; feature-second-line) Добавить вторую строку
+<span class="hash">a1b2c3d</span> Начальный коммит</span></code></pre>
+
+        <p class="state-after"><strong>Схема:</strong> ветка <code>feature-second-line</code> ушла вперёд, <code>main</code> стоит на месте.</p>
+        <div class="diagram">
+          <svg class="git-graph" viewBox="0 0 270 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="main на a1b2c3d, feature на abc1234">
+            <line class="arrow" x1="155" y1="33" x2="117" y2="33"/>
+            <g class="commit">
+              <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="65" y="33">a1b2c3d</text>
+            </g>
+            <g class="commit">
+              <rect class="commit-rect" x="155" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="205" y="33">abc1234</text>
+            </g>
+            <g class="badge">
+              <rect class="branch-badge" x="15" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="65" y="72">main</text>
+            </g>
+            <g class="badge feature">
+              <rect class="branch-badge feature" x="155" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="205" y="72">feature-second-line · HEAD</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 5. Переключиться на main — и увидеть, что коммита здесь нет</h4>
+        <p class="goal">Главный «щелчок» в понимании веток.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git switch main</span>
+<span class="out">Switched to branch 'main'</span>
+
+<span class="prompt">$</span> <span class="cmd">cat notes.txt</span>
+<span class="out">Первая строка</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline</span>
+<span class="out"><span class="hash">a1b2c3d</span> (HEAD -&gt; main) Начальный коммит</span></code></pre>
+
+        <div class="callout legacy">
+          <span class="label">Эквивалент через checkout</span>
+          <p><code>git checkout main</code> — тот же самый результат.</p>
+        </div>
+
+        <h5>Разбор команд</h5>
+        <ul class="explain">
+          <li><code>git switch main</code> — переключаемся на <code>main</code>.</li>
+          <li><code>cat notes.txt</code> — <strong>вторая строка исчезла!</strong> Рабочая папка «перемоталась» к состоянию <code>main</code>.</li>
+          <li><code>git log --oneline</code> — история <code>main</code>. Коммита <code>abc1234</code> здесь нет — он в ветке <code>feature-second-line</code>.</li>
+        </ul>
+
+        <p class="state-after"><strong>Схема:</strong> <code>HEAD</code> вернулся на <code>main</code>, но <code>main</code> стоит на старом коммите.</p>
+        <div class="diagram">
+          <svg class="git-graph" viewBox="0 0 270 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HEAD вернулся на main, коммит abc1234 виден только из feature">
+            <line class="arrow" x1="155" y1="33" x2="117" y2="33"/>
+            <g class="commit">
+              <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="65" y="33">a1b2c3d</text>
+            </g>
+            <g class="commit">
+              <rect class="commit-rect" x="155" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="205" y="33">abc1234</text>
+            </g>
+            <g class="badge">
+              <rect class="branch-badge" x="15" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="65" y="72">main · HEAD</text>
+            </g>
+            <g class="badge feature">
+              <rect class="branch-badge feature" x="155" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="205" y="72">feature-second-line</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 6. Слить ветку в main (fast-forward)</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git merge feature-second-line</span>
+<span class="out">Updating <span class="hash">a1b2c3d</span>..<span class="hash">abc1234</span>
+Fast-forward
+ notes.txt | 1 +
+ 1 file changed, 1 insertion(+)</span></code></pre>
+
+        <div class="callout info">
+          <span class="label">merge одинаков в обоих способах</span>
+          <p>
+            <code>git merge</code> — одна команда и для
+            <code>switch</code>, и для <code>checkout</code>.
+          </p>
+        </div>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>Updating a1b2c3d..abc1234</dt>
+            <dd>«Обновляю с a1b2c3d до abc1234».</dd>
+            <dt>Fast-forward</dt>
+            <dd><strong>Быстрая перемотка.</strong> Новый коммит не создаётся — <code>main</code> просто передвигается на коммит, где уже стоит ветка.</dd>
+            <dt>notes.txt | 1 +</dt>
+            <dd>Добавлена одна строка в <code>notes.txt</code>.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Схема:</strong> <code>main</code> перескочил на тот же коммит, на котором стоит <code>feature-second-line</code>.</p>
+        <div class="diagram">
+          <svg class="git-graph" viewBox="0 0 270 124" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="После fast-forward обе ветки на abc1234">
+            <line class="arrow" x1="155" y1="33" x2="117" y2="33"/>
+            <g class="commit">
+              <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="65" y="33">a1b2c3d</text>
+            </g>
+            <g class="commit">
+              <rect class="commit-rect" x="155" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="205" y="33">abc1234</text>
+            </g>
+            <g class="badge">
+              <rect class="branch-badge" x="155" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="205" y="72">main · HEAD</text>
+            </g>
+            <g class="badge feature">
+              <rect class="branch-badge feature" x="155" y="87" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="205" y="98">feature-second-line</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 7. Проверить результат слияния</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">cat notes.txt</span>
+<span class="out">Первая строка
+Вторая строка</span>
+
+<span class="prompt">$</span> <span class="cmd">git log --oneline --graph --all</span>
+<span class="out">* <span class="hash">abc1234</span> (HEAD -&gt; main, feature-second-line) Добавить вторую строку
+* <span class="hash">a1b2c3d</span> Начальный коммит</span></code></pre>
+
+        <p class="state-after"><strong>Готово:</strong> содержимое ветки теперь в <code>main</code>. Дальше — уберём саму ветку за ненадобностью.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="practice-3way">
+      <h2>7. Практика 2: три-стороннее слияние</h2>
+      <p>
+        Fast-forward — самый простой случай. Но часто <code>main</code>
+        тоже уходит вперёд, пока Вы работаете на ветке. Тогда Git
+        <strong>не может просто передвинуть указатель</strong> — у
+        <code>main</code> есть свои коммиты, у ветки свои, и их нужно
+        объединить. Git создаёт <strong>специальный коммит
+        слияния</strong>, у которого <em>два родителя</em>.
+      </p>
+
+      <div class="step">
+        <h4>Шаг 1. Создать новую ветку и сделать на ней коммит</h4>
+        <p class="goal">Ветка <code>feature-add-config</code> добавляет новый файл <code>config.txt</code>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git switch -c feature-add-config</span>
+<span class="out">Switched to a new branch 'feature-add-config'</span>
+
+<span class="prompt">$</span> <span class="cmd">echo "some config" &gt; config.txt</span>
+<span class="prompt">$</span> <span class="cmd">git add config.txt</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Добавить config.txt"</span>
+<span class="out">[feature-add-config <span class="hash">def8888</span>] Добавить config.txt
+ 1 file changed, 1 insertion(+)
+ create mode 100644 config.txt</span></code></pre>
+
+        <p class="state-after"><strong>Схема:</strong> <code>main</code> остался на <code>abc1234</code>, ветка <code>feature-add-config</code> ушла на один коммит вперёд.</p>
+        <div class="diagram">
+          <svg class="git-graph" viewBox="0 0 270 124" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="main на abc1234, feature-add-config на def8888">
+            <line class="arrow" x1="155" y1="33" x2="117" y2="33"/>
+            <g class="commit">
+              <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="65" y="33">abc1234</text>
+            </g>
+            <g class="commit">
+              <rect class="commit-rect" x="155" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="205" y="33">def8888</text>
+            </g>
+            <g class="badge">
+              <rect class="branch-badge" x="15" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="65" y="72">main</text>
+            </g>
+            <g class="badge feature">
+              <rect class="branch-badge feature" x="155" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="205" y="72">feature-add-config · HEAD</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 2. Переключиться на main и сделать там другой коммит</h4>
+        <p class="goal">Главное отличие от прошлого сценария: <strong>main тоже уходит вперёд</strong>.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git switch main</span>
+<span class="out">Switched to branch 'main'</span>
+
+<span class="prompt">$</span> <span class="cmd">echo "Третья строка" &gt;&gt; notes.txt</span>
+<span class="prompt">$</span> <span class="cmd">git add notes.txt</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "Добавить третью строку"</span>
+<span class="out">[main <span class="hash">ghi7777</span>] Добавить третью строку
+ 1 file changed, 1 insertion(+)</span></code></pre>
+
+        <p class="state-after"><strong>Схема:</strong> ветки разошлись от общего предка <code>abc1234</code> — у каждой свой коммит сверху.</p>
+        <div class="diagram">
+          <svg class="git-graph" viewBox="0 0 270 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ветки разошлись от abc1234">
+            <line class="arrow" x1="155" y1="33" x2="117" y2="33"/>
+            <line class="arrow" x1="205" y1="133" x2="115" y2="51"/>
+            <g class="commit">
+              <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="65" y="33">abc1234</text>
+            </g>
+            <g class="commit">
+              <rect class="commit-rect" x="155" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="205" y="33">ghi7777</text>
+            </g>
+            <g class="commit">
+              <rect class="commit-rect" x="155" y="125" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="205" y="143">def8888</text>
+            </g>
+            <g class="badge">
+              <rect class="branch-badge" x="155" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="205" y="72">main · HEAD</text>
+            </g>
+            <g class="badge feature">
+              <rect class="branch-badge feature" x="155" y="171" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="205" y="182">feature-add-config</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 3. Слить ветку в main — теперь это три-стороннее слияние</h4>
+        <p class="goal">Git создаст merge-коммит с двумя родителями.</p>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git merge feature-add-config -m "Слить feature-add-config в main"</span>
+<span class="out">Merge made by the 'ort' strategy.
+ config.txt | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 config.txt</span></code></pre>
+
+        <h5>Разбор команды</h5>
+        <ul class="explain">
+          <li><code>git merge feature-add-config</code> — слить ветку <code>feature-add-config</code> в текущую (<code>main</code>).</li>
+          <li><code>-m "..."</code> — сообщение для коммита слияния. Здесь создаётся <strong>новый коммит</strong>, поэтому нужно сообщение.</li>
+        </ul>
+
+        <h5>Разбор вывода</h5>
+        <div class="output-breakdown">
+          <div class="ob-title">Что вывел Git</div>
+          <dl>
+            <dt>Merge made by the 'ort' strategy.</dt>
+            <dd>«Слияние выполнено стратегией ort». Слово <code>Fast-forward</code> здесь <strong>не</strong> появляется — это не fast-forward.</dd>
+            <dt>config.txt | 1 +</dt>
+            <dd>Изменения из ветки: добавлен <code>config.txt</code> с одной строкой.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Схема:</strong> появился merge-коммит <code>jkl9999</code> с двумя родителями — <code>ghi7777</code> (из main) и <code>def8888</code> (из feature).</p>
+        <div class="diagram">
+          <svg class="git-graph" viewBox="0 0 410 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Merge-коммит с двумя родителями">
+            <line class="arrow" x1="155" y1="33" x2="117" y2="33"/>
+            <line class="arrow" x1="205" y1="133" x2="115" y2="51"/>
+            <line class="arrow" x1="295" y1="33" x2="257" y2="33"/>
+            <line class="arrow merge" x1="295" y1="45" x2="257" y2="133"/>
+            <g class="commit">
+              <rect class="commit-rect" x="15" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="65" y="33">abc1234</text>
+            </g>
+            <g class="commit">
+              <rect class="commit-rect" x="155" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="205" y="33">ghi7777</text>
+            </g>
+            <g class="commit">
+              <rect class="commit-rect" x="155" y="125" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="205" y="143">def8888</text>
+            </g>
+            <g class="commit merge">
+              <rect class="commit-rect merge" x="295" y="15" width="100" height="36" rx="8"/>
+              <text class="commit-text" x="345" y="33">jkl9999</text>
+            </g>
+            <g class="badge">
+              <rect class="branch-badge" x="295" y="61" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="345" y="72">main · HEAD</text>
+            </g>
+            <g class="badge feature">
+              <rect class="branch-badge feature" x="155" y="171" width="100" height="22" rx="6"/>
+              <text class="branch-badge-text" x="205" y="182">feature-add-config</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4>Шаг 4. Посмотреть граф слияния</h4>
+        <pre><code><span class="prompt">$</span> <span class="cmd">git log --oneline --graph --all</span>
+<span class="out">*   <span class="hash">jkl9999</span> (HEAD -&gt; main) Слить feature-add-config в main
+|\
+| * <span class="hash">def8888</span> (feature-add-config) Добавить config.txt
+* | <span class="hash">ghi7777</span> Добавить третью строку
+|/
+* <span class="hash">abc1234</span> Добавить вторую строку
+* <span class="hash">a1b2c3d</span> Начальный коммит</span></code></pre>
+
+        <div class="output-breakdown">
+          <div class="ob-title">Как читать граф</div>
+          <dl>
+            <dt>*   jkl9999 (HEAD -&gt; main) Слить feature-add-config в main</dt>
+            <dd>Самый свежий коммит — <strong>merge-коммит</strong>. Два пробела после <code>*</code> и <code>|\</code> ниже — знак того, что у него два родителя.</dd>
+            <dt>|\</dt>
+            <dd>Граф «раздваивается» — отсюда начинается различие двух веток.</dd>
+            <dt>| * def8888 (feature-add-config) Добавить config.txt</dt>
+            <dd>Коммит из ветки <code>feature-add-config</code>. Левая колонка — <code>main</code>, правая — ветка.</dd>
+            <dt>* | ghi7777 Добавить третью строку</dt>
+            <dd>Коммит из <code>main</code>.</dd>
+            <dt>|/</dt>
+            <dd>Граф «сливается» обратно — обе линии идут к общему предку.</dd>
+            <dt>* abc1234 Добавить вторую строку</dt>
+            <dd>Общий предок — место, где ветка ответвилась.</dd>
+          </dl>
+        </div>
+
+        <p class="state-after"><strong>Готово:</strong> обе линии истории соединены merge-коммитом.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="delete">
+      <h2>8. Удаление ветки</h2>
+      <p>
+        После слияния ветка больше не нужна — её работа выполнена, а
+        вся история теперь в <code>main</code>. Ветку можно удалить:
+        коммиты, на которые она указывала, <strong>никуда не исчезнут</strong>.
+      </p>
+
+      <h3>8.1. Удалить смёрженную ветку</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git branch -d feature-second-line</span>
+<span class="out">Deleted branch feature-second-line (was <span class="hash">abc1234</span>).</span></code></pre>
+
+      <h5>Разбор команды</h5>
+      <ul>
+        <li><code>git branch -d</code> — удалить ветку (<code>-d</code> от <em>delete</em>).</li>
+        <li><code>feature-second-line</code> — имя ветки, которую удаляем.</li>
+        <li>У <code>branch</code> нет «второй версии» в <code>checkout</code>. Удаление ветки — только через <code>git branch -d</code>.</li>
+      </ul>
+
+      <h3>8.2. Что не получится</h3>
+      <h4>Попытка удалить текущую ветку</h4>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git branch -d main</span>
+<span class="out">error: Cannot delete branch 'main' checked out at '/home/user/branches-practice'</span></code></pre>
+      <p>
+        Нельзя удалить ветку, на которой сейчас находитесь. Переключитесь
+        на другую и удалите <code>main</code> уже с неё.
+      </p>
+
+      <h4>Попытка удалить несмёрженную ветку</h4>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git branch -d feature-unmerged</span>
+<span class="out">error: The branch 'feature-unmerged' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D feature-unmerged'.</span></code></pre>
+      <p>
+        Git не даёт удалить ветку, коммиты которой ещё не вошли в
+        <code>main</code>. Если уверены — <strong>заглавная</strong>
+        <code>-D</code>:
+      </p>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git branch -D feature-unmerged</span>
+<span class="out">Deleted branch feature-unmerged (was <span class="hash">xyz0000</span>).</span></code></pre>
+      <div class="callout warn">
+        <span class="label">-D — это принудительно</span>
+        <p>
+          <code>-D</code> удаляет ветку, даже если её коммиты никуда
+          не вошли. Это может привести к «потере» работы. Используйте
+          <code>-D</code> только когда точно уверены.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="hashes">
+      <h2>9. Про хеши в этой главе</h2>
+      <p>
+        В командах этой главы мы <strong>не использовали хеши</strong>
+        — только имена веток. Хеши в схемах и в выводе
+        (<code>a1b2c3d</code>, <code>abc1234</code> и т.д.) —
+        <strong>примеры</strong>; у Вас они будут свои.
+      </p>
+
+      <div class="callout tip">
+        <span class="label">Как читать схемы</span>
+        <p>
+          Коммит — тёмный прямоугольник с хешем. Стрелка указывает
+          от коммита-потомка на его <strong>родителя</strong> (тот
+          коммит, из которого он вырос). Бейдж под коммитом — это
+          ветка, которая на этот коммит указывает. Если под одним
+          коммитом два бейджа — обе ветки указывают на него.
+          Фиолетовый коммит — <strong>merge-коммит</strong>, у него
+          <em>два</em> родителя.
+        </p>
+      </div>
+
+      <div class="callout tip">
+        <span class="label">Имена веток — тоже выбирайте свои</span>
+        <p>
+          Имена <code>feature-second-line</code> и
+          <code>feature-add-config</code> — примеры. Вы можете назвать
+          свои ветки как угодно: <code>my-branch</code>,
+          <code>experiment</code>, <code>add-login</code>.
+          Единственные требования: без пробелов, без кириллицы,
+          без специальных символов кроме <code>-</code> и <code>_</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="mistakes">
+      <h2>10. Частые ошибки</h2>
+
+      <h3>Переключение на несуществующую ветку</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git switch nonexistent</span>
+<span class="out">fatal: invalid reference: nonexistent</span></code></pre>
+      <p>
+        Ветки <code>nonexistent</code> нет. Проверьте список через
+        <code>git branch</code>. Если хотите создать — добавьте
+        <code>-c</code>. (То же с <code>checkout</code>.)
+      </p>
+
+      <h3>Забыли переключиться, прежде чем коммитить</h3>
+      <p>
+        Самая частая ошибка новичков: планировали работать на ветке,
+        но забыли переключиться и сделали коммит на <code>main</code>.
+        Проверка перед коммитом: <code>git status</code> показывает
+        в первой строке текущую ветку (<code>On branch ...</code>).
+      </p>
+
+      <h3>Путаница <code>-c</code> и <code>-b</code></h3>
+      <p>
+        <code>switch -c</code> и <code>checkout -b</code> — это
+        одно и то же (создать ветку и переключиться). Но флаги
+        <strong>разные буквы</strong>: <code>c</code> у switch
+        (<em>create</em>), <code>b</code> у checkout (<em>branch</em>).
+        Если перепутать, Git выдаст ошибку «unknown switch».
+      </p>
+
+      <h3>Слияние в неправильном направлении</h3>
+      <p>
+        <code>git merge X</code> означает «слить X <strong>в
+        текущую</strong> ветку». Если Вы стоите на ветке, а хотите
+        сливать в <code>main</code>, — сначала
+        <code>git switch main</code>, потом
+        <code>git merge &lt;ветка&gt;</code>.
+      </p>
+
+      <h3>Удаление несмёрженной ветки</h3>
+      <p>
+        Git защищает от потери работы. Либо сначала слейте ветку,
+        либо используйте <code>-D</code> вместо <code>-d</code>.
+      </p>
+
+      <h3>Незакоммиченные изменения при переключении</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git switch other-branch</span>
+<span class="out">error: Your local changes to the following files would be overwritten by checkout:
+	notes.txt
+Please commit your changes or stash them before you switch branches.</span></code></pre>
+      <p>
+        В рабочей папке есть незакоммиченные правки, а переключение
+        их «затрёт». Закоммитьте или отмените. Обратите внимание: в
+        сообщении Git говорит «by checkout», даже если Вы выполняли
+        <code>switch</code> — внутри это одна и та же операция.
+      </p>
+
+      <h3>Попытка использовать <code>switch</code> для файлов</h3>
+      <pre><code><span class="prompt">$</span> <span class="cmd">git switch notes.txt</span>
+<span class="out">fatal: invalid reference: notes.txt</span></code></pre>
+      <p>
+        <code>switch</code> умеет <strong>только ветки</strong>. Для
+        файла — <code>git restore notes.txt</code> (современный
+        способ) или <code>git checkout notes.txt</code> (классический).
+      </p>
+
+      <h3>Слияние с конфликтом</h3>
+      <p>
+        Если <strong>обе</strong> ветки меняли <em>один и тот же
+        участок одного и того же файла</em> по-разному, Git создаст
+        <strong>конфликт</strong>. Слияние приостановится, файлы будут
+        помечены маркерами <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>,
+        <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>.
+        Разрешение конфликтов — следующая глава. В этой мы специально
+        строили примеры без конфликтов.
+      </p>
+    </section>
+
+    <!-- ============================================================ -->
+    <section id="summary">
+      <h2>11. Итоги главы</h2>
+      <p>Что нужно вынести из главы 4:</p>
+      <ul>
+        <li><strong>Ветка</strong> — это указатель на коммит, а не копия файлов.</li>
+        <li><code>main</code> — обычная ветка, создаётся по умолчанию.</li>
+        <li><code>git branch</code> — список веток (звёздочка — текущая). <code>-v</code> — с хешами.</li>
+        <li><code>git switch -c &lt;имя&gt;</code> — создать и переключиться (современный способ).</li>
+        <li><code>git checkout -b &lt;имя&gt;</code> — то же самое, классический способ.</li>
+        <li><code>git switch &lt;имя&gt;</code> / <code>git checkout &lt;имя&gt;</code> — переключиться на существующую ветку.</li>
+        <li><code>git merge &lt;ветка&gt;</code> — слить указанную ветку <strong>в текущую</strong>.</li>
+        <li><strong>Fast-forward</strong> — простейший тип: <code>main</code> «догоняет» ветку, нового коммита нет.</li>
+        <li><strong>Три-стороннее слияние</strong> — обе ветки ушли вперёд, создаётся merge-коммит с двумя родителями.</li>
+        <li><code>git branch -d &lt;имя&gt;</code> — удалить смёрженную ветку. Несмёрженную — только через <code>-D</code>.</li>
+        <li><strong>switch и checkout работают одинаково</strong> при переключении веток. checkout — старая команда, switch — новая. У checkout <code>-b</code> вместо <code>-c</code>.</li>
+        <li><code>checkout</code> умеет ещё и файлы, <code>switch</code> — только ветки.</li>
+      </ul>
+
+      <h3>11.1. Главные команды</h3>
+      <table class="compare">
+        <thead>
+          <tr>
+            <th>Что делает</th>
+            <th>Современный способ</th>
+            <th>Классический способ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Список веток</td>
+            <td class="modern-cell"><code>git branch</code></td>
+            <td class="legacy-cell"><code>git branch</code></td>
+          </tr>
+          <tr>
+            <td>Создать и переключиться</td>
+            <td class="modern-cell"><code>git switch -c &lt;имя&gt;</code></td>
+            <td class="legacy-cell"><code>git checkout -b &lt;имя&gt;</code></td>
+          </tr>
+          <tr>
+            <td>Переключиться</td>
+            <td class="modern-cell"><code>git switch &lt;имя&gt;</code></td>
+            <td class="legacy-cell"><code>git checkout &lt;имя&gt;</code></td>
+          </tr>
+          <tr>
+            <td>Слить ветку в текущую</td>
+            <td class="modern-cell"><code>git merge &lt;ветка&gt;</code></td>
+            <td class="legacy-cell"><code>git merge &lt;ветка&gt;</code></td>
+          </tr>
+          <tr>
+            <td>Удалить ветку</td>
+            <td class="modern-cell"><code>git branch -d &lt;имя&gt;</code></td>
+            <td class="legacy-cell"><code>git branch -d &lt;имя&gt;</code></td>
+          </tr>
+          <tr>
+            <td>История всех веток с графом</td>
+            <td class="modern-cell"><code>git log --oneline --graph --all</code></td>
+            <td class="legacy-cell"><code>git log --oneline --graph --all</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout tip">
+        <span class="label">Проверьте себя</span>
+        <p>Попробуйте ответить, не подглядывая:</p>
+        <ul style="margin-bottom:0">
+          <li>Ветка занимает место пропорционально числу файлов — правда или нет? Почему?</li>
+          <li>Вы на ветке <code>feature</code> и делаете коммит. Какая ветка передвинется?</li>
+          <li>Чем <code>git switch -c X</code> отличается от <code>git checkout -b X</code>?</li>
+          <li>Что произойдёт, если выполнить <code>git switch notes.txt</code>?</li>
+          <li>Чем fast-forward отличается от три-стороннего слияния?</li>
+          <li>Почему <code>git branch -d main</code> не сработает?</li>
+        </ul>
+      </div>
+
+      <h3>11.2. Задания для самостоятельной работы</h3>
+      <ol>
+        <li>Создайте новый проект (<code>git init</code>, один файл, первый коммит).</li>
+        <li>Создайте ветку <code>feature-a</code> <strong>через <code>switch -c</code></strong>, добавьте строку, закоммитьте.</li>
+        <li>Переключитесь на <code>main</code> <strong>через <code>checkout</code></strong>. Убедитесь, что результат тот же.</li>
+        <li>Слейте <code>feature-a</code> в <code>main</code> (fast-forward).</li>
+        <li>Удалите ветку <code>feature-a</code>.</li>
+        <li>Создайте ветку <code>feature-b</code> <strong>через <code>checkout -b</code></strong>, добавьте новый файл, закоммитьте.</li>
+        <li>Переключитесь на <code>main</code> <strong>через <code>switch</code></strong>, добавьте другую строку в старый файл, закоммитьте.</li>
+        <li>Слейте <code>feature-b</code> в <code>main</code>. Выполните <code>git log --oneline --graph --all</code> — найдите merge-коммит.</li>
+        <li>Удалите ветку <code>feature-b</code>.</li>
+        <li><em>Провокация:</em> попробуйте <code>git switch notes.txt</code>. Прочитайте ошибку. Затем выполните <code>git restore notes.txt</code> — работает. И <code>git checkout notes.txt</code> — тоже работает. Сделайте вывод.</li>
+      </ol>
+
+    </section>
+
+    
+
+  </main>
+</div>
+
+</body>
+</html>

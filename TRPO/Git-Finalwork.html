@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Контрольная работа. Программирование на C с использованием Git</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --code-bg: #f1f5f9;
+    --info-bg: #eff6ff;
+    --info-border: #bfdbfe;
+    --warn-bg: #fffbeb;
+    --warn-border: #fde68a;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --tip-bg: #ecfdf5;
+    --tip-border: #a7f3d0;
+    --green: #059669;
+    --amber: #d97706;
+    --red: #dc2626;
+    --purple: #7c3aed;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--bg);
+    font-size: 16.5px;
+  }
+  header.doc {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #fff;
+    padding: 56px 24px 44px;
+  }
+  header.doc .inner { max-width: 900px; margin: 0 auto; }
+  header.doc .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin: 0 0 12px;
+  }
+  header.doc h1 {
+    font-size: 34px;
+    line-height: 1.2;
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+  header.doc .lede {
+    color: #cbd5e1;
+    font-size: 17px;
+    max-width: 700px;
+    margin: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+  main { margin-top: 36px; }
+
+  nav.toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  nav.toc h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 14px;
+    font-weight: 600;
+  }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  nav.toc li { margin-bottom: 6px; }
+  nav.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav.toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  @media (max-width: 640px) {
+    nav.toc ol { columns: 1; }
+    header.doc h1 { font-size: 26px; }
+  }
+
+  section { margin-bottom: 52px; scroll-margin-top: 24px; }
+  section h2 {
+    font-size: 26px;
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 700;
+  }
+  section h3 { font-size: 19px; margin: 28px 0 12px; font-weight: 650; }
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 24px; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 650; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: #0f172a;
+  }
+
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 0 0 18px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    border: 1px solid #1e293b;
+  }
+  pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  pre .prompt { color: #64748b; user-select: none; }
+  pre .cmd { color: #93c5fd; }
+  pre .out { color: #cbd5e1; }
+  pre .comment { color: #64748b; font-style: italic; }
+
+  .callout { border-left: 4px solid; padding: 14px 18px; border-radius: 8px; margin: 0 0 18px; font-size: 15.5px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .callout.info { background: var(--info-bg); border-color: var(--info-border); }
+  .callout.info .label { color: var(--accent); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .callout.warn .label { color: var(--amber); }
+  .callout.danger { background: var(--danger-bg); border-color: var(--danger-border); }
+  .callout.danger .label { color: var(--red); }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+  .callout.tip .label { color: var(--green); }
+
+  table { width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 15px; background: var(--surface); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04); }
+  th, td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 650; font-size: 13.5px; color: #334155; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 13px; }
+
+  /* Task cards */
+  .task {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 0 0 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+  .task-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
+  }
+  .task-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    border-radius: 8px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+  }
+  .task-header h4 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 650;
+    color: var(--text);
+    flex: 1;
+  }
+  .task-header .badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .badge-s {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .badge-setup    { background: #dbeafe; color: #1e3a8a; }
+  .badge-bugfix   { background: #fef3c7; color: #78350f; }
+  .badge-revert   { background: #fee2e2; color: #991b1b; }
+  .badge-amend    { background: #f3e8ff; color: #6b21a8; }
+  .badge-conflict { background: #ffedd5; color: #9a3412; }
+  .badge-repo     { background: #d1fae5; color: #065f46; }
+
+  .task-body { padding: 18px 20px; }
+  .task-row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 15.5px;
+  }
+  .task-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .task-row:first-child { padding-top: 0; }
+  .task-row .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 700;
+    padding-top: 3px;
+  }
+  .task-row .content { color: var(--text); }
+  .task-row .content code { font-size: 13.5px; }
+  @media (max-width: 640px) {
+    .task-row { grid-template-columns: 1fr; gap: 4px; }
+    .task-header { flex-wrap: wrap; }
+  }
+
+  .git-spec {
+    background: #f0f9ff;
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 8px 0 0;
+    font-size: 14.5px;
+  }
+  .git-spec .git-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Numbered steps for detailed special procedures */
+  .steps-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 10px 0 0;
+    font-size: 14.5px;
+  }
+  .steps-box .steps-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #92400e;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .steps-box ol { margin: 0; padding-left: 22px; }
+  .steps-box li { margin-bottom: 8px; }
+  .steps-box pre {
+    margin: 6px 0 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  footer.doc-footer {
+    border-top: 2px solid var(--border);
+    padding-top: 24px;
+    margin-top: 40px;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  /* Кнопка «На главную» в шапке */
+header .back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.15s, color 0.15s;
+}
+header .back-home:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Ссылка «На главную» в футере */
+.back-home-footer {
+  color: var(--accent, #2563eb);
+  text-decoration: none;
+  font-weight: 600;
+}
+.back-home-footer:hover {
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+<header class="doc">
+<div class="inner">
+  <a href="start.html" class="back-home">← На главную</a>
+<p class="kicker">Контрольная работа · ТРПО</p>
+<h1>Реализация функций на C и модульное тестирование с ведением проекта в Git</h1>
+<p class="lede">Работа включает реализацию функций на языке C, модульные тесты CUnit и базовое ведение проекта в Git. Все функции заданий 1–17 размещаются в func.c и имеют имена func_N().</p>
+</div>
+</header>
+<div class="container">
+<main>
+<nav class="toc">
+<h2>Содержание работы</h2>
+<ol>
+<li><a href="#goal">1. Цель работы</a></li>
+<li><a href="#submit">2. Что сдаётся</a></li>
+<li><a href="#structure">3. Структура репозитория</a></li>
+<li><a href="#git-rules">4. Правила работы с Git</a></li>
+<li><a href="#tasks">5. Список заданий</a></li>
+<li><a href="#grading">6. Оценка работы</a></li>
+<li><a href="#appendix-a">Приложение A. Пример полного workflow</a></li>
+<li><a href="#appendix-b">Приложение B. Шпаргалка по Git</a></li>
+</ol>
+</nav>
+<section id="goal">
+<h2>1. Цель работы</h2>
+<p>
+        В этой работе необходимо реализовать набор функций на языке C,
+        покрыть их модульными тестами с использованием библиотеки
+        <strong>CUnit</strong> и вести разработку в Git. Контролируются
+        две составляющие:
+      </p>
+<ul>
+<li><strong>Техническая</strong> — функции работают по спецификации, тесты проходят, код собирается без ошибок и предупреждений.</li>
+<li><strong>Инженерная (Git)</strong> — каждая задача оформлена как отдельная ветка, история коммитов осмысленна, слияния выполнены в <code>main</code>, репозиторий в момент сдачи находится в чистом состоянии.</li>
+</ul>
+<p>Основной результат — работающие функции на C и проходящие модульные тесты CUnit. Проект должен собираться без ошибок и предупреждений.</p>
+</section>
+<section id="submit">
+<h2>2. Что сдаётся</h2>
+<p>На проверку предоставляется:</p>
+<ol>
+<li>
+<strong>Архив</strong> с полной папкой проекта,
+          включая скрытую <code>.git/</code>. Без папки <code>.git/</code>
+          история отсутствует, и работа принимается по нижней границе
+          оценки.
+        </li>
+<li>
+<strong>Отчет</strong> в корне
+          репозитория, содержащий:
+          <ul>
+<li>список выполненных задач (номера);</li>
+<li>вывод команды <code>git log --oneline --graph --all</code>, вставленный как блок кода;</li>
+<li>для задач 18 и 19 (если выбраны) — ссылку на отдельный репозиторий;</li>
+<li>листинг.</li>
+
+<li>Демонстрация прохождения тестов.</strong> Скриншот, запуска <code>make test</code> (или
+          вашей команды сборки тестов), где видно, что все тесты
+          проходят.
+        </li>
+</ol>
+</section>
+
+<section id="structure">
+<h2>3. Структура репозитория</h2>
+<p>В корне репозитория должны находиться следующие файлы:</p>
+<table>
+<thead><tr><th>Файл</th><th>Назначение</th></tr></thead>
+<tbody>
+<tr>
+<td><code>main.c</code></td>
+<td>Точка входа программы. Содержит <code>main()</code> с демонстрационными вызовами реализованных функций.</td>
+</tr>
+<tr>
+<td><code>func.h</code></td>
+<td>Объявления всех функций <code>func_1</code> … <code>func_17</code>, а также общие <code>#include</code>.</td>
+</tr>
+<tr>
+<td><code>func.c</code></td>
+<td>Реализации всех функций. Одна задача — одна функция.</td>
+</tr>
+<tr>
+<td><code>test_main.c</code></td>
+<td>Функция <code>main()</code> для запуска тестов CUnit.</td>
+</tr>
+<tr>
+<td><code>test_func.c</code>, <code>test_func.h</code></td>
+<td><em>Опционально.</em> Если хотите разнести тесты по файлам — можно.</td>
+</tr>
+<tr>
+<td><code>Makefile</code></td>
+<td>Сборка основной программы и тестов. Цели <code>all</code>, <code>test</code>, <code>clean</code>.</td>
+</tr>
+<tr>
+<td><code>.gitignore</code></td>
+<td>Исключения из репозитория (см. раздел 4.1).</td>
+</tr>
+<tr>
+
+</tbody>
+</table>
+<h3>Готовый Makefile для основного проекта</h3>
+<p>
+  Чтобы не тратить время на настройку сборки, скопируйте этот шаблон
+  в файл <code>Makefile</code> в корне репозитория. Он рассчитан на файлы
+  <code>main.c</code>, <code>func.c</code>, <code>func.h</code> и
+  <code>test_main.c</code>. Для задания 18 или 19, которое выполняется
+  в отдельном репозитории, имена исходников в Makefile нужно согласовать
+  с файлами выбранной игры.
+</p>
+<pre><code>CC ?= cc
+CFLAGS ?= -std=c11 -Wall -Wextra -Wpedantic -O2
+CPPFLAGS ?=
+LDFLAGS ?=
+LDLIBS ?=
+CUNIT_LIBS ?= -lcunit
+
+.PHONY: all test clean
+
+# Собрать основную программу.
+all: main
+
+main: main.o func.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+
+# Собрать тесты и запустить их.
+test: test_main
+	./test_main
+
+test_main: test_main.o func.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(CUNIT_LIBS) $(LDLIBS)
+
+# Общее правило компиляции исходников в объектные файлы.
+%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $&lt; -o $@
+
+# Зависимости от заголовков: при их изменении нужные файлы пересоберутся.
+main.o: main.c func.h
+func.o: func.c func.h
+test_main.o: test_main.c func.h
+
+clean:
+	rm -f *.o main test_main</code></pre>
+<p>Основные команды:</p>
+<ul>
+  <li><code>make</code> — собрать основную программу <code>main</code>;</li>
+  <li><code>make test</code> — собрать тесты и запустить их;</li>
+  <li><code>make clean</code> — удалить объектные файлы и собранные программы.</li>
+</ul>
+<p>
+  Для выполнения <code>make test</code> в системе должна быть установлена
+  библиотека CUnit. Если библиотека установлена нестандартно, значение
+  <code>CUNIT_LIBS</code> можно переопределить при запуске <code>make</code>.
+</p>
+<p>
+        Задачи 18 и 19 оформляются <strong>в отдельных репозиториях</strong>
+        с собственной структурой (см. описание этих задач).
+      </p>
+</section>
+<section id="git-rules">
+<h2>4. Правила работы с Git</h2>
+<h3>4.1. Файл <code>.gitignore</code></h3>
+<p>
+        В корне репозитория должен быть <code>.gitignore</code>,
+        исключающий артефакты сборки и системный мусор. Рекомендуемое
+        содержимое:
+      </p>
+<pre><code><span class="comment"># артефакты сборки</span>
+*.o
+*.obj
+*.exe
+
+<span class="comment"># скомпилированные бинарники</span>
+main
+test_main
+test_runner
+
+<span class="comment"># покрытие (если включите)</span>
+*.gcda
+*.gcno
+*.gcov
+
+<span class="comment"># редакторы</span>
+.vscode/
+.idea/
+*.swp
+
+<span class="comment"># система</span>
+.DS_Store
+Thumbs.db
+
+<span class="comment"># логи</span>
+*.log</code></pre>
+<p>
+        Проверка: после сборки проекта (<code>make</code>) команда
+        <code>git status</code> должна оставаться чистой. Если в
+        статусе появились <code>*.o</code> или <code>main</code> —
+        <code>.gitignore</code> неполный.
+      </p>
+<h3>4.2. Базовый workflow (обязателен для каждой задачи 1–17)</h3>
+<p>
+<strong>Каждая</strong> задача из списка 1–17 выполняется
+        по одному и тому же сценарию. Он не повторяется в описании
+        отдельных задач — подразумевается по умолчанию.
+      </p>
+<ol>
+<li>Убедиться, что вы на <code>main</code> и репозиторий чистый:
+          <pre><code><span class="prompt">$</span> <span class="cmd">git switch main</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+nothing to commit, working tree clean</span></code></pre>
+</li>
+<li>Создать ветку под задачу <code>feature/func-NN</code>, где <code>NN</code> — двузначный номер задачи (01, 02, … 17):
+          <pre><code><span class="prompt">$</span> <span class="cmd">git switch -c feature/func-07</span></code></pre>
+</li>
+<li>Реализовать функцию в <code>func.c</code>, объявление — в <code>func.h</code>, тесты — в <code>test_main.c</code>.</li>
+<li>Сделать <strong>минимум 2 коммита</strong> на ветке:
+          <ul>
+<li>первый — реализация функции;</li>
+<li>второй — тесты к ней.</li>
+</ul>
+          Пример:
+          <pre><code><span class="prompt">$</span> <span class="cmd">git add func.c func.h</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "feat: implement func_07 (index of value)"</span>
+<span class="prompt">$</span> <span class="cmd">git add test_main.c</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "test: add tests for func_07"</span></code></pre>
+</li>
+<li>Убедиться, что тесты проходят, затем слить ветку в <code>main</code> <strong>с флагом <code>--no-ff</code></strong> — это создаёт отдельный merge-коммит, и история остаётся читаемой:
+          <pre><code><span class="prompt">$</span> <span class="cmd">git switch main</span>
+<span class="prompt">$</span> <span class="cmd">git merge --no-ff feature/func-07 -m "Merge branch 'feature/func-07'"</span></code></pre>
+</li>
+
+</ol>
+<div class="callout info">
+<span class="label">Почему --no-ff</span>
+<p>
+          Без этого флага Git при возможности делает fast-forward —
+          и в истории не видно, что была отдельная ветка. С
+          <code>--no-ff</code> создаётся merge-коммит, и по
+          <code>git log --graph</code> сразу понятно, какие задачи
+          выполнялись в отдельных ветках. Это часть требований.
+        </p>
+</div>
+<h3>4.3. Соглашение о сообщениях коммитов</h3>
+<p>
+        Сообщение коммита имеет вид
+        <code>&lt;тип&gt;: &lt;краткое описание&gt;</code>. Тип — одно
+        из:
+      </p>
+<table>
+<thead><tr><th>Тип</th><th>Когда использовать</th><th>Пример</th></tr></thead>
+<tbody>
+<tr><td><code>init</code></td><td>Первичная настройка репозитория</td><td><code>init: setup project structure and CUnit</code></td></tr>
+<tr><td><code>feat</code></td><td>Реализация функции</td><td><code>feat: implement func_05 (min in array)</code></td></tr>
+<tr><td><code>test</code></td><td>Добавление или правка тестов</td><td><code>test: add tests for func_05</code></td></tr>
+<tr><td><code>fix</code></td><td>Исправление ошибки в уже закоммиченном коде</td><td><code>fix: handle empty array in func_02</code></td></tr>
+<tr><td><code>docs</code></td><td>Документация</td><td><code>docs: add build instructions to README</code></td></tr>
+<tr><td><code>chore</code></td><td>Служебные изменения (сборка, .gitignore)</td><td><code>chore: add .gitignore for build artifacts</code></td></tr>
+
+</tbody>
+</table>
+<h3>4.4. Соглашение об именах веток</h3>
+<ul>
+<li><code>main</code> — стабильная ветка. Только merge из <code>feature/*</code>.</li>
+<li><code>feature/func-NN</code> — одна задача. Например: <code>feature/func-01</code>, <code>feature/func-17</code>.</li>
+<li>После merge — удаляется.</li>
+</ul>
+<h3>4.5. Общие требования к истории</h3>
+<ul>
+<li>Коммиты атомарные: один коммит — одно логическое изменение.</li>
+<li>Никаких сообщений вида <code>fix</code>, <code>update</code>, <code>WIP</code>, <code>asdf</code>.</li>
+<li>В <code>main</code> не должно быть незакоммиченных изменений к моменту сдачи.</li>
+<li>Все ветки, кроме <code>main</code>, удалены после слияния.</li>
+</ul>
+</section>
+<section id="tasks">
+<h2>5. Список заданий</h2>
+<p>Для каждой задачи указаны прототип функции и её поведение. Задания 1–17 реализуются в файле <code>func.c</code>; объявления функций размещаются в <code>func.h</code>. Имена функций имеют формат <code>func_N()</code>, где N — номер задания.</p>
+
+<div class="task">
+<div class="task-header">
+<span class="task-num">01</span>
+<h4>Максимум из трёх чисел</h4>
+
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>int func_1(int a, int b, int c);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">Возвращает наибольшее из трёх целых чисел.</div>
+</div>
+
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">02</span>
+<h4>Произведение чётных элементов массива</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>long func_2(int arr[], int size);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Принимает массив целых и его размер. Возвращает
+              произведение всех чётных элементов. Если в массиве нет
+              чётных элементов — функция возвращает 1 (по правилу
+              пустого произведения).
+            </div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">03</span>
+<h4>Произведение нечётных элементов массива</h4>
+
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>long func_3(int arr[], int size);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Аналогично <code>func_2</code>, но для нечётных
+              элементов. Если нечётных нет — возвращает 1.
+            </div>
+</div>
+
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">04</span>
+<h4>Максимум в массиве</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>int func_4(int arr[], int size);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">Возвращает максимальный элемент массива. Поведение при <code>size == 0</code> — на ваш выбор; задокументируйте в комментарии.</div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">05</span>
+<h4>Минимум в массиве</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>int func_5(int arr[], int size);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">Возвращает минимальный элемент массива.</div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">06</span>
+<h4>Среднее значение в массиве</h4>
+
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>double func_6(int arr[], int size);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Возвращает среднее арифметическое элементов массива.
+              При <code>size == 0</code> верните <code>0.0</code>.
+            </div>
+</div>
+
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">07</span>
+<h4>Поиск индекса значения в массиве</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>int func_7(int arr[], int size, int v);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Возвращает индекс первого вхождения <code>v</code> в
+              массив или <code>-1</code>, если значения нет.
+              Пример: <code>[1,2,3,4,5,6], size=6, v=3</code> → <code>2</code>.
+            </div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">08</span>
+<h4>Количество элементов, равных заданному</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>int func_8(int arr[], int size, int a);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">Возвращает, сколько раз число <code>a</code> встречается в массиве.</div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">09</span>
+<h4>Количество элементов, больших заданного</h4>
+
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>int func_9(int arr[], int size, int a);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">Возвращает количество элементов массива, строго больших <code>a</code>.</div>
+</div>
+
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">10</span>
+<h4>Обрезка пробелов в начале и конце строки</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>char *func_10(char *s);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Удаляет пробельные символы (<code>' '</code>, <code>'\t'</code>, <code>'\n'</code>) в начале и конце строки.
+              Пример: <code>" Hello "</code> → <code>"Hello"</code>.
+              Можно модифицировать на месте или вернуть новый буфер — задокументируйте в комментарии.
+            </div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">11</span>
+<h4>Сдвиг массива влево на k позиций</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>void func_11(int arr[], int size, int k);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Циклически сдвигает массив на <code>k</code> позиций влево.
+              Пример: <code>[1,2,3,4,5], k=2</code> → <code>[3,4,5,1,2]</code>.
+              Корректно обработать <code>k &gt; size</code>.
+            </div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">12</span>
+<h4>Переворот строки</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>void func_12(char *s);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Переворачивает строку на месте.
+              Пример: <code>"hello"</code> → <code>"olleh"</code>.
+            </div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">13</span>
+<h4>Удаление всех пробелов из строки</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>void func_13(char *s);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Удаляет все пробельные символы из строки.
+              Пример: <code>"Hello world"</code> → <code>"Helloworld"</code>.
+            </div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">14</span>
+<h4>Проверка возможности треугольника</h4>
+
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>int func_14(int a, int b, int c);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Возвращает 1, если из трёх отрезков можно составить
+              треугольник, иначе 0. Правило: если одна сторона больше
+              или равна сумме двух других — треугольник невозможен.
+              Пример: <code>(3,4,5)</code> → 1; <code>(1,2,3)</code> → 0.
+            </div>
+</div>
+
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">15</span>
+<h4>Заглавная первая буква слова</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>char *func_15(char *s);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Меняет первую букву на заглавную, остальные символы не
+              трогает. Пример: <code>"summer"</code> → <code>"Summer"</code>;
+              <code>"SuMmer"</code> → <code>"SuMmer"</code>;
+              <code>"caT"</code> → <code>"CaT"</code>.
+            </div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">16</span>
+<h4>Сокращение длинных слов (abbreviation)</h4>
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>char *func_16(const char *word);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Если длина слова строго больше 10, вернуть аббревиатуру
+              вида <em>первая_буква + (длина − 2) + последняя_буква</em>.
+              Иначе вернуть слово как есть.
+              Примеры: <code>localization</code> → <code>l10n</code>;
+              <code>internationalization</code> → <code>i18n</code>;
+              <code>word</code> → <code>word</code>.
+            </div>
+</div>
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">17</span>
+<h4>Стоимость доставки интернет-магазина</h4>
+
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Прототип</div>
+<div class="content"><code>int func_17(int count);</code></div>
+</div>
+<div class="task-row">
+<div class="label">Описание</div>
+<div class="content">
+              Принимает количество товаров в заказе и возвращает
+              стоимость доставки:
+              <strong>780 руб.</strong> за первый товар и
+              <strong>210 руб.</strong> за каждый последующий.
+              Пример: <code>count = 1</code> → 780; <code>count = 4</code> → 780 + 3·210 = 1410.
+              Обработать <code>count ≤ 0</code> — вернуть 0.
+            </div>
+</div>
+
+</div>
+</div>
+
+<h3 style="margin-top:40px">5.2. Задания 18–19 — отдельные проекты</h3>
+<p>
+        Задания 18 и 19 оформляются <strong>каждое в своём
+        репозитории</strong>. Структура проекта и история Git
+        строятся по тем же правилам (раздел 4), но появляются
+        дополнительные требования: полноценный <code>Makefile</code>
+        с зависимостями и отдельная история разработки.
+      </p>
+<div class="task">
+<div class="task-header">
+<span class="task-num">18</span>
+<h4>Игра «Быки и коровы»</h4>
+
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Функции</div>
+<div class="content">
+<ul style="margin-bottom:0">
+<li>Генерация секретного кода — <code>void generate_secret(char *secret, int length);</code></li>
+<li>Подсчёт быков и коров — <code>void count_bulls_cows(const char *secret, const char *guess, int *bulls, int *cows);</code></li>
+<li><em>Опционально:</em> функция подсчёта попыток, функция вывода подсказки.</li>
+</ul>
+</div>
+</div>
+<div class="task-row">
+<div class="label">Тесты</div>
+<div class="content">
+              Обязательно покрыть CUnit-тестами функцию
+              <code>count_bulls_cows</code>: пустой ввод, полное
+              совпадение, полное несовпадение, частичное совпадение
+              быков и коров. Функция генерации — опционально.
+            </div>
+</div>
+<div class="task-row">
+<div class="label">Makefile</div>
+<div class="content">
+              Отдельный <code>Makefile</code> с целями
+              <code>all</code>, <code>test</code>, <code>clean</code>.
+              Обязательно указать зависимости объектных файлов от
+              заголовочных:
+              <pre style="margin:6px 0 0"><code>game.o: game.c game.h
+	$(CC) $(CFLAGS) -c game.c -o game.o</code></pre>
+</div>
+</div>
+
+</div>
+</div>
+<div class="task">
+<div class="task-header">
+<span class="task-num">19</span>
+<h4>Игра «Крестики-нолики»</h4>
+
+</div>
+<div class="task-body">
+<div class="task-row">
+<div class="label">Функции</div>
+<div class="content">
+<ul style="margin-bottom:0">
+<li>Вывод игрового поля — <code>void print_board(char board[3][3]);</code></li>
+<li>Проверка занятости клетки — <code>int is_cell_free(char board[3][3], int row, int col);</code></li>
+<li>Установка хода — <code>int make_move(char board[3][3], int row, int col, char mark);</code></li>
+<li>Проверка победы / ничьей — <code>int check_game_over(char board[3][3]);</code></li>
+</ul>
+</div>
+</div>
+<div class="task-row">
+<div class="label">Тесты</div>
+<div class="content">
+              Обязательно покрыть CUnit-тестами
+              <code>is_cell_free</code>, <code>make_move</code> и
+              <code>check_game_over</code>: горизонтальная победа,
+              вертикальная, диагональная, ничья, пустое поле, победа
+              не наступила.
+            </div>
+</div>
+<div class="task-row">
+<div class="label">Makefile</div>
+<div class="content">
+              Отдельный <code>Makefile</code> с зависимостями между
+              исходниками и заголовками. Цели <code>all</code>,
+              <code>test</code>, <code>clean</code>.
+            </div>
+</div>
+
+</div>
+</div>
+</section>
+
+<section id="grading"><h2>6. Оценка работы</h2><p>Оценка определяется количеством выполненных заданий:</p><table><thead><tr><th>Оценка</th><th>Требования</th></tr></thead><tbody><tr><td><strong>3</strong></td><td>10 любых заданий.</td></tr><tr><td><strong>4</strong></td><td>15 любых заданий, среди которых обязательно должны быть выполнены задания 14, 15 и 17.</td></tr><tr><td><strong>5</strong></td><td>18 любых заданий.</td></tr></tbody></table></section>
+
+
+<section id="appendix-a">
+<h2>Приложение A. Пример полного workflow одной задачи</h2>
+<p>
+        Ниже — пошаговый пример для задачи 7 (поиск индекса значения).
+        Для других задач сценарий аналогичен, меняются только имена
+        файлов, сообщения и код.
+      </p>
+<pre><code><span class="comment"># 1. Убедиться, что на main и всё чисто</span>
+<span class="prompt">$</span> <span class="cmd">git switch main</span>
+<span class="prompt">$</span> <span class="cmd">git status</span>
+<span class="out">On branch main
+nothing to commit, working tree clean</span>
+
+<span class="comment"># 2. Создать ветку под задачу</span>
+<span class="prompt">$</span> <span class="cmd">git switch -c feature/func-07</span>
+<span class="out">Switched to a new branch 'feature/func-07'</span>
+
+<span class="comment"># 3. Написать функцию в func.c и объявление в func.h</span>
+<span class="comment">#    (редактор — ваш)</span>
+
+<span class="comment"># 4. Сделать первый коммит — реализацию</span>
+<span class="prompt">$</span> <span class="cmd">git add func.c func.h</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "feat: implement func_07 (index of value)"</span>
+<span class="out">[feature/func-07 3a7c2b1] feat: implement func_07 (index of value)
+ 2 files changed, 18 insertions(+)</span>
+
+<span class="comment"># 5. Написать тесты, проверить что проходят</span>
+<span class="prompt">$</span> <span class="cmd">make test</span>
+<span class="out">CUnit — all tests passed (8 assertions)</span>
+
+<span class="comment"># 6. Второй коммит — тесты</span>
+<span class="prompt">$</span> <span class="cmd">git add test_main.c</span>
+<span class="prompt">$</span> <span class="cmd">git commit -m "test: add tests for func_07"</span>
+<span class="out">[feature/func-07 5e1d8f3] test: add tests for func_07
+ 1 file changed, 24 insertions(+)</span>
+
+<span class="comment"># 7. Слить в main с --no-ff</span>
+<span class="prompt">$</span> <span class="cmd">git switch main</span>
+<span class="out">Switched to branch 'main'</span>
+<span class="prompt">$</span> <span class="cmd">git merge --no-ff feature/func-07 -m "Merge branch 'feature/func-07'"</span>
+<span class="out">Merge made by the 'ort' strategy.
+ func.c      | 18 +++++++++++++++
+ func.h      |  1 +
+ test_main.c | 24 +++++++++++++++++++++
+ 3 files changed, 43 insertions(+)</span>
+
+<span class="comment"># 8. Удалить ветку</span>
+<span class="prompt">$</span> <span class="cmd">git branch -d feature/func-07</span>
+<span class="out">Deleted branch feature/func-07 (was 5e1d8f3).</span></code></pre>
+
+</section>
+
+<section id="appendix-b">
+<h2>Приложение B. Шпаргалка по Git</h2>
+<p>Минимум, который понадобится в этой работе:</p>
+<table>
+<thead><tr><th>Команда</th><th>Что делает</th></tr></thead>
+<tbody>
+<tr><td><code>git status</code></td><td>Показать текущее состояние</td></tr>
+<tr><td><code>git diff</code></td><td>Показать изменения в рабочей папке</td></tr>
+<tr><td><code>git diff --staged</code></td><td>Показать, что попадёт в следующий коммит</td></tr>
+<tr><td><code>git add &lt;файл&gt;</code></td><td>Добавить файл в индекс</td></tr>
+<tr><td><code>git commit -m "..."</code></td><td>Создать коммит с сообщением</td></tr>
+
+
+<tr><td><code>git log --oneline</code></td><td>Краткая история</td></tr>
+<tr><td><code>git log --oneline --graph --all</code></td><td>История всех веток с графом</td></tr>
+<tr><td><code>git branch</code></td><td>Список веток</td></tr>
+<tr><td><code>git switch &lt;ветка&gt;</code></td><td>Переключиться на ветку</td></tr>
+<tr><td><code>git switch -c &lt;ветка&gt;</code></td><td>Создать ветку и переключиться</td></tr>
+<tr><td><code>git merge --no-ff &lt;ветка&gt;</code></td><td>Слить ветку в текущую с merge-коммитом</td></tr>
+<tr><td><code>git branch -d &lt;ветка&gt;</code></td><td>Удалить слитую ветку</td></tr>
+</tbody>
+</table>
+
+</section>
+<footer class="doc-footer">
+
+</footer>
+</main>
+</div>
+</body>
+</html>
