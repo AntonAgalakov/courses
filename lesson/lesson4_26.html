@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Цикл for</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #4361ee;
+        --primary-light: #4895ef;
+        --secondary: #3f37c9;
+        --success: #4cc9f0;
+        --light-bg: #f8f9fa;
+        --card-bg: #ffffff;
+        --text: #212529;
+        --text-light: #6c757d;
+        --border-radius: 16px;
+        --shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+        color: var(--text);
+        line-height: 1.6;
+        padding: 20px;
+        min-height: 100vh;
+    }
+    .container {
+        max-width: 850px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        padding: 32px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+    h1 {
+        text-align: center;
+        font-weight: 700;
+        font-size: 2rem;
+        margin-bottom: 16px;
+        color: var(--secondary);
+    }
+    p.intro {
+        text-align: center;
+        color: var(--text-light);
+        margin-bottom: 24px;
+        font-size: 1.05rem;
+    }
+    h2 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 32px 0 16px;
+        font-size: 1.5rem;
+        color: var(--primary);
+        font-weight: 600;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #eef2ff;
+    }
+    h3 {
+        margin: 28px 0 10px;
+        font-size: 1.2rem;
+        color: var(--secondary);
+        font-weight: 600;
+    }
+    pre {
+        font-family: 'JetBrains Mono', monospace;
+        background: #2b2d42;
+        color: #f8f9fa;
+        padding: 16px;
+        border-radius: 12px;
+        overflow-x: auto;
+        font-size: 0.92rem;
+        margin-top: 12px;
+        line-height: 1.5;
+    }
+    code {
+        font-family: 'JetBrains Mono', monospace;
+        background: #eef2ff;
+        padding: 2px 6px;
+        border-radius: 6px;
+        color: var(--secondary);
+    }
+    pre code {
+        background: transparent;
+        padding: 0;
+        color: inherit;
+    }
+    /* === АККОРДЕОН (только для задач) === */
+    .accordion-header {
+        background: #f9fbfd;
+        padding: 16px 20px;
+        margin: 12px 0;
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--primary);
+        box-shadow: 0 2px 8px rgba(67, 97, 238, 0.08);
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        color: var(--secondary);
+    }
+    .accordion-header:hover {
+        background: #f0f5ff;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(67, 97, 238, 0.1);
+    }
+    .accordion-header::after {
+        content: "▶";
+        transition: transform 0.3s ease;
+        color: var(--primary);
+    }
+    .accordion-header.active::after { transform: rotate(90deg); }
+    .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease, padding 0.4s ease, margin 0.4s ease;
+        background: #f9fbfd;
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--primary);
+        box-shadow: 0 2px 8px rgba(67, 97, 238, 0.08);
+        margin: 0 0 16px 0;
+    }
+    .accordion-content-inner {
+        padding: 0 20px 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease 0.2s;
+    }
+    .accordion-content.expanded { max-height: 4000px; }
+    .accordion-content.expanded .accordion-content-inner { opacity: 1; }
+
+    .task-goal {
+        background: #eef7ff;
+        border-left: 3px solid var(--primary);
+        padding: 12px 16px;
+        margin: 16px 0;
+        border-radius: 0 8px 8px 0;
+        font-weight: 600;
+        color: var(--secondary);
+    }
+    .task-answer {
+        background: #e8f5e9;
+        border-left: 3px solid #27ae60;
+        padding: 10px 16px;
+        margin: 12px 0;
+        border-radius: 0 8px 8px 0;
+        font-weight: 600;
+        color: #1b5e20;
+    }
+    .note {
+        background: #fff8e1;
+        border-left: 3px solid #f39c12;
+        padding: 10px 16px;
+        margin: 12px 0;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.95rem;
+        color: #7a5c00;
+    }
+    .turtle-intro {
+        background: #f3f0ff;
+        border-left: 3px solid #8e44ad;
+        padding: 14px 18px;
+        margin: 16px 0;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.98rem;
+        color: #4a235a;
+    }
+    /* Открытые теоретические блоки */
+    .theory-block {
+        background: #faf7ff;
+        border-left: 4px solid #8e44ad;
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin: 16px 0;
+    }
+    .theory-block p { margin: 8px 0; }
+    ul, ol {
+        margin: 8px 0 8px 24px;
+    }
+    li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+    <h1>🎯 Цикл <code>for</code>: теория</h1>
+    <p class="intro">Сначала — теория с примерами, затем — 11 задач, где нужно применить всё это на практике.</p>
+
+    <!-- ======================== ТЕОРИЯ ======================== -->
+    <h2>📚 Теория: цикл <code>for</code></h2>
+
+    <!-- Т1 -->
+    <h3>1. Что такое цикл <code>for</code>?</h3>
+    <div class="theory-block">
+        <p>Цикл <code>for</code> выполняет один и тот же блок кода несколько раз — по одному разу для каждого элемента в последовательности.</p>
+        <p><b>Синтаксис:</b></p>
+<pre><code>for переменная in последовательность:
+    действия</code></pre>
+        <p>Тело цикла <b>обязательно</b> отделяется четырьмя пробелами (отступом). Всё, что написано с отступом, повторяется на каждом шаге.</p>
+        <p><b>Пример:</b> вывести три шага обратного отсчёта.</p>
+<pre><code>for i in range(3):
+    print("Шаг", i)</code></pre>
+        <p><b>Вывод:</b></p>
+<pre>Шаг 0
+Шаг 1
+Шаг 2</pre>
+        <div class="note">
+            💡 Переменная цикла (здесь <code>i</code>) на каждом шаге принимает новое значение из последовательности. Имя может быть любым: <code>i</code>, <code>num</code>, <code>ch</code>, <code>step</code> — главное, чтобы оно отражало смысл.
+        </div>
+    </div>
+
+    <!-- Т2 -->
+    <h3>2. Функция <code>range()</code></h3>
+    <div class="theory-block">
+        <p><code>range()</code> создаёт последовательность целых чисел. У неё три варианта записи:</p>
+        <ul>
+            <li><code>range(5)</code> → 0, 1, 2, 3, 4 — от 0 до 5, <b>не включая 5</b>.</li>
+            <li><code>range(2, 6)</code> → 2, 3, 4, 5 — от 2 до 6, не включая 6.</li>
+            <li><code>range(1, 10, 2)</code> → 1, 3, 5, 7, 9 — с шагом 2.</li>
+            <li><code>range(5, 0, -1)</code> → 5, 4, 3, 2, 1 — с шагом −1 (обратный порядок).</li>
+        </ul>
+        <p><b>Правило:</b> правая граница <b>никогда не включается</b>. Чтобы дойти до N включительно, пишите <code>range(N + 1)</code>.</p>
+        <p><b>Пример:</b> вывести чётные числа от 2 до 10.</p>
+<pre><code>for i in range(2, 11, 2):
+    print(i)</code></pre>
+        <p><b>Вывод:</b></p>
+<pre>2
+4
+6
+8
+10</pre>
+        <p><b>Пример:</b> обратный отсчёт от 5 до 1.</p>
+<pre><code>for i in range(5, 0, -1):
+    print(i)
+print("Поехали!")</code></pre>
+        <p><b>Вывод:</b></p>
+<pre>5
+4
+3
+2
+1
+Поехали!</pre>
+    </div>
+
+    <!-- Т3 -->
+    <h3>3. Перебор строки посимвольно</h3>
+    <div class="theory-block">
+        <p>Строка — это последовательность символов, поэтому <code>for</code> может пройти по каждому символу.</p>
+<pre><code>word = "Python"
+for letter in word:
+    print(letter)</code></pre>
+        <p><b>Вывод:</b></p>
+<pre>P
+y
+t
+h
+o
+n</pre>
+        <p><b>Пример:</b> посчитать количество гласных в слове.</p>
+<pre><code>word = "программирование"
+count = 0
+for ch in word:
+    if ch in "аеёиоуыэюя":
+        count += 1
+print(count)   # 8</code></pre>
+        <p><b>Пример:</b> собрать новую строку из символов исходной.</p>
+<pre><code>word = "кот"
+result = ""
+for ch in word:
+    result += ch + "-"
+print(result)   # к-о-т-</code></pre>
+        <div class="note">
+            💡 Если нужен <b>индекс</b> символа, а не сам символ, используют <code>for i in range(len(s)):</code> и обращаются к <code>s[i]</code>.
+        </div>
+    </div>
+
+    <!-- Т4 -->
+    <h3>4. <code>break</code> и <code>continue</code></h3>
+    <div class="theory-block">
+        <p>Иногда нужно изменить обычный ход цикла:</p>
+        <ul>
+            <li><code>break</code> — немедленно <b>выйти</b> из цикла.</li>
+            <li><code>continue</code> — <b>пропустить</b> остаток текущей итерации и перейти к следующей.</li>
+        </ul>
+        <p><b>Пример с <code>break</code>:</b> найти первое слово до пробела.</p>
+<pre><code>text = "привет мир"
+result = ""
+for ch in text:
+    if ch == " ":
+        break
+    result += ch
+print(result)   # привет</code></pre>
+        <p><b>Пример с <code>continue</code>:</b> убрать все гласные из слова.</p>
+<pre><code>word = "молоко"
+result = ""
+for ch in word:
+    if ch in "аеёиоуыэюя":
+        continue
+    result += ch
+print(result)   # млк</code></pre>
+        <div class="note">
+            💡 <code>break</code> часто используют, когда ищут <b>первое подходящее</b> значение: как только нашли — дальше перебирать незачем.
+        </div>
+    </div>
+
+    <!-- Т5 -->
+    <h3>5. Вложенные циклы</h3>
+    <div class="theory-block">
+        <p>Цикл можно поместить внутрь другого цикла. Внешний цикл выполняется один раз, а внутренний за это время пробегает все свои значения.</p>
+        <p><b>Пример:</b> таблица умножения 3 × 3.</p>
+<pre><code>for i in range(1, 4):
+    for j in range(1, 4):
+        print(i * j, end=" ")
+    print()</code></pre>
+        <p><b>Вывод:</b></p>
+<pre>1 2 3 
+2 4 6 
+3 6 9 </pre>
+        <p>Здесь <code>print(..., end=" ")</code> печатает число и пробел без перевода строки, а пустой <code>print()</code> после внутреннего цикла переводит строку.</p>
+        <p><b>Пример:</b> вывести пары <code>(i, j)</code>, где <code>j ≤ i</code>.</p>
+<pre><code>for i in range(1, 4):
+    for j in range(1, i + 1):
+        print(i, j)</code></pre>
+        <p><b>Вывод:</b></p>
+<pre>1 1
+2 1
+2 2
+3 1
+3 2
+3 3</pre>
+        <div class="note">
+            💡 Вложенные циклы нужны всегда, когда работаем с <b>двумя измерениями</b>: строки и столбцы, позиция и значение, пара чисел.
+        </div>
+    </div>
+
+    <!-- Т6 -->
+    <h3>6. Четыре шаблона: счётчик, сумма, флаг, сборка строки</h3>
+    <div class="theory-block">
+        <p>Почти любая задача на <code>for</code> — это один из четырёх шаблонов или их комбинация.</p>
+
+        <p><b>① Счётчик</b> — сколько раз выполнилось условие.</p>
+<pre><code>count = 0
+for i in range(1, 21):
+    if i % 5 == 0:
+        count += 1
+print(count)   # 4</code></pre>
+
+        <p><b>② Сумма</b> — накопить общее значение.</p>
+<pre><code>n = 4729
+total = 0
+for ch in str(n):
+    total += int(ch)
+print(total)   # 22</code></pre>
+
+        <p><b>③ Флаг</b> — проверить, есть ли в данных нужное свойство.</p>
+<pre><code>word = "объявление"
+found = False
+for ch in word:
+    if ch == "я":
+        found = True
+        break
+print("YES" if found else "NO")   # YES</code></pre>
+
+        <p><b>④ Сборка строки</b> — постепенно составлять результат.</p>
+<pre><code>s = "abc"
+result = ""
+for ch in s:
+    result = ch + result
+print(result)   # cba</code></pre>
+
+        <div class="note">
+            💡 Прежде чем писать код, ответьте себе: <i>«Мне нужно посчитать, сложить, проверить или собрать?»</i> — и выберите шаблон.
+        </div>
+    </div>
+
+    <!-- ======================== ЗАДАЧИ ======================== -->
+    <h2>🎯 Задачи</h2>
+    <p style="color: var(--text-light); margin-bottom: 8px;">Задачи расположены по возрастанию сложности. Везде нужен цикл <code>for</code> — но не всегда в «школьном» виде: где-то понадобятся вложенные циклы, <code>break</code>, <code>continue</code> и аккуратная работа с индексами.</p>
+
+    <!-- Задание 1 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 1: Энергетический баланс
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p><b>Сюжет.</b> Космическая станция собирает энергию от солнечных панелей. Инженеру нужно посчитать суммарную выработку за N циклов, но некоторые циклы пропускаются: если номер цикла делится на 3 или оканчивается на 7, энергия не вырабатывается.</p>
+                <div class="task-goal">
+                    Задание: Получите целое число N. Вычислите сумму всех чисел от 1 до N, которые <b>не делятся на 3</b> и <b>не оканчиваются на 7</b>. Выведите эту сумму.
+                </div>
+                <p><b>Пример для N = 10:</b></p>
+<pre>Ввод: 10
+Вывод: 30</pre>
+                <div class="note">
+                    ⚠️ В исходном тексте примера была опечатка: указано <code>33</code>. Правильная сумма для N = 10 — <code>30</code>, потому что остаются числа 1, 2, 4, 5, 8, 10 (числа 3, 6, 9 делятся на 3, а 7 оканчивается на 7).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 2 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 2: Рамка для портрета
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p><b>Сюжет.</b> В галерее нужно повесить портрет в рамке. Рамка имеет размер N строк на M столбцов. По краям — символы <code>#</code>, внутри — пустота (пробелы).</p>
+                <div class="task-goal">
+                    Задание: Получите два целых числа N и M (N, M ≥ 3). Выведите рамку из <code>#</code> размером N × M, внутри которой пробелы.
+                </div>
+                <p><b>Пример для N = 4, M = 6:</b></p>
+<pre>######
+#    #
+#    #
+######</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 3 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 3: Голографическая пирамида
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p><b>Сюжет.</b> На экране нужно построить голографическую пирамиду для калибровки сканера. Высота пирамиды — N строк. В первой строке одна звезда по центру, в каждой следующей — на две звезды больше.</p>
+                <div class="task-goal">
+                    Задание: Получите целое число N (N ≥ 1). Выведите пирамиду из символов <code>*</code> высотой N строк, выровненную по центру.
+                </div>
+                <p><b>Пример для N = 4:</b></p>
+<pre>   *
+  ***
+ *****
+*******</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 4 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 4: Детектор аномалий
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p><b>Сюжет.</b> На орбитальной станции датчик фиксирует уровень радиации каждую секунду. Норма — до 100 единиц. Если показатель превышает 100 три раза подряд — звучит тревога. Инженеру нужно понять, была ли тревога за время наблюдения.</p>
+                <div class="task-goal">
+                    Задание: Получите целое число N — количество измерений. Затем получите N целых чисел (каждое с новой строки). Определите, встречались ли <b>три подряд</b> значения больше 100. Выведите <code>ALARM</code>, если да, иначе <code>OK</code>.
+                </div>
+                <p><b>Пример:</b></p>
+<pre>Ввод:
+7
+50
+120
+130
+140
+90
+200
+210
+
+Вывод: ALARM</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 5 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 5: Восстановление сжатого текста
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p><b>Сюжет.</b> Древний алгоритм сжатия заменял повторяющиеся символы парой «символ + количество». Например, <code>AAAABBBCC</code> превращалось в <code>A4B3C2</code>. Но архив повреждён: часть данных сохранилась в сжатом виде, и теперь нужно восстановить исходный текст, чтобы прочитать послание.</p>
+                <div class="task-goal">
+                    Задание: Получите строку в сжатом формате: чередование буквы и числа (число может быть многозначным). Восстановите исходную строку и выведите её.
+                </div>
+                <p><b>Пример:</b></p>
+<pre>Ввод: A4B3C2
+Вывод: AAAABBBCC
+
+Ввод: X12Y1
+Вывод: XXXXXXXXXXXXY</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 6 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 6: Проверка анаграмм
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p><b>Сюжет.</b> В лингвистическом архиве ищут анаграммы — слова, состоящие из одних и тех же букв в разном порядке. Например, «кот» и «ток». Но в архиве тексты могут содержать пробелы и разный регистр, и нужно сравнивать именно буквы, игнорируя всё остальное.</p>
+                <div class="task-goal">
+                    Задание: Получите две строки. Определите, являются ли они анаграммами: если игнорировать пробелы и регистр, то наборы букв должны совпадать. Выведите <code>YES</code> или <code>NO</code>.
+                </div>
+                <p><b>Пример:</b></p>
+<pre>Ввод:
+Кот
+Ток
+Вывод: YES
+
+Ввод:
+Кот
+Кит
+Вывод: NO</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 7 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 7: Электронные часы без повторов
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p><b>Сюжет.</b> Старинные электронные часы в музее показывают время в формате <code>HH:MM</code>. Хранитель заметил, что иногда все четыре цифры на табло различны — и считает такие моменты «удачными». Сколько таких моментов бывает за сутки?</p>
+                <div class="task-goal">
+                    Задание: Не запрашивайте ввод. Переберите все возможные показания часов от <code>00:00</code> до <code>23:59</code> с помощью вложенных циклов <code>for</code> и посчитайте, сколько раз все четыре цифры различны. Выведите это количество.
+                </div>
+                <p><b>Пример (фрагмент перебора):</b></p>
+<pre>00:00 — нет (0 повторяется)
+01:23 — да (0,1,2,3 различны)
+12:34 — да
+23:45 — да</pre>
+                <div class="task-answer">Ответ: 644</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вступление к задачам про Черепаху -->
+    <div class="turtle-intro">
+        <b>🐢 О задачах про Черепаху (задания 8–11).</b><br>
+        Исполнитель Черепаха движется по декартовой плоскости. Базовые команды: <code>Вперёд n</code> — пройти n единиц в направлении головы; <code>Назад n</code> — пройти n единиц в противоположном направлении; <code>Налево m</code> / <code>Направо m</code> — повернуть на m градусов; <code>Поднять хвост</code> / <code>Опустить хвост</code> — переключить режим рисования. Запись <code>Повтори k [...]</code> означает повторение блока k раз. Начальное положение — начало координат, направление — вдоль положительного направления оси ординат (или абсцисс — см. условие конкретной задачи).
+    </div>
+
+    <!-- Задание 8 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 8: Черепаха — шестиугольник
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p>Черепаха находится в начале координат, голова направлена вдоль положительного направления оси абсцисс. У неё две команды: <code>Вперёд n</code> и <code>Налево m</code>.</p>
+                <p>Дан алгоритм:</p>
+<pre>Повтори 24 [Вперёд 3 Налево 60]</pre>
+                <div class="task-goal">
+                    Задание: Определите, сколько точек с целочисленными координатами будут находиться внутри области, ограниченной линией, заданной данным алгоритмом. Точки на линии учитывать следует.
+                </div>
+                <div class="task-answer">Ответ: 37</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 9 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 9: Черепаха — пересечение фигур
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p>Черепаха находится в начале координат, голова направлена вдоль положительного направления оси ординат. Доступны 6 команд: <code>Поднять хвост</code>, <code>Опустить хвост</code>, <code>Вперёд n</code>, <code>Назад n</code>, <code>Направо t</code>, <code>Налево t</code>.</p>
+                <p>Дан алгоритм:</p>
+<pre>Повтори 2 [Вперёд 14 Налево 270 Назад 12 Направо 90]
+Поднять хвост
+Вперёд 9
+Направо 90
+Назад 7
+Налево 90
+Опустить хвост
+Повтори 2 [Вперёд 13 Направо 90 Вперёд 6 Направо 90]</pre>
+                <div class="task-goal">
+                    Задание: Определите, сколько точек с целочисленными координатами находятся внутри <b>пересечения</b> фигур, ограниченных заданными алгоритмом линиями, включая точки на линиях.
+                </div>
+                <div class="task-answer">Ответ: 42</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 10 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 10: Черепаха — площадь объединения
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p>Черепаха находится в начале координат, голова направлена вдоль положительного направления оси ординат. Доступны 6 команд: <code>Поднять хвост</code>, <code>Опустить хвост</code>, <code>Вперёд n</code>, <code>Назад n</code>, <code>Направо m</code>, <code>Налево m</code>.</p>
+                <p>Дан алгоритм:</p>
+<pre>Повтори 2 [Вперёд 7 Налево 270 Назад 5 Направо 90]
+Поднять хвост
+Вперёд 6
+Направо 90
+Назад 4
+Налево 90
+Опустить хвост
+Повтори 2 [Вперёд 9 Направо 90 Вперёд 4 Направо 90]
+Поднять хвост
+Вперёд 4
+Направо 180
+Назад 2
+Опустить хвост
+Повтори 2 [Вперёд 7 Направо 90 Вперёд 7 Направо 90]</pre>
+                <div class="task-goal">
+                    Задание: Определите площадь <b>объединения</b> фигур, ограниченных заданными алгоритмом линиями.
+                </div>
+                <div class="task-answer">Ответ: 114</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Задание 11 -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 11: Черепаха — треугольник
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p>Черепаха находится в начале координат, голова направлена вдоль положительного направления оси ординат. Доступны две команды: <code>Вперёд n</code> и <code>Направо m</code>.</p>
+                <p>Дан алгоритм:</p>
+<pre>Повтори 7 [Вперёд 10 Направо 120]</pre>
+                <div class="task-goal">
+                    Задание: Определите, сколько точек с целочисленными координатами будут находиться внутри области, ограниченной линией, заданной данным алгоритмом. Точки на линии учитывать <b>не следует</b>.
+                </div>
+                <div class="task-answer">Ответ: 38</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function toggleAccordion(header) {
+        const content = header.nextElementSibling;
+        const isActive = header.classList.contains('active');
+
+        document.querySelectorAll('.accordion-header').forEach(h => {
+            if (h !== header) {
+                h.classList.remove('active');
+                h.nextElementSibling.classList.remove('expanded');
+            }
+        });
+
+        if (isActive) {
+            header.classList.remove('active');
+            content.classList.remove('expanded');
+        } else {
+            header.classList.add('active');
+            content.classList.add('expanded');
+        }
+    }
+</script>
+</body>
+</html>
