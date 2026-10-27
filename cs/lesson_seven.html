@@ -781,23 +781,36 @@ N=10000: ...</code></pre>
             </article>
 
             <!-- 2 -->
-            <article class="slide">
-                <div class="slide-head"><span class="task-badge">Задание 2</span><h3>Метод трапеций</h3></div>
-                <div class="slide-body">
-                    <div class="task-statement">
-                        <div class="ts-label">◆ Условие</div>
-                        <div class="ts-text">
-                            <p>Реализуйте <strong>метод трапеций</strong> для той же функции, что и в задании 1: <code class="inline-code">f(x) = x² / 10 + 1</code> на отрезке <code class="inline-code">[−2; 5]</code>. Формула приведена в <strong>разборе A5</strong> (раздел «Метод трапеций»).</p>
-                            <p><strong>Отличие от прямоугольников:</strong> крайние точки <code class="inline-code">f₀</code> и <code class="inline-code">f_{N−1}</code> берутся с половинным весом, все внутренние — с полным.</p>
-                            <p><strong>Что нужно сделать:</strong> вывести значение интеграла для <strong>N = 10, 100, 1000</strong> и сравнить с результатами задания 1.</p>
-                        </div>
-                    </div>
-                    <div class="block"><h4>Формула</h4>
-                        <div class="formula">S ≈ (h/2)·(f<sub>0</sub> + f<sub>N−1</sub>) + Σ<sub>i=1..N−2</sub> f<sub>i</sub> · h</div>
-                    </div>
-                    <div class="callout info"><span class="ico">ℹ️</span><div>При увеличении <em>N</em> метод трапеций обычно даёт более точный результат, чем метод прямоугольников.</div></div>
-                </div>
-            </article>
+<article class="slide">
+    <div class="slide-head">
+        <span class="task-badge">Задание 2</span>
+        <h3>Метод трапеций</h3>
+    </div>
+    <div class="slide-body">
+        <div class="task-statement">
+            <div class="ts-label">◆ Условие</div>
+            <div class="ts-text">
+                <p>Реализуйте <strong>метод трапеций</strong> для той же функции, что и в задании 1: <code class="inline-code">f(x) = x² / 10 + 1</code> на отрезке <code class="inline-code">[−2; 5]</code>. Формула приведена в <strong>разборе A5</strong> (раздел «Метод трапеций»).</p>
+                <p><strong>Отличие от прямоугольников:</strong> крайние узлы <code class="inline-code">f₀</code> и <code class="inline-code">f<sub>N</sub></code> (значения в точках <code class="inline-code">x₀ = a</code> и <code class="inline-code">x<sub>N</sub> = b</code>) берутся с половинным весом, все внутренние <code class="inline-code">f₁ … f<sub>N−1</sub></code> — с полным.</p>
+                <p><strong>Что нужно сделать:</strong> вывести значение интеграла для <strong>N = 10, 100, 1000</strong> и сравнить с результатами задания 1.</p>
+            </div>
+        </div>
+
+        <div class="block">
+            <h4>Формула</h4>
+            <div class="formula">S ≈ (h/2)·(f<sub>0</sub> + f<sub>N</sub>) + h·Σ<sub>i=1..N−1</sub> f<sub>i</sub></div>
+            <div class="formula">h = (b − a) / N,&nbsp;&nbsp; x<sub>i</sub> = a + i·h,&nbsp; i = 0..N</div>
+            <p style="font-size:.92rem; color:var(--muted);">
+                Здесь <em>N</em> — число отрезков разбиения; узлов на один больше: <code class="inline-code">x₀, x₁, …, x<sub>N</sub></code>.
+            </p>
+        </div>
+
+        <div class="callout info">
+            <span class="ico">ℹ️</span>
+            <div>При увеличении <em>N</em> метод трапеций обычно даёт более точный результат, чем метод прямоугольников.</div>
+        </div>
+    </div>
+</article>
 
             <!-- 3 -->
             <article class="slide">
