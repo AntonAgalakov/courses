@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>РГР · Модуль А</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #f5f7fb; --card: #ffffff; --border: #e4e8ef; --border-soft: #eef1f6;
+    --text: #0f172a; --muted: #64748b; --accent: #2563eb; --accent-soft: #eff6ff; --accent-line: #bfdbfe;
+    --green: #16a34a; --green-soft: #f0fdf4; --green-line: #bbf7d0;
+    --amber: #d97706; --amber-soft: #fffbeb; --amber-line: #fcd34d;
+    --red: #dc2626; --red-soft: #fef2f2; --red-line: #fecaca;
+    --violet: #7c3aed; --violet-soft: #f5f3ff; --violet-line: #ddd6fe;
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.04);
+    --shadow: 0 6px 20px rgba(15,23,42,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+nav { position: sticky; top: 0; z-index: 90; background: rgba(255,255,255,0.9); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+.nav-inner { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; flex-wrap: wrap; gap: 10px; }
+.logo { font-weight: 700; font-size: 1.05rem; color: var(--accent); }
+.logo span { color: var(--text); font-weight: 500; }
+.nav-links { display: flex; gap: 4px; list-style: none; flex-wrap: wrap; }
+.nav-links a { text-decoration: none; font-size: .88rem; font-weight: 500; color: var(--muted); padding: 6px 12px; border-radius: 8px; }
+.nav-links a:hover { color: var(--accent); background: var(--accent-soft); }
+.hero { padding: 56px 0 40px; text-align: center; }
+.hero .badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 5px 14px; border-radius: 30px; font-size: .8rem; font-weight: 600; margin-bottom: 16px; }
+.hero h1 { font-size: 2.6rem; font-weight: 800; letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 14px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .sub { font-size: 1.1rem; color: var(--muted); max-width: 660px; margin: 0 auto; }
+section { padding: 44px 0; }
+.section-head { margin-bottom: 24px; }
+.section-head .kicker { font-size: .78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.section-head h2 { font-size: 1.75rem; font-weight: 700; letter-spacing: -.6px; }
+.section-head p { color: var(--muted); margin-top: 6px; font-size: .98rem; }
+.card { background: var(--card); border-radius: 16px; padding: 24px 28px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+.card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.card p, .card li { color: #334155; font-size: .98rem; }
+.card ul, .card ol { padding-left: 22px; margin: 8px 0; }
+.card ul li, .card ol li { margin-bottom: 4px; }
+pre { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: .86rem; overflow-x: auto; line-height: 1.55; margin: 10px 0; }
+code { font-family: 'JetBrains Mono', monospace; }
+.inline-code { background: #eef2f7; color: #0f172a; padding: 2px 6px; border-radius: 5px; font-size: .88em; font-family: 'JetBrains Mono', monospace; }
+.formula { background:#f8fafc; border:1px solid var(--border-soft); border-radius:10px; padding:14px 18px; font-family:'JetBrains Mono', monospace; font-size:.95rem; margin:10px 0; overflow-x: auto; }
+.task-nav-wrap { position: sticky; top: 55px; z-index: 80; background: linear-gradient(to bottom, var(--bg) 70%, rgba(245,247,251,0)); padding: 12px 0 8px; margin-bottom: 4px; }
+.task-nav { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.task-nav::-webkit-scrollbar { height: 6px; }
+.task-nav::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.task-chip { flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; font-family: inherit; font-size: .88rem; font-weight: 500; color: #334155; cursor: pointer; white-space: nowrap; }
+.task-chip:hover { border-color: var(--accent-line); color: var(--accent); }
+.task-chip .chip-num { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 6px; padding: 0 5px; background: #eef2f7; color: #475569; font-size: .72rem; font-weight: 700; }
+.task-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.25); }
+.task-chip.active .chip-num { background: rgba(255,255,255,.22); color: #fff; }
+.task-statement { background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); border: 1px solid var(--accent-line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+.task-statement .ts-label { display: inline-flex; align-items: center; gap: 6px; font-size: .72rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.task-statement .ts-text { font-size: 1.02rem; font-weight: 500; color: #1e293b; line-height: 1.6; }
+.task-statement .ts-text strong { color: var(--accent); font-weight: 700; }
+.task-statement .ts-text ul, .task-statement .ts-text ol { padding-left: 22px; margin: 6px 0; }
+.task-statement .ts-text li { margin-bottom: 4px; }
+.task-statement .ts-text p + p { margin-top: 8px; }
+.ref-table { width: 100%; border-collapse: collapse; background: #fbfcfe; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-soft); font-size: .9rem; }
+.ref-table th, .ref-table td { padding: 8px 14px; text-align: left; border-bottom: 1px solid var(--border-soft); }
+.ref-table th { background: #f7f9fc; font-weight: 600; color: var(--muted); font-size: .72rem; letter-spacing: .5px; text-transform: uppercase; }
+.ref-table tr:last-child td { border-bottom: none; }
+.ref-table td.mono, .ref-table th.mono { font-family: 'JetBrains Mono', monospace; font-size: .85rem; }
+.story-block { background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%); border: 1px solid var(--violet-line); border-left: 4px solid var(--violet); border-radius: 12px; padding: 16px 20px; font-size: 1rem; color: #312e81; margin-bottom: 18px; }
+.story-block p { color: #312e81; }
+.story-block p + p { margin-top: 10px; }
+.story-block ul, .story-block ol { padding-left: 22px; margin: 8px 0; color: #312e81; }
+.story-block li { color: #312e81; margin-bottom: 4px; }
+.story-block .formula { background: rgba(255,255,255,.7); border-color: var(--violet-line); }
+.callout { border-radius: 10px; padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; font-size: .95rem; margin: 10px 0; }
+.callout .ico { font-size: 1.1rem; line-height: 1.3; flex-shrink: 0; }
+.callout.hint { background: var(--amber-soft); border-left: 3px solid var(--amber); color: #78350f; }
+.callout.warn { background: var(--red-soft); border-left: 3px solid var(--red); color: #7f1d1d; }
+.callout.info { background: var(--accent-soft); border-left: 3px solid var(--accent); color: #1e3a8a; }
+.callout.success { background: var(--green-soft); border-left: 3px solid var(--green); color: #14532d; }
+.callout strong { font-weight: 700; }
+footer { text-align: center; padding: 32px 0 24px; color: var(--muted); font-size: .88rem; border-top: 1px solid var(--border-soft); margin-top: 20px; }
+.variants-scroll { max-height: 520px; overflow-y: auto; border-radius: 10px; border: 1px solid var(--border-soft); }
+.variants-scroll::-webkit-scrollbar { width: 8px; }
+.variants-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.variants-scroll .ref-table { border: none; border-radius: 0; }
+.variants-scroll .ref-table thead th { position: sticky; top: 0; z-index: 2; }
+.variants-scroll .ref-table td .bin-mono { font-family: 'JetBrains Mono', monospace; font-size: .78rem; letter-spacing: .3px; }
+
+/* Табы сфер */
+.sphere-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 12px; scrollbar-width: thin; margin-bottom: 8px; }
+.sphere-tab { flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; font-family: inherit; font-size: .9rem; font-weight: 600; color: #334155; cursor: pointer; white-space: nowrap; transition: all .15s; }
+.sphere-tab:hover { border-color: var(--accent-line); color: var(--accent); }
+.sphere-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.25); }
+.sphere-tab .tab-ico { font-size: 1.1rem; }
+.sphere-panel { display: none; animation: fadeIn .25s ease; }
+.sphere-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 720px) {
+    .hero h1 { font-size: 1.9rem; }
+    .nav-links a { font-size: .82rem; padding: 5px 9px; }
+    .section-head h2 { font-size: 1.4rem; }
+    .card { padding: 18px 20px; }
+}
+
+/* ===== Стили для PIN-кода ===== */
+#pin-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; transition: opacity 0.5s ease;
+}
+#pin-overlay.hidden { opacity: 0; pointer-events: none; }
+.pin-box {
+    background: #ffffff; border-radius: 24px; padding: 40px 32px;
+    max-width: 400px; width: 90%; box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    text-align: center;
+}
+.pin-box h2 { font-weight: 700; font-size: 1.5rem; margin-bottom: 8px; color: #0f172a; }
+.pin-box p { color: #475569; margin-bottom: 24px; font-size: 0.95rem; }
+.pin-box input {
+    width: 100%; padding: 14px 16px; font-size: 1.2rem; text-align: center;
+    letter-spacing: 8px; border: 2px solid #e2e8f0; border-radius: 12px;
+    outline: none; transition: border 0.2s; font-weight: 600;
+}
+.pin-box input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
+.pin-box .error-msg { color: #ef4444; font-size: 0.9rem; margin-top: 12px; height: 24px; font-weight: 500; }
+.pin-box button {
+    margin-top: 20px; width: 100%; padding: 14px; background: #2563eb;
+    color: #fff; border: none; border-radius: 12px; font-size: 1rem;
+    font-weight: 600; cursor: pointer; transition: background 0.2s;
+}
+.pin-box button:hover { background: #1d4ed8; }
+.pin-box .hint { font-size: 0.75rem; color: #94a3b8; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<!-- PIN-оверлей -->
+<div id="pin-overlay">
+    <div class="pin-box">
+        <h2>Доступ к работе</h2>
+        <p>Введите PIN-код для просмотра материалов</p>
+        <input type="password" id="pin-input" maxlength="4" placeholder="— — — —" inputmode="numeric">
+        <div class="error-msg" id="pin-error"></div>
+        <button id="pin-btn">Подтвердить</button>
+        <div class="hint">Подсказка: 4 цифры</div>
+    </div>
+</div>
+
+<!-- Основной контент (скрыт до ввода пароля) -->
+<div id="main-content" style="display: none;">
+
+    <nav id="navbar">
+        <div class="container nav-inner">
+            <div class="logo">РГР <span>· Модуль А</span></div>
+            <ul class="nav-links">
+                <li><a href="#task1">Задание 1</a></li>
+                <li><a href="#task2">Задание 2</a></li>
+                <li><a href="#task3">Задание 3</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <div class="badge">Информатика · 1 курс</div>
+            <h1>Расчетно-графическая<br> <em>работа</em></h1>
+            <p class="sub">Машинные коды, IEEE 754 и недесятичные системы счисления</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+    <!-- ===================== ЗАДАНИЕ 1 ===================== -->
+    <section id="task1">
+        <div class="section-head">
+            <div class="kicker">Раздел 01</div>
+            <h2>Задание 1 · АЦП и машинные коды</h2>
+        </div>
+
+        <div class="task-statement">
+            <div class="ts-label">◆ Условие</div>
+            <div class="ts-text">
+                <p><strong>Контекст:</strong> Аналого-цифровой преобразователь (АЦП) выдает 16-битные значения со знаком. Для компенсации дрейфа нуля к значению датчика необходимо прибавить калибровочную поправку.</p>
+                <p><strong>Задание:</strong></p>
+                <ol>
+                    <li>Дано «сырое» значение с датчика <code>Y</code> (отрицательное число) и поправка <code>Z</code> (положительное число). Представить оба числа в 16-битном дополнительном машинном коде.</li>
+                    <li>Выполнить операцию сложения <code>Y + Z</code> в дополнительном коде.</li>
+                    <li>Проанализировать результат: зафиксировать наличие или отсутствие переполнения разрядной сетки, перевести результат обратно в десятичную систему.</li>
+                </ol>
+                <p><strong>Формула варианта:</strong> <code class="inline-code">Y = -(N × 100 + 370)</code>, <code class="inline-code">Z = N × 100 + 100</code>.</p>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ===================== ЗАДАНИЕ 2 ===================== -->
+    <section id="task2">
+        <div class="section-head">
+            <div class="kicker">Раздел 02</div>
+            <h2>Задание 2 · IEEE 754</h2>
+        </div>
+
+        <div class="task-statement">
+            <div class="ts-label">◆ Условие</div>
+            <div class="ts-text">
+                <p>Дано 32-битное слово (X) в формате IEEE 754 (одинарная точность).</p>
+                <p><strong>Требуется:</strong></p>
+                <ol>
+                    <li>Декодировать слово (X): извлечь знак <code>S</code>, экспоненту <code>E</code> (без смещения), мантиссу <code>M</code>. Записать итоговое десятичное значение.</li>
+                    <li>Прибавить 1 к <strong>младшему биту мантиссы</strong> (т.е. изменить <code>M</code> на <code>M+1</code>). Какое десятичное значение получилось?</li>
+                    <li>Вычислить <strong>шаг (ULP — Unit in the Last Place)</strong> в этой области числовой оси: разность между двумя полученными числами.</li>
+                    <li>Вычислить <strong>относительную погрешность</strong> представления исходного числа: <code class="inline-code">δ = ULP / |X|</code>.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>Варианты</h4>
+            <p>Выберите свой номер и выполните все четыре пункта.</p>
+            <div class="variants-scroll">
+                <table class="ref-table">
+                    <thead>
+                        <tr><th>№</th><th>32-битное слово (hex)</th><th>Двоичное представление</th></tr>
+                    </thead>
+                    <tbody id="variantsBody">
+                        <!-- Заполняется скриптом -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== ЗАДАНИЕ 3 ===================== -->
+    <section id="task3">
+        <div class="section-head">
+            <div class="kicker">Раздел 03</div>
+            <h2>Задание 3 · Недесятичные системы в сферах</h2>
+        </div>
+
+        <div class="story-block">
+            <p><strong>Найти в интернете, проанализировать и практически применить информацию о недесятичных системах счисления в трёх профессиональных сферах.</strong></p>
+        </div>
+
+        <div class="sphere-tabs">
+            <button class="sphere-tab active" onclick="switchSphere(0)"><span class="tab-ico">💻</span> IT / Linux · восьмеричная</button>
+            <button class="sphere-tab" onclick="switchSphere(1)"><span class="tab-ico">🎨</span> Веб / графика · hex</button>
+            <button class="sphere-tab" onclick="switchSphere(2)"><span class="tab-ico">🌐</span> Сети · bin/hex</button>
+        </div>
+
+        <!-- Сфера 1: восьмеричная -->
+        <div class="sphere-panel active">
+            <div class="card">
+                <h4>💻 Сфера 1. IT / Администрирование операционных систем (восьмеричная система)</h4>
+                
+                <h4>Что нужно найти в интернете</h4>
+                <ol>
+                    <li><strong>Найдите объяснение</strong>, почему права доступа к файлам в Linux/Unix задаются восьмеричными числами. Ответьте: что означают цифры <code>4</code>, <code>2</code>, <code>1</code> и как из них складываются права <code>rwx</code>?</li>
+                    <li><strong>Найдите пример реальной команды</strong> <code>chmod</code> с восьмеричным числом (например, <code>chmod 755 script.sh</code> или <code>chmod 600 id_rsa</code>). Объясните, какие права получает владелец, группа и остальные.</li>
+                    <li><strong>Найдите в интернете</strong> (или на своём компьютере, если есть Linux/WSL) вывод команды <code>ls -l</code> для любого файла. Переведите буквенную запись прав (например, <code>-rw-r--r--</code>) в восьмеричное число.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Сфера 2: hex / web -->
+        <div class="sphere-panel">
+            <div class="card">
+                <h4>🎨 Сфера 2. Веб-дизайн и компьютерная графика (шестнадцатеричная система)</h4>
+                
+                <h4>Что нужно найти в интернете</h4>
+                <ol>
+                    <li><strong>Найдите объяснение</strong>, почему цвета в HTML/CSS записываются как <code>#RRGGBB</code>. Что означают первые две цифры, вторые две и последние две? Какой диапазон значений в десятичной системе соответствует каждой паре?</li>
+                    <li><strong>Найдите 3 конкретных примера</strong> hex-кодов цветов (например, <code>#FF0000</code>, <code>#00FF00</code>, <code>#1A2B3C</code>). Для каждого:
+                        <ul>
+                            <li>Расшифруйте его в RGB (три десятичных числа).</li>
+                            <li>Покажите, как каждая пара hex-цифр переводится в десятичное число.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Найдите онлайн-конвертер</strong> RGB ↔ HEX. Проверьте с его помощью один из своих примеров и приложите скриншот.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Сфера 3: сети -->
+        <div class="sphere-panel">
+            <div class="card">
+                <h4>🌐 Сфера 3. Сетевые технологии: IPv4 и MAC-адреса (двоичная, десятичная, шестнадцатеричная)</h4>
+                
+                <h4>Что нужно найти в интернете</h4>
+                <ol>
+                    <li><strong>Найдите объяснение</strong>, что IPv4-адрес — это <strong>32-битное двоичное число</strong>, которое для удобства записывают в десятичном виде через точки (например, <code>192.168.1.1</code>). Как 32 бита разбиваются на четыре байта, и почему каждый байт может принимать значение от 0 до 255?</li>
+                    <li><strong>Найдите объяснение</strong>, что MAC-адрес — это <strong>48-битное число</strong>, которое почти всегда записывают в шестнадцатеричном виде (например, <code>00:1A:2B:3C:4D:5E</code>). Как первые три байта (OUI) указывают на производителя устройства?</li>
+                    <li><strong>Найдите пример</strong> маски подсети (например, <code>255.255.255.0</code>). Объясните, как с помощью побитовой операции <code>AND</code> между IP-адресом и маской получается адрес сети.</li>
+                </ol>
+
+                <h4>Практическая часть</h4>
+                <ol>
+                    <li>Возьмите <strong>любой IP-адрес</strong>. Запишите его в десятичном виде. Переведите каждый из четырёх байтов в двоичную систему (по 8 бит). Покажите, как из четырёх байт получается 32-битное число.</li>
+                    <li>Возьмите <strong>MAC-адрес</strong> устройства (например, <code>00:1A:2B:3C:4D:5E</code>). Запишите его в hex-виде. Переведите первые три байта (OUI) в десятичную систему и найдите в интернете, какому производителю они соответствуют (например, через сервис <code>macvendors.com</code>). Приложите скриншот.</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    </div>
+
+    <footer>
+        <p>Расчетно графическая работа (Модуль A) · 2026</p>
+    </footer>
+</div>
+
+<script>
+    // ===== Инициализация данных и рендеринг =====
+    const variants = [
+        ['3F800000', '0 01111111 00000000000000000000000'],
+        ['BF800000', '1 01111111 00000000000000000000000'],
+        ['40000000', '0 10000000 00000000000000000000000'],
+        ['C0000000', '1 10000000 00000000000000000000000'],
+        ['40400000', '0 10000000 10000000000000000000000'],
+        ['42C80000', '0 10000101 10010000000000000000000'],
+        ['3DCCCCCD', '0 01111011 10011001100110011001101'],
+        ['4B800000', '0 10010111 00000000000000000000000'],
+        ['00800000', '0 00000001 00000000000000000000000'],
+        ['3F7FFFFF', '0 01111110 11111111111111111111111'],
+        ['7F7FFFFF', '0 11111110 11111111111111111111111'],
+        ['007FFFFF', '0 00000000 11111111111111111111111'],
+        ['461C4000', '0 10001100 00111000100000000000000'],
+        ['3EAAAAAB', '0 01111101 01010101010101010101011'],
+        ['4E6E6B28', '0 10011100 11011100110101100101000'],
+        ['3C000000', '0 01111000 00000000000000000000000'],
+        ['BDCCCCCD', '1 01111011 10011001100110011001101'],
+        ['4A800000', '0 10010101 00000000000000000000000'],
+        ['3A83126F', '0 01111010 00000110010011001101111'],
+        ['4F000000', '0 10011110 00000000000000000000000'],
+        ['3F000000', '0 01111110 00000000000000000000000'],
+        ['41200000', '0 10000010 01000000000000000000000'],
+        ['C54C0000', '1 10001010 10011000000000000000000'],
+        ['0A000000', '0 00010100 00000000000000000000000'],
+        ['449A522B', '0 10001001 00110100101001000101011'],
+        ['3ECCCCCD', '0 01111101 10011001100110011001101'],
+        ['47C35000', '0 10001111 10000110101000000000000'],
+        ['3B800000', '0 01111011 00000000000000000000000'],
+        ['7F000000', '0 11111110 00000000000000000000000'],
+        ['00000001', '0 00000000 00000000000000000000001']
+    ];
+
+    (function renderVariants() {
+        const tbody = document.getElementById('variantsBody');
+        variants.forEach(([hex, bin], i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="mono">${i + 1}</td>` +
+                `<td class="mono">${hex}</td>` +
+                `<td><span class="bin-mono">${bin.replace(/ /g, '&nbsp;')}</span></td>`;
+            tbody.appendChild(tr);
+        });
+    })();
+
+    // ===== Плавная прокрутка =====
+    document.addEventListener('click', e => {
+        const a = e.target.closest('a[href^="#"]');
+        if (!a) return;
+        e.preventDefault();
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' });
+    });
+
+    // ===== Переключение табов сфер =====
+    function switchSphere(idx) {
+        document.querySelectorAll('.sphere-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+        document.querySelectorAll('.sphere-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+    }
+
+    // ===== Логика PIN-кода =====
+    (function() {
+        const overlay = document.getElementById('pin-overlay');
+        const mainContent = document.getElementById('main-content');
+        const pinInput = document.getElementById('pin-input');
+        const pinBtn = document.getElementById('pin-btn');
+        const pinError = document.getElementById('pin-error');
+
+        // Пароль: 2468 (в base64: MjQ2OA==)
+        const CORRECT_PIN_BASE64 = 'MjQ2OA==';
+
+        // Проверяем, вводили ли уже пароль в этой сессии
+        if (sessionStorage.getItem('pin_verified') === 'true') {
+            overlay.classList.add('hidden');
+            mainContent.style.display = 'block';
+            return;
+        }
+
+        function verifyPin() {
+            const entered = pinInput.value.trim();
+            if (entered === '') {
+                pinError.textContent = 'Введите PIN-код.';
+                return;
+            }
+            const enteredBase64 = btoa(entered);
+            if (enteredBase64 === CORRECT_PIN_BASE64) {
+                sessionStorage.setItem('pin_verified', 'true');
+                overlay.classList.add('hidden');
+                mainContent.style.display = 'block';
+                pinError.textContent = '';
+            } else {
+                pinError.textContent = 'Неверный PIN-код. Попробуйте ещё раз.';
+                pinInput.value = '';
+                pinInput.focus();
+            }
+        }
+
+        pinBtn.addEventListener('click', verifyPin);
+        
+        pinInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                verifyPin();
+            }
+        });
+        
+        // Разрешаем вводить только цифры
+        pinInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 4);
+        });
+        
+        pinInput.focus();
+    })();
+</script>
+
+</body>
+</html>
