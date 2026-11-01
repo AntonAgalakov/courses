@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Практическая работа · Многопоточная обработка изображений</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8fafc;color:#0f172a;line-height:1.65}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;padding:12px 0}
+.nav-inner{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-weight:750;color:#2563eb;font-size:1.12rem}.logo span{color:#0f172a;font-weight:400}
+.nav-links{display:flex;gap:8px 18px;list-style:none;flex-wrap:wrap}
+.nav-links a{color:#334155;text-decoration:none;font-size:.88rem;font-weight:550}
+.nav-links a:hover{color:#2563eb}
+.hero{text-align:center;padding:58px 0 38px}
+.badge{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:6px 16px;border-radius:30px;font-size:.82rem;font-weight:700}
+.hero h1{font-size:2.5rem;line-height:1.18;letter-spacing:-1px;margin:18px 0 10px}
+.highlight{color:#2563eb}.hero p{color:#475569;font-size:1.08rem;max-width:720px;margin:auto}
+section{padding:40px 0;border-bottom:1px solid #e9edf2;scroll-margin-top:76px}
+.section-title{font-size:1.6rem;font-weight:750;letter-spacing:-.4px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.number{display:inline-flex;width:33px;height:33px;align-items:center;justify-content:center;border-radius:50%;background:#2563eb;color:white;font-size:.95rem;flex-shrink:0}
+.card{background:white;border:1px solid #e8edf3;border-radius:15px;padding:22px;box-shadow:0 3px 12px rgba(15,23,42,.035);margin-bottom:16px}
+.card h3{font-size:1.1rem;margin:16px 0 8px}.card h3:first-child{margin-top:0}
+p{margin:8px 0;color:#334155}ul,ol{padding-left:23px;margin:9px 0;color:#334155}li{margin:5px 0}
+code,pre{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+code{background:#f1f5f9;padding:2px 5px;border-radius:4px;font-size:.9em;color:#1e293b}
+pre{background:#1e293b;color:#e2e8f0;padding:16px 18px;border-radius:11px;overflow-x:auto;font-size:.86rem;line-height:1.55;margin:12px 0;white-space:pre}
+.info{background:#eff6ff;border-left:4px solid #2563eb;border-radius:9px;padding:14px 18px;margin:14px 0;color:#1e3a8a}
+.warn{background:#fffbeb;border-left:4px solid #f59e0b;border-radius:9px;padding:14px 18px;margin:14px 0;color:#78350f}
+.success{background:#f0fdf4;border-left:4px solid #22c55e;border-radius:9px;padding:14px 18px;margin:14px 0;color:#14532d}
+.table-wrap{overflow-x:auto;margin:14px 0}
+table{width:100%;border-collapse:collapse;background:white;border-radius:10px;overflow:hidden;font-size:.91rem}
+th{background:#f1f5f9;text-align:left;padding:10px 13px;border-bottom:2px solid #e2e8f0}
+td{padding:9px 13px;border-bottom:1px solid #edf1f5;vertical-align:top}
+tr:last-child td{border-bottom:0}
+.spec{border:1px solid #e2e8f0;border-left:4px solid #22c55e;border-radius:9px;overflow:hidden;margin:14px 0;background:#fff}
+.spec .head{padding:11px 16px;background:#f0fdf4;font-weight:750}
+.spec .row{padding:10px 16px;border-top:1px solid #eef2f7;color:#334155}
+.spec .label{display:block;color:#475569;font-weight:700;font-size:.85rem;margin-bottom:3px}
+.test{border:1px solid #e2e8f0;border-radius:11px;background:#fff;padding:14px 17px;margin:10px 0}
+.testhead{display:flex;gap:10px;align-items:center;margin-bottom:6px}
+.testnum{background:#2563eb;color:#fff;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0}
+.testtitle{font-weight:700;flex:1;font-size:.95rem}
+.expected{color:#166534;font-weight:550}
+footer{text-align:center;color:#64748b;padding:32px 0;font-size:.9rem}
+
+/* === Кнопка скачивания архива === */
+.download-block{
+  background:white;
+  border:1px solid #e8edf3;
+  border-left:4px solid #2563eb;
+  border-radius:15px;
+  padding:22px 26px;
+  margin:8px 0 8px;
+  box-shadow:0 3px 12px rgba(15,23,42,.035);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  flex-wrap:wrap;
+}
+.download-block .text{flex:1;min-width:220px}
+.download-block .text strong{display:block;font-size:1.08rem;color:#0f172a;margin-bottom:4px}
+.download-block .text span{color:#475569;font-size:.92rem}
+.download-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  background:#2563eb;
+  color:white;
+  text-decoration:none;
+  padding:14px 26px;
+  border-radius:10px;
+  font-weight:700;
+  font-size:1rem;
+  white-space:nowrap;
+  box-shadow:0 4px 12px rgba(37,99,235,.28);
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.download-btn:hover{
+  background:#1d4ed8;
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(37,99,235,.35);
+}
+.download-btn:active{transform:translateY(0)}
+.download-btn .arrow{font-size:1.15rem;line-height:1}
+.download-btn .meta{
+  display:block;
+  font-weight:500;
+  font-size:.75rem;
+  opacity:.85;
+  margin-top:-2px;
+  margin-left:2px;
+}
+footer .footer-download{display:inline-flex;align-items:center;gap:6px;color:#2563eb;text-decoration:none;font-weight:600;margin-top:10px}
+footer .footer-download:hover{text-decoration:underline}
+
+/* === Рисунки (академические блок-схемы) === */
+figure{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin:16px 0;overflow-x:auto}
+figure svg{display:block;margin:0 auto;max-width:100%;height:auto}
+figcaption{text-align:center;font-size:.85rem;color:#64748b;font-style:italic;margin-top:12px;padding-top:10px;border-top:1px solid #f1f5f9}
+.schema .zone{fill:none;stroke:#cbd5e1;stroke-width:1.2;stroke-dasharray:5 4}
+.schema .zone-label{fill:#64748b;font-size:11.5px;font-weight:600;font-family:Inter,system-ui,sans-serif}
+.schema .box{stroke-width:1.4}
+.schema .box.blue{fill:#eff6ff;stroke:#2563eb}
+.schema .box.purple{fill:#f5f3ff;stroke:#7c3aed}
+.schema .box.green{fill:#f0fdf4;stroke:#22c55e}
+.schema .box.orange{fill:#fff7ed;stroke:#f97316}
+.schema .box.gray{fill:#f8fafc;stroke:#64748b}
+.schema .box-label{fill:#0f172a;font-size:12.5px;font-weight:600;font-family:Inter,system-ui,sans-serif;text-anchor:middle}
+.schema .box-sub{fill:#475569;font-size:11px;font-family:"SFMono-Regular",Consolas,monospace;text-anchor:middle}
+.schema .edge{stroke:#475569;stroke-width:1.3;fill:none}
+.schema .edge-label{fill:#475569;font-size:11px;font-family:Inter,system-ui,sans-serif;font-style:italic}
+.schema .legend{font-size:11.5px;fill:#334155;font-family:Inter,system-ui,sans-serif}
+
+@media(max-width:760px){
+  .hero h1{font-size:1.9rem}
+  .nav-inner{align-items:flex-start;flex-direction:column}
+  .section-title{font-size:1.3rem}
+  .card{padding:16px}
+  .download-block{flex-direction:column;align-items:flex-start;text-align:left;padding:18px}
+  .download-btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+<nav><div class="container nav-inner"><div class="logo">Практика <span>· СТП</span></div>
+<ul class="nav-links">
+<li><a href="#task">Задание</a></li>
+<li><a href="#program">Программа</a></li>
+<li><a href="#threads">Многопоточность</a></li>
+<li><a href="#example">Пример</a></li>
+<li><a href="#report">Эксперимент</a></li>
+</ul></div></nav>
+
+<header class="hero"><div class="container">
+<div class="badge">Современные технологии программирования · C++17</div>
+<h1>Обработка изображений<br/><span class="highlight">std::thread · std::mutex · std::queue</span></h1>
+<p>Консольная утилита, которая обрабатывает каталог с картинками — последовательно или в несколько потоков.</p>
+</div></header>
+
+<!-- ==================== КНОПКА СКАЧИВАНИЯ ==================== -->
+<div class="container">
+<div class="download-block">
+  <div class="text">
+    <strong>Заготовка проекта</strong>
+    <span>Готовый CMake-проект: <code>Image.h</code>, <code>Image.cpp</code>, <code>CMakeLists.txt</code> и заготовка <code>main.cpp</code> с TODO-маркерами. Собирается сразу после распаковки.</span>
+  </div>
+  <a class="download-btn" href="image_processing_starter.zip" download>
+    <span class="arrow">⬇</span>
+    <span>
+      Скачать заготовку
+      <span class="meta">image_processing_starter.zip</span>
+    </span>
+  </a>
+</div>
+</div>
+
+<!-- ==================== 1. ЗАДАНИЕ ==================== -->
+<section id="task"><div class="container"><div class="section-title"><span class="number">1</span> Задание</div>
+<div class="card">
+<p>Нужно написать консольную программу на C++17, которая:</p>
+<ol>
+<li>Спрашивает у пользователя входную и выходную директории, операцию и режим работы.</li>
+<li>Находит во входной директории все картинки (<code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.bmp</code>, <code>.tga</code>) через <code>std::filesystem</code>.</li>
+<li>Обрабатывает каждую картинку и сохраняет результат в выходную директорию.</li>
+<li>Умеет работать в двух режимах: <strong>последовательном</strong> и <strong>параллельном</strong> (N потоков через <code>std::thread</code>).</li>
+<li>Замеряет время обработки через <code>std::chrono::steady_clock</code>.</li>
+<li>Не падает из-за одного битого файла — считает его ошибкой и идёт дальше.</li>
+</ol>
+</div></div></section>
+
+<!-- ==================== 2. ПРОГРАММА ==================== -->
+<section id="program"><div class="container"><div class="section-title"><span class="number">2</span> Что должна делать программа</div>
+<div class="card">
+
+<h3>2.1. Что умеет класс <code>Image</code></h3>
+<p>Класс <code>Image</code> инкапсулирует работу с одним изображением: загрузку из файла, хранение пикселей, две операции и сохранение. Вам не нужно разбираться с пикселями — достаточно знать интерфейс:</p>
+<pre>class Image {
+public:
+    Image() = default;
+
+    bool load(const std::string& filename);   // загрузить из файла
+    bool save(const std::string& filename) const;  // сохранить в PNG
+
+    void grayscale();                          // операция 1
+    void invert();                             // операция 2
+
+    int getWidth()  const noexcept;            // ширина после загрузки
+    int getHeight() const noexcept;            // высота после загрузки
+
+private:
+    int width_  = 0;
+    int height_ = 0;
+    int channels_ = 4;                         // всегда RGBA
+    std::vector&lt;unsigned char&gt; pixels_;
+};</pre>
+<p>Что важно знать об этих методах:</p>
+<ul>
+<li><code>load()</code> читает файл и приводит изображение к формату <strong>RGBA</strong> (4 канала на пиксель) независимо от исходного формата. Возвращает <code>true</code> при успехе и <code>false</code>, если файл не открылся или оказался битым. При ошибке размеры обнуляются.</li>
+<li><code>save()</code> сохраняет изображение в формате <strong>PNG</strong>. Возвращает <code>true</code> при успехе и <code>false</code>, если сохранить не удалось (например, нет прав на запись).</li>
+<li><code>grayscale()</code> — операция 1. Для каждого пикселя считает яркость по формуле <code>0.299·R + 0.587·G + 0.114·B</code> и записывает её в каналы R, G и B. Альфа-канал не меняется. Работает на месте, ничего не возвращает.</li>
+<li><code>invert()</code> — операция 2. Для каждого пикселя заменяет каждый из каналов R, G, B на <code>255 − C</code>. Альфа-канал не меняется. Работает на месте.</li>
+<li><code>getWidth()</code> и <code>getHeight()</code> возвращают размеры загруженного изображения или <code>0</code>, если изображение ещё не загружено или загрузка не удалась.</li>
+<li>Никакие методы не бросают исключений — все ошибки сообщаются через возвращаемое значение <code>bool</code> или через нулевые размеры.</li>
+</ul>
+<p>Операция «Grayscale + Invert» реализуется на стороне <code>main.cpp</code> последовательным вызовом <code>grayscale()</code>, затем <code>invert()</code>.</p>
+<p><strong>Менять <code>Image.h</code> и <code>Image.cpp</code> нельзя.</strong> Все операции с многопоточностью, очередью и файловой системой должны находиться вне этого класса.</p>
+
+<h3>2.2. Диалог с пользователем</h3>
+<p>Программа последовательно спрашивает: входную директорию (откуда читать), выходную (куда сохранять), номер операции и режим работы. Между вопросами о директориях и операции она сканирует входной каталог и печатает, сколько картинок нашла. Если выбран параллельный режим, дополнительно спрашивается количество потоков — для последовательного этот вопрос пропускается.</p>
+<p>Входная директория должна существовать, выходная создаётся автоматически, если её нет. Если картинок не найдено, программа сообщает об этом и завершается ещё до вопросов об операции и режиме. Любой некорректный ввод — сообщение об ошибке и завершение с кодом 1, без повторных попыток.</p>
+<pre>Enter input directory:  ./images
+Enter output directory: ./processed
+
+Scanning input directory...
+Found 120 supported image files.
+
+Select processing operation:
+  1. Grayscale
+  2. Invert
+  3. Grayscale + Invert
+Enter operation number: 1
+
+Select processing mode:
+  1. Sequential processing
+  2. Parallel processing
+Enter mode: 2
+
+Enter number of worker threads (&gt; 0): 4</pre>
+
+<h3>2.3. Как называть выходные файлы</h3>
+<p>Результат всегда сохраняется в PNG. Имя = полное исходное имя + <code>.processed</code> + <code>.png</code>:</p>
+<pre>photo.jpg    →  photo.jpg.processed.png
+photo.png    →  photo.png.processed.png
+cat.bmp      →  cat.bmp.processed.png</pre>
+<p>Так исходные файлы не перезаписываются, а имена не конфликтуют между собой (<code>photo.jpg</code> и <code>photo.png</code> дают разные выходные файлы).</p>
+
+<h3>2.4. Последовательный режим</h3>
+<p>Просто цикл по всем найденным файлам: загрузить → обработать → сохранить. Никаких потоков.</p>
+
+<h3>2.5. Параллельный режим</h3>
+<p>В параллельном режиме одну и ту же работу делят несколько потоков. Чтобы потоки не мешали друг другу и не обрабатывали один и тот же файл дважды, найденные картинки заранее складываются в общую очередь <code>std::queue</code>: один элемент — одна картинка. Поток в цикле берёт из очереди очередное задание, обрабатывает его, а затем возвращается за следующим. Кто освободился раньше — тот и берёт следующую картинку, поэтому быстрые и медленные файлы распределяются между потоками равномерно.</p>
+<p>Когда очередь пуста, потоки один за другим завершаются. Главный поток дожидается их через <code>join()</code> и печатает сводку — до этого момента счётчики ещё могут меняться.</p>
+<p>Ключевой момент — работа с очередью. Достать задание и проверить, что очередь не пуста, нужно <strong>под мьютексом</strong>, иначе два потока могут одновременно взять один и тот же элемент или сломать внутреннее состояние <code>std::queue</code>. А вот саму обработку картинки — загрузку, применение операции, сохранение — нужно делать уже <strong>без мьютекса</strong>: иначе потоки выстроятся в очередь и параллелизма не будет.</p>
+<div class="warn"><strong>Главное правило:</strong> мьютекс защищает только короткие операции над общими данными (очередь, счётчики, вывод в консоль). Всё, что связано с обработкой картинки, выполняется вне мьютекса.</div>
+
+<h3>2.6. Итоговая статистика</h3>
+<p>После завершения программа печатает:</p>
+<pre>========================================
+          PROCESSING SUMMARY
+========================================
+Mode:                    Parallel
+Operation:               Grayscale
+Worker threads:          4
+Total images:            120
+Successfully processed:  118
+Failed:                    2
+Processing time:         4.823 seconds
+Results directory:       ./processed
+========================================</pre>
+<p>Всегда должно выполняться: <code>success + failed = total</code>.</p>
+
+</div></div></section>
+
+<!-- ==================== 3. МНОГОПОТОЧНОСТЬ ==================== -->
+<section id="threads"><div class="container"><div class="section-title"><span class="number">3</span> Многопоточность: что и чем защищать</div>
+<div class="card">
+
+<h3>3.1. Общая картина</h3>
+<p>На рисунке 1 показано, как программа переходит от одного потока к нескольким и обратно. Сначала главный поток готовит задания и наполняет ими очередь. Затем создаются N рабочих потоков, каждый из которых в цикле забирает задания из общей очереди и обрабатывает их. Когда очередь пуста, все рабочие потоки завершаются, а главный дожидается их через <code>join()</code> и печатает итоговую сводку.</p>
+
+<figure>
+<svg class="schema" viewBox="0 0 880 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема запуска рабочих потоков">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect class="zone" x="20" y="20" width="840" height="230" rx="8"/>
+  <text class="zone-label" x="32" y="14">Главный поток — подготовка</text>
+
+  <rect class="box blue" x="40" y="60" width="110" height="44" rx="6"/>
+  <text class="box-label" x="95" y="87">main()</text>
+
+  <rect class="box blue" x="180" y="60" width="150" height="44" rx="6"/>
+  <text class="box-label" x="255" y="87">findImages()</text>
+
+  <rect class="box blue" x="360" y="60" width="150" height="44" rx="6"/>
+  <text class="box-label" x="435" y="87">buildTasks()</text>
+
+  <rect class="box purple" x="360" y="160" width="150" height="50" rx="6"/>
+  <text class="box-label" x="435" y="182">std::queue&lt;Task&gt;</text>
+  <text class="box-sub" x="435" y="199">общая очередь</text>
+
+  <line class="edge" x1="150" y1="82" x2="178" y2="82" marker-end="url(#arr)"/>
+  <line class="edge" x1="330" y1="82" x2="358" y2="82" marker-end="url(#arr)"/>
+  <line class="edge" x1="435" y1="104" x2="435" y2="158" marker-end="url(#arr)"/>
+
+  <line class="edge" x1="435" y1="210" x2="435" y2="255" marker-end="url(#arr)"/>
+  <line class="edge" x1="120" y1="260" x2="660" y2="260"/>
+  <line class="edge" x1="120" y1="260" x2="120" y2="298" marker-end="url(#arr)"/>
+  <line class="edge" x1="300" y1="260" x2="300" y2="298" marker-end="url(#arr)"/>
+  <line class="edge" x1="480" y1="260" x2="480" y2="298" marker-end="url(#arr)"/>
+  <line class="edge" x1="660" y1="260" x2="660" y2="298" marker-end="url(#arr)"/>
+
+  <rect class="zone" x="20" y="280" width="840" height="100" rx="8"/>
+  <text class="zone-label" x="32" y="274">Рабочие потоки (N)</text>
+
+  <rect class="box blue" x="40" y="305" width="160" height="54" rx="6"/>
+  <text class="box-label" x="120" y="328">Thread 1</text>
+  <text class="box-sub" x="120" y="346">worker()</text>
+
+  <rect class="box blue" x="220" y="305" width="160" height="54" rx="6"/>
+  <text class="box-label" x="300" y="328">Thread 2</text>
+  <text class="box-sub" x="300" y="346">worker()</text>
+
+  <rect class="box blue" x="400" y="305" width="160" height="54" rx="6"/>
+  <text class="box-label" x="480" y="328">Thread 3</text>
+  <text class="box-sub" x="480" y="346">worker()</text>
+
+  <rect class="box blue" x="580" y="305" width="160" height="54" rx="6"/>
+  <text class="box-label" x="660" y="328">Thread N</text>
+  <text class="box-sub" x="660" y="346">worker()</text>
+
+  <line class="edge" x1="120" y1="359" x2="120" y2="395"/>
+  <line class="edge" x1="300" y1="359" x2="300" y2="395"/>
+  <line class="edge" x1="480" y1="359" x2="480" y2="395"/>
+  <line class="edge" x1="660" y1="359" x2="660" y2="395"/>
+  <line class="edge" x1="120" y1="395" x2="660" y2="395"/>
+  <line class="edge" x1="370" y1="395" x2="370" y2="438" marker-end="url(#arr)"/>
+
+  <rect class="zone" x="20" y="420" width="840" height="100" rx="8"/>
+  <text class="zone-label" x="32" y="414">Главный поток — завершение</text>
+
+  <rect class="box blue" x="280" y="440" width="180" height="44" rx="6"/>
+  <text class="box-label" x="370" y="467">join() всех потоков</text>
+
+  <rect class="box blue" x="500" y="440" width="200" height="44" rx="6"/>
+  <text class="box-label" x="600" y="467">print summary()</text>
+
+  <line class="edge" x1="460" y1="462" x2="498" y2="462" marker-end="url(#arr)"/>
+</svg>
+<figcaption>Рисунок 1. Переход от одного потока к нескольким и обратно: подготовка заданий, работа N потоков, ожидание и итоговая сводка</figcaption>
+</figure>
+
+<p>На рисунке 2 показан один шаг цикла, который выполняет каждый рабочий поток. Зелёным отмечены короткие операции над общими данными — они выполняются под мьютексом. Оранжевым — обработка изображения, самая долгая часть: её поток выполняет без мьютекса, чтобы не блокировать остальные потоки.</p>
+
+<figure>
+<svg class="schema" viewBox="0 0 700 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема цикла рабочего потока">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect class="box green" x="90" y="50" width="520" height="64" rx="6"/>
+  <text class="box-label" x="350" y="76">1. queueMutex — взять задание из очереди</text>
+  <text class="box-sub" x="350" y="98">if queue.empty() → return; task = queue.front(); queue.pop()</text>
+
+  <line class="edge" x1="350" y1="114" x2="350" y2="158" marker-end="url(#arr2)"/>
+
+  <rect class="box orange" x="90" y="160" width="520" height="64" rx="6"/>
+  <text class="box-label" x="350" y="186">2. обработка изображения — без мьютекса</text>
+  <text class="box-sub" x="350" y="208">load(inputPath) → операция → save(outputPath)</text>
+
+  <line class="edge" x1="350" y1="224" x2="350" y2="268" marker-end="url(#arr2)"/>
+
+  <rect class="box green" x="90" y="270" width="520" height="64" rx="6"/>
+  <text class="box-label" x="350" y="296">3. outputMutex — печать строки в cout</text>
+  <text class="box-sub" x="350" y="318">cout &lt;&lt; "[Thread i] Completed: ..."</text>
+
+  <line class="edge" x1="350" y1="334" x2="350" y2="378" marker-end="url(#arr2)"/>
+
+  <rect class="box green" x="90" y="380" width="520" height="64" rx="6"/>
+  <text class="box-label" x="350" y="406">4. statisticsMutex — обновить счётчики</text>
+  <text class="box-sub" x="350" y="428">++success или ++failed</text>
+
+  <line class="edge" x1="350" y1="444" x2="350" y2="488" marker-end="url(#arr2)"/>
+
+  <rect class="box gray" x="90" y="490" width="520" height="54" rx="6"/>
+  <text class="box-label" x="350" y="522">5. вернуться к шагу 1</text>
+
+  <path class="edge" d="M 90 517 L 40 517 L 40 82 L 88 82" marker-end="url(#arr2)"/>
+
+  <rect class="box green" x="130" y="575" width="20" height="20" rx="3"/>
+  <text class="legend" x="160" y="590">под мьютексом — короткая операция</text>
+
+  <rect class="box orange" x="400" y="575" width="20" height="20" rx="3"/>
+  <text class="legend" x="430" y="590">без мьютекса — долгая операция</text>
+</svg>
+<figcaption>Рисунок 2. Один шаг цикла рабочего потока: зелёные блоки — короткие операции под мьютексом, оранжевый — обработка изображения без мьютекса</figcaption>
+</figure>
+
+<h3>3.2. Три мьютекса — три зоны</h3>
+<div class="table-wrap"><table><thead><tr><th>Мьютекс</th><th>Что защищает</th><th>Когда захватывать</th></tr></thead><tbody>
+<tr><td><code>queueMutex</code></td><td><code>std::queue&lt;Task&gt;</code></td><td>Только на время <code>empty()</code> + <code>front()</code> + <code>pop()</code> — одним <code>lock_guard</code>.</td></tr>
+<tr><td><code>statisticsMutex</code></td><td>счётчики <code>success</code> / <code>failed</code></td><td>Только на время инкремента.</td></tr>
+<tr><td><code>outputMutex</code></td><td>вывод в <code>std::cout</code> из потоков</td><td>Только на время печати одной строки.</td></tr>
+</tbody></table></div>
+
+<h3>3.3. Что должен делать рабочий поток</h3>
+<p>Рабочий поток — это та часть программы, которую выполняет каждый <code>std::thread</code>, созданный в параллельном режиме. Как именно её оформить — отдельной функцией, лямбдой или функтором — студент решает сам. Важно, чтобы поведение соответствовало описанию ниже; рисунок 2 показывает то же самое в виде блок-схемы.</p>
+<p>Поток работает в цикле и на каждой итерации делает четыре шага:</p>
+<ol>
+<li><strong>Берёт задание.</strong> Под <code>queueMutex</code> проверяет, не пуста ли общая очередь. Если пуста — завершается. Если нет — извлекает одно задание и отпускает мьютекс.</li>
+<li><strong>Обрабатывает изображение.</strong> Без мьютекса создаёт локальный объект <code>Image</code>, вызывает <code>load()</code> для входного пути. Если загрузка удалась — применяет выбранную операцию (<code>grayscale()</code>, <code>invert()</code> или обе подряд) и вызывает <code>save()</code> для выходного пути. Успех определяется как «<code>load()</code> вернул <code>true</code> и <code>save()</code> вернул <code>true</code>».</li>
+<li><strong>Печатает результат.</strong> Под <code>outputMutex</code> выводит одну строку с номером потока и именем файла — успех или ошибка.</li>
+<li><strong>Обновляет статистику.</strong> Под <code>statisticsMutex</code> увеличивает <code>success</code> или <code>failed</code> в зависимости от исхода обработки.</li>
+</ol>
+
+
+<h3>3.4. Возможные трудности</h3>
+<ul>
+<li><strong>Держать <code>queueMutex</code> при обработке.</strong> Тогда все потоки выполняются по очереди — это не параллелизм.</li>
+<li><strong>Создавать один общий <code>Image</code>.</strong> Каждый поток должен создать свой локальный <code>Image</code> внутри обработки.</li>
+<li><strong>Забыть <code>join()</code>.</strong> Без него программа упадёт при выходе из <code>main()</code>, потому что потоки всё ещё живы.</li>
+<li><strong>Читать/писать счётчики без мьютекса.</strong> Приведёт к «потерянным» инкрементам и нарушению <code>success + failed = total</code>.</li>
+</ul>
+
+</div></div></section>
+
+
+<!-- ==================== 5. ПРИМЕР ==================== -->
+<section id="example"><div class="container"><div class="section-title"><span class="number">4</span> Пример работы</div>
+<div class="card">
+<pre>========================================
+       IMAGE PROCESSING UTILITY
+========================================
+Enter input directory:  ./images
+Enter output directory: ./processed
+
+Scanning input directory...
+Found 120 supported image files.
+
+Select processing operation:
+  1. Grayscale
+  2. Invert
+  3. Grayscale + Invert
+Enter operation number: 1
+
+Select processing mode:
+  1. Sequential processing
+  2. Parallel processing
+Enter mode: 2
+
+Enter number of worker threads (&gt; 0): 4
+
+[Thread 2] Completed: photo01.jpg
+[Thread 4] Completed: photo02.png
+[Thread 1] Completed: photo03.bmp
+[Thread 3] Failed: broken.jpg
+[Thread 2] Completed: photo04.jpg
+...
+[Thread 1] Completed: photo120.png
+
+========================================
+          PROCESSING SUMMARY
+========================================
+Mode:                    Parallel
+Operation:               Grayscale
+Worker threads:          4
+Total images:            120
+Successfully processed:  118
+Failed:                    2
+Processing time:         4.823 seconds
+Results directory:       ./processed
+========================================</pre>
+<p>Порядок строк от разных потоков может отличаться при каждом запуске — это нормально.</p>
+</div></div></section>
+
+<!-- ==================== 6. ОТЧЁТ ==================== -->
+<section id="report"><div class="container"><div class="section-title"><span class="number">5</span> Эксперименты и отчёт</div>
+<div class="card">
+
+<h3>5.1. Что нужно замерить</h3>
+<ol>
+<li>Подготовить ≥ 50 картинок разных размеров (маленькие, средние, крупные).</li>
+<li>Запустить последовательный режим — записать время <code>T(1)</code>.</li>
+<li>Запустить параллельный с 2, 4, 8 потоками.</li>
+<li>Каждый запуск повторить 3 раза и взять среднее.</li>
+<li>Между запусками очищать выходную директорию.</li>
+</ol>
+
+<h3>5.2. Таблица результатов</h3>
+<div class="table-wrap"><table><thead><tr><th>Режим</th><th>Потоков</th><th>Время, с</th><th>Ускорение T(1)/T(p)</th></tr></thead><tbody>
+<tr><td>Последовательный</td><td>1</td><td></td><td>1.00</td></tr>
+<tr><td>Параллельный</td><td>2</td><td></td><td></td></tr>
+<tr><td>Параллельный</td><td>4</td><td></td><td></td></tr>
+<tr><td>Параллельный</td><td>8</td><td></td><td></td></tr>
+</tbody></table></div>
+
+
+</div></div></section>
+
+<footer><div class="container">
+<p>Практическая работа · Пакетная обработка изображений · C++17</p>
+<a class="footer-download" href="image_processing_starter.zip" download>⬇ Скачать заготовку проекта (image_processing_starter.zip)</a>
+</div></footer>
+</body></html>
