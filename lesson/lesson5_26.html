@@ -187,7 +187,6 @@ print(f"Меня зовут {name}, мне {age} лет.")</pre>
                     <code>user.mail.ru</code> → <code>Ошибка: нет @</code><br>
                     <code>@mail.ru</code> → <code>Ошибка: пустое имя</code><br>
                     <code>user@mail</code> → <code>Ошибка: нет домена</code><br><br>
-                    <b>Идея решения:</b> проверьте <code>email.count("@") == 1</code>, разделите строку по <code>@</code> на <code>login</code> и <code>domain</code>. Убедитесь, что <code>login</code> не пустой, а в <code>domain</code> есть точка и после неё минимум 2 символа.
                 </div>
             </div>
         </div>
@@ -205,7 +204,6 @@ print(f"Меня зовут {name}, мне {age} лет.")</pre>
                     Вход: <code>8 (912) 345-67-89</code> → Выход: <code>+7 (912) 345-67-89</code><br>
                     Вход: <code>+79123456789</code> → Выход: <code>+7 (912) 345-67-89</code><br>
                     Вход: <code>12345</code> → Выход: <code>Ошибка: нужно 11 цифр</code><br><br>
-                    <b>Идея решения:</b> оставьте только цифры через <code>"".join(c for c in phone if c.isdigit())</code>. Проверьте, что их 11. Если номер начинается с <code>8</code>, замените первую цифру на <code>7</code>. Соберите строку по шаблону из срезов: <code>+7 (digits[1:4]) digits[4:7]-digits[7:9]-digits[9:11]</code>.
                 </div>
             </div>
         </div>
@@ -222,7 +220,6 @@ print(f"Меня зовут {name}, мне {age} лет.")</pre>
                     Примеры:<br>
                     Вход: <code>a = "python"</code>, <code>b = "pythn"</code> → Выход: <code>Да</code><br>
                     Вход: <code>a = "cat"</code>, <code>b = "dog"</code> → Выход: <code>Нет</code><br><br>
-                    <b>Идея решения:</b> если <code>len(a) != len(b) + 1</code> — сразу «Нет». Иначе найдите первое место, где строки различаются, и сравните оставшиеся части.
                 </div>
             </div>
         </div>
