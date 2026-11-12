@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>РГР · Модуль B · Matplotlib · Кино</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #f5f7fb; --card: #ffffff; --border: #e4e8ef; --border-soft: #eef1f6;
+    --text: #0f172a; --muted: #64748b; --accent: #2563eb; --accent-soft: #eff6ff; --accent-line: #bfdbfe;
+    --green: #16a34a; --green-soft: #f0fdf4; --green-line: #bbf7d0;
+    --amber: #d97706; --amber-soft: #fffbeb; --amber-line: #fcd34d;
+    --red: #dc2626; --red-soft: #fef2f2; --red-line: #fecaca;
+    --violet: #7c3aed; --violet-soft: #f5f3ff; --violet-line: #ddd6fe;
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.04);
+    --shadow: 0 6px 20px rgba(15,23,42,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+nav { position: sticky; top: 0; z-index: 90; background: rgba(255,255,255,0.9); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+.nav-inner { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; flex-wrap: wrap; gap: 10px; }
+.logo { font-weight: 700; font-size: 1.05rem; color: var(--accent); }
+.logo span { color: var(--text); font-weight: 500; }
+.nav-links { display: flex; gap: 4px; list-style: none; flex-wrap: wrap; }
+.nav-links a { text-decoration: none; font-size: .88rem; font-weight: 500; color: var(--muted); padding: 6px 12px; border-radius: 8px; }
+.nav-links a:hover { color: var(--accent); background: var(--accent-soft); }
+.hero { padding: 56px 0 40px; text-align: center; }
+.hero .badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 5px 14px; border-radius: 30px; font-size: .8rem; font-weight: 600; margin-bottom: 16px; }
+.hero h1 { font-size: 2.6rem; font-weight: 800; letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 14px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .sub { font-size: 1.1rem; color: var(--muted); max-width: 680px; margin: 0 auto; }
+section { padding: 44px 0; }
+.section-head { margin-bottom: 24px; }
+.section-head .kicker { font-size: .78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.section-head h2 { font-size: 1.75rem; font-weight: 700; letter-spacing: -.6px; }
+.section-head p { color: var(--muted); margin-top: 6px; font-size: .98rem; }
+.card { background: var(--card); border-radius: 16px; padding: 24px 28px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+.card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.card p, .card li { color: #334155; font-size: .98rem; }
+.card ul, .card ol { padding-left: 22px; margin: 8px 0; }
+.card ul li, .card ol li { margin-bottom: 4px; }
+pre { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: .82rem; overflow-x: auto; line-height: 1.55; margin: 10px 0; }
+code { font-family: 'JetBrains Mono', monospace; }
+.inline-code { background: #eef2f7; color: #0f172a; padding: 2px 6px; border-radius: 5px; font-size: .88em; font-family: 'JetBrains Mono', monospace; }
+.task-statement { background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%); border: 1px solid var(--accent-line); border-left: 4px solid var(--accent); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+.task-statement .ts-label { display: inline-flex; align-items: center; gap: 6px; font-size: .72rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+.task-statement .ts-text { font-size: 1.02rem; font-weight: 500; color: #1e293b; line-height: 1.6; }
+.task-statement .ts-text strong { color: var(--accent); font-weight: 700; }
+.task-statement .ts-text ul, .task-statement .ts-text ol { padding-left: 22px; margin: 6px 0; }
+.task-statement .ts-text li { margin-bottom: 4px; }
+.task-statement .ts-text p + p { margin-top: 8px; }
+.ref-table { width: 100%; border-collapse: collapse; background: #fbfcfe; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-soft); font-size: .9rem; }
+.ref-table th, .ref-table td { padding: 8px 14px; text-align: left; border-bottom: 1px solid var(--border-soft); }
+.ref-table th { background: #f7f9fc; font-weight: 600; color: var(--muted); font-size: .72rem; letter-spacing: .5px; text-transform: uppercase; }
+.ref-table tr:last-child td { border-bottom: none; }
+.ref-table td.mono, .ref-table th.mono { font-family: 'JetBrains Mono', monospace; font-size: .85rem; }
+.story-block { background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%); border: 1px solid var(--violet-line); border-left: 4px solid var(--violet); border-radius: 12px; padding: 16px 20px; font-size: 1rem; color: #312e81; margin-bottom: 18px; }
+.story-block p { color: #312e81; }
+.story-block p + p { margin-top: 10px; }
+.story-block ul, .story-block ol { padding-left: 22px; margin: 8px 0; color: #312e81; }
+.story-block li { color: #312e81; margin-bottom: 4px; }
+.callout { border-radius: 10px; padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; font-size: .95rem; margin: 10px 0; }
+.callout .ico { font-size: 1.1rem; line-height: 1.3; flex-shrink: 0; }
+.callout.hint { background: var(--amber-soft); border-left: 3px solid var(--amber); color: #78350f; }
+.callout.warn { background: var(--red-soft); border-left: 3px solid var(--red); color: #7f1d1d; }
+.callout.info { background: var(--accent-soft); border-left: 3px solid var(--accent); color: #1e3a8a; }
+.callout.success { background: var(--green-soft); border-left: 3px solid var(--green); color: #14532d; }
+.callout strong { font-weight: 700; }
+footer { text-align: center; padding: 32px 0 24px; color: var(--muted); font-size: .88rem; border-top: 1px solid var(--border-soft); margin-top: 20px; }
+
+.sphere-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 12px; scrollbar-width: thin; margin-bottom: 8px; }
+.sphere-tab { flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; font-family: inherit; font-size: .9rem; font-weight: 600; color: #334155; cursor: pointer; white-space: nowrap; transition: all .15s; }
+.sphere-tab:hover { border-color: var(--accent-line); color: var(--accent); }
+.sphere-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.25); }
+.sphere-tab .tab-ico { font-size: 1.1rem; }
+.sphere-panel { display: none; animation: fadeIn .25s ease; }
+.sphere-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.download-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    border: 1px solid var(--accent-line);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 18px;
+}
+.download-bar .info { font-size: .95rem; color: #1e3a8a; }
+.download-bar .info strong { color: var(--accent); }
+.download-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 10px;
+    padding: 12px 22px; font-family: inherit;
+    font-size: .95rem; font-weight: 600;
+    text-decoration: none;
+    cursor: pointer; transition: all .2s;
+    box-shadow: 0 4px 12px rgba(37,99,235,.25);
+}
+.download-btn:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+.download-btn:active { transform: translateY(0); }
+.download-btn .dl-ico { font-size: 1.05rem; }
+
+@media (max-width: 720px) {
+    .hero h1 { font-size: 1.9rem; }
+    .nav-links a { font-size: .82rem; padding: 5px 9px; }
+    .section-head h2 { font-size: 1.4rem; }
+    .card { padding: 18px 20px; }
+    .download-bar { flex-direction: column; align-items: stretch; }
+    .download-btn { justify-content: center; }
+}
+
+#pin-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; transition: opacity 0.5s ease;
+}
+#pin-overlay.hidden { opacity: 0; pointer-events: none; }
+.pin-box { background: #ffffff; border-radius: 24px; padding: 40px 32px; max-width: 400px; width: 90%; box-shadow: 0 24px 64px rgba(0,0,0,0.2); text-align: center; }
+.pin-box h2 { font-weight: 700; font-size: 1.5rem; margin-bottom: 8px; color: #0f172a; }
+.pin-box p { color: #475569; margin-bottom: 24px; font-size: 0.95rem; }
+.pin-box input { width: 100%; padding: 14px 16px; font-size: 1.2rem; text-align: center; letter-spacing: 8px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none; transition: border 0.2s; font-weight: 600; }
+.pin-box input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
+.pin-box .error-msg { color: #ef4444; font-size: 0.9rem; margin-top: 12px; height: 24px; font-weight: 500; }
+.pin-box button { margin-top: 20px; width: 100%; padding: 14px; background: #2563eb; color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.pin-box button:hover { background: #1d4ed8; }
+.pin-box .hint { font-size: 0.75rem; color: #94a3b8; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<div id="pin-overlay">
+    <div class="pin-box">
+        <h2>Доступ к работе</h2>
+        <p>Введите PIN-код для просмотра материалов</p>
+        <input type="password" id="pin-input" maxlength="4" placeholder="— — — —" inputmode="numeric">
+        <div class="error-msg" id="pin-error"></div>
+        <button id="pin-btn">Подтвердить</button>
+        <div class="hint">Подсказка: 4 цифры</div>
+    </div>
+</div>
+
+<div id="main-content" style="display: none;">
+
+    <nav id="navbar">
+        <div class="container nav-inner">
+            <div class="logo">РГР <span>· Модуль В · Кино</span></div>
+            <ul class="nav-links">
+                <li><a href="#data">Данные</a></li>
+                <li><a href="#format">Формат</a></li>
+                <li><a href="#task">Задание</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <div class="badge">Информатика · 1 курс · Python · Matplotlib</div>
+            <h1>Расчетно-графическая<br> <em>работа</em></h1>
+            <p class="sub">Визуализация данных о фильмах средствами библиотеки Matplotlib</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+    <!-- ===================== ДАННЫЕ ===================== -->
+    <section id="data">
+        <div class="section-head">
+            <div class="kicker">Раздел 00</div>
+            <h2>Исходные данные и допущения</h2>
+        </div>
+
+        <div class="story-block">
+            <p>Файл <code>movie.txt</code> можно скачать по кнопке в разделе «Формат файла». </p>
+            <p>Файл подготовлен на основе открытого датасета <strong>IMDb movies dataset</strong> (85 855 фильмов). В него включены только те записи, у которых заполнены все поля, поэтому <strong>пропусков в данных нет</strong>.</p>
+        </div>
+
+        <div class="card">
+            <h4>Принятые допущения</h4>
+            <ol>
+                <li>Данные считаются достоверными в рамках выданного файла. Все выводы формулируются как «в рамках данного файла», а не как универсальные утверждения о киноиндустрии.</li>
+                <li><strong>Разделитель полей</strong> — точка с запятой <code class="inline-code">;</code>. Первая строка файла — <strong>заголовок с названиями столбцов</strong>.</li>
+                <li><strong>Пропусков в данных нет:</strong> каждое поле в каждой строке заполнено. Все числовые столбцы корректно преобразуются в <code class="inline-code">int</code> / <code class="inline-code">float</code> без дополнительных проверок.</li>
+                <li>В файле представлены <strong>только фильмы</strong> (значение <code class="inline-code">type = movie</code>), потому что исходный датасет IMDb movies dataset содержит только фильмы.</li>
+                <li>Единицы измерения: рейтинг IMDb — шкала 0–10; год — целое число; длительность — минуты; бюджет и кассовые сборы — доллары США.</li>
+                <li>Выбросы не удаляются, но при необходимости оговариваются в отчёте.</li>
+                <li>Файл не изменяется — все преобразования выполняются в коде на Python.</li>
+            </ol>
+        </div>
+
+    </section>
+
+    <!-- ===================== ФОРМАТ ===================== -->
+    <section id="format">
+        <div class="section-head">
+            <div class="kicker">Раздел 01</div>
+            <h2>Формат файла movie.txt</h2>
+            <p>Пример содержимого (разделитель — «;», первая строка — заголовок).</p>
+        </div>
+
+        <div class="download-bar">
+            <div class="info">
+                <strong>Скачать датасет:</strong> готовый файл <code class="inline-code">movie.txt</code> с фильмами. Все поля заполнены, пропусков нет.
+            </div>
+            <a class="download-btn" href="movie.txt" download="movie.txt">
+                <span class="dl-ico">⬇</span> Скачать movie.txt
+            </a>
+        </div>
+
+        <div class="card">
+<pre>title;year;genre;rating;votes;duration;budget;gross;type
+Inception;2010;Sci-Fi;8.8;2400000;148;160000000;836000000;movie
+Interstellar;2014;Sci-Fi;8.6;1800000;169;165000000;677000000;movie
+The Dark Knight;2008;Action;9.0;2700000;152;185000000;1004000000;movie
+The Godfather;1972;Crime;9.2;1900000;175;6000000;245000000;movie
+Pulp Fiction;1994;Crime;8.9;2100000;154;8000000;214000000;movie</pre>
+        </div>
+
+        <div class="card">
+            <h4>Поля файла</h4>
+            <table class="ref-table">
+                <thead>
+                    <tr><th>Столбец</th><th>Тип</th><th>Пример</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="mono">title</td><td>строка</td><td>«Inception»</td></tr>
+                    <tr><td class="mono">year</td><td>целое</td><td>2010</td></tr>
+                    <tr><td class="mono">genre</td><td>строка</td><td>«Sci-Fi»</td></tr>
+                    <tr><td class="mono">rating</td><td>дробное</td><td>8.8</td></tr>
+                    <tr><td class="mono">votes</td><td>целое</td><td>2 400 000</td></tr>
+                    <tr><td class="mono">duration</td><td>целое (мин)</td><td>148</td></tr>
+                    <tr><td class="mono">budget</td><td>целое (USD)</td><td>160 000 000</td></tr>
+                    <tr><td class="mono">gross</td><td>целое (USD)</td><td>836 000 000</td></tr>
+                    <tr><td class="mono">type</td><td>строка</td><td><code>movie</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+
+    </section>
+
+    <!-- ===================== ЗАДАНИЕ ===================== -->
+    <section id="task">
+        <div class="section-head">
+            <div class="kicker">Раздел 02</div>
+            <h2>Задание</h2>
+            <p>Три части. Выполняются последовательно, каждая опирается на предыдущую.</p>
+        </div>
+
+        <div class="sphere-tabs">
+            <button class="sphere-tab active" onclick="switchPart(0)"><span class="tab-ico">📖</span> Часть 1 · Чтение файла</button>
+            <button class="sphere-tab" onclick="switchPart(1)"><span class="tab-ico">📊</span> Часть 2 · Базовые графики</button>
+            <button class="sphere-tab" onclick="switchPart(2)"><span class="tab-ico">📈</span> Часть 3 · Сравнение по годам</button>
+        </div>
+
+        <!-- Часть 1 -->
+        <div class="sphere-panel active">
+            <div class="task-statement">
+                <div class="ts-label">◆ Условие · Часть 1</div>
+                <div class="ts-text">
+                    <p><strong>Чтение файла и первичный осмотр.</strong></p>
+                    <ol>
+                        <li>Откройте файл <code>movie.txt</code> через <code>open()</code> в режиме чтения. Прочитайте все строки.</li>
+                        <li>Отделите первую строку (заголовок) и разбейте её по <code>;</code> — получите список названий столбцов.</li>
+                        <li>Каждую строку данных разбейте по <code>;</code>. Преобразуйте числовые поля (<code>year</code>, <code>votes</code>, <code>duration</code>, <code>budget</code>, <code>gross</code>, <code>rating</code>) в <code>int</code> / <code>float</code>.</li>
+                        <li>Выведите на экран:
+                            <ul>
+                                <li>число строк данных (без заголовка);</li>
+                                <li>названия столбцов;</li>
+                                <li>первые 5 записей в читаемом виде;</li>
+                                <li>минимальный и максимальный год выпуска среди записей.</li>
+                            </ul>
+                        </li>
+                        <li>Сделайте вывод: какие столбцы пригодны для визуализации и какие из них лучше подходят для гистограммы, столбчатой диаграммы и диаграммы рассеяния.</li>
+                    </ol>
+                    <p><strong>Требования к оформлению:</strong> в отчёте привести скриншот вывода консоли и фрагмент исходного txt-файла.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Часть 2 -->
+        <div class="sphere-panel">
+            <div class="task-statement">
+                <div class="ts-label">◆ Условие · Часть 2</div>
+                <div class="ts-text">
+                    <p><strong>Базовые графики.</strong></p>
+                    <p>Постройте <strong>три отдельных графика</strong> (можно в одном окне через <code>subplots(1, 3)</code>):</p>
+                    <ol>
+                        <li><strong>Гистограмма</strong> распределения рейтингов.
+                            <ul>
+                                <li>Подписи осей: «Рейтинг IMDb», «Количество фильмов».</li>
+                                <li>Заголовок: «Распределение рейтингов».</li>
+                                <li>Сетка по оси Y.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Столбчатая диаграмма</strong> топ-10 жанров по количеству фильмов.
+                            <ul>
+                                <li>Горизонтальные бары (<code>barh</code>), отсортированные по убыванию.</li>
+                                <li>Подпись оси X: «Количество фильмов».</li>
+                            </ul>
+                        </li>
+                        <li><strong>Круговая диаграмма</strong> распределения фильмов по жанрам (топ-5 жанров + категория «Другие»).
+                            <ul>
+                                <li>Подписи долей в процентах (<code>autopct='%1.1f%%'</code>).</li>
+                                <li>Заголовок: «Доли жанров».</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p><strong>Требования к оформлению:</strong> у каждого графика — заголовок, подписи осей (если применимо), легенда (для круговой — не обязательна). Цвета должны различаться.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Часть 3 -->
+        <div class="sphere-panel">
+            <div class="task-statement">
+                <div class="ts-label">◆ Условие · Часть 3</div>
+                <div class="ts-text">
+                    <p><strong>Сравнение по годам.</strong></p>
+                    <ol>
+                        <li>Постройте <strong>линейный график</strong> среднего рейтинга фильмов по годам выпуска (с 1990 года).
+                            <ul>
+                                <li>Ось X — год, ось Y — средний рейтинг.</li>
+                                <li>Добавьте <code>plt.grid(True)</code>.</li>
+                                <li>Подписи осей и заголовок графика.</li>
+                            </ul>
+                        </li>
+                        <li>Найдите год с <strong>максимальным средним рейтингом</strong> и отметьте эту точку на графике с помощью <code>plt.annotate()</code>: подпишите год и значение рейтинга.</li>
+                        <li>Добавьте горизонтальную линию <strong>общего среднего рейтинга</strong> по всем фильмам (<code>axhline</code>) и подпишите её значение.</li>
+                        <li>Сделайте вывод: в каком году средний рейтинг был максимальным; выше или ниже этот пик общего среднего.</li>
+                    </ol>
+                    <p><strong>Подсказка:</strong> средние по годам считаются вручную — соберите рейтинги в словарь <code>{год: [список рейтингов]}</code> и усредните.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </div>
+
+    <footer>
+        <p>Расчетно-графическая работа (Модуль В) · 2026</p>
+    </footer>
+</div>
+
+<script>
+    // ===== Плавная прокрутка =====
+    document.addEventListener('click', e => {
+        const a = e.target.closest('a[href^="#"]');
+        if (!a) return;
+        e.preventDefault();
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' });
+    });
+
+    // ===== Переключение частей =====
+    function switchPart(idx) {
+        document.querySelectorAll('.sphere-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+        document.querySelectorAll('.sphere-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+    }
+
+    // ===== PIN =====
+    (function() {
+        const overlay = document.getElementById('pin-overlay');
+        const mainContent = document.getElementById('main-content');
+        const pinInput = document.getElementById('pin-input');
+        const pinBtn = document.getElementById('pin-btn');
+        const pinError = document.getElementById('pin-error');
+
+        const CORRECT_PIN_BASE64 = 'MjQ2OA==';
+
+        if (sessionStorage.getItem('pin_verified') === 'true') {
+            overlay.classList.add('hidden');
+            mainContent.style.display = 'block';
+            return;
+        }
+
+        function verifyPin() {
+            const entered = pinInput.value.trim();
+            if (entered === '') {
+                pinError.textContent = 'Введите PIN-код.';
+                return;
+            }
+            if (btoa(entered) === CORRECT_PIN_BASE64) {
+                sessionStorage.setItem('pin_verified', 'true');
+                overlay.classList.add('hidden');
+                mainContent.style.display = 'block';
+                pinError.textContent = '';
+            } else {
+                pinError.textContent = 'Неверный PIN-код. Попробуйте ещё раз.';
+                pinInput.value = '';
+                pinInput.focus();
+            }
+        }
+
+        pinBtn.addEventListener('click', verifyPin);
+        pinInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); verifyPin(); }
+        });
+        pinInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 4);
+        });
+        pinInput.focus();
+    })();
+</script>
+
+</body>
+</html>
