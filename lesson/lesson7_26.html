@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Урок #7: Списки в Python</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/css/lesson-core.css">
+    <style>
+        /* ===== 2048 Game Styles (scoped variables) ===== */
+        .game-section {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --accent: #10b981;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 30px 60px rgba(99, 102, 241, 0.15);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --card-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            background: var(--card-gradient);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin: 60px auto;
+            max-width: 800px;
+            text-align: center;
+            position: relative;
+        }
+
+        .game-motivation {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 15px;
+            padding: 12px 20px;
+            background: rgba(99, 102, 241, 0.08);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            display: inline-block;
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        .game-container {
+            position: relative;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .game-2048-container {
+            background: #bbada0;
+            border-radius: 10px;
+            padding: 15px;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        #game-2048 {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+            background: #bbada0;
+        }
+
+        .tile {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            border-radius: 5px;
+            background: #cdc1b4;
+            color: #776e65;
+            transition: none;
+        }
+
+        .tile-2 { background: #eee4da; }
+        .tile-4 { background: #ede0c8; }
+        .tile-8 { background: #f2b179; color: #f9f6f2; }
+        .tile-16 { background: #f59563; color: #f9f6f2; }
+        .tile-32 { background: #f67c5f; color: #f9f6f2; }
+        .tile-64 { background: #f65e3b; color: #f9f6f2; }
+        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 32px; }
+        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 32px; }
+        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 32px; }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 28px; }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 28px; }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .game-btn.secondary {
+            background: linear-gradient(45deg, #64748b, #94a3b8);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.98);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 100;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .touch-controls {
+            display: none;
+            grid-template-columns: repeat(3, 80px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .touch-btn {
+            background: linear-gradient(45deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .touch-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .touch-btn:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .touch-controls {
+                display: grid;
+            }
+            #game-2048 {
+                grid-template-columns: repeat(4, 70px);
+                gap: 8px;
+            }
+            .tile {
+                width: 70px;
+                height: 70px;
+                font-size: 24px;
+            }
+            .tile-128, .tile-256, .tile-512 {
+                font-size: 22px;
+            }
+            .tile-1024, .tile-2048 {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            #game-2048 {
+                grid-template-columns: repeat(4, 60px);
+                gap: 5px;
+            }
+            .tile {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+            .game-2048-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="javascript:history.back()" class="back-btn">← Назад</a>
+
+    <h1>Урок #7: Списки в Python</h1>
+    <p class="intro">Изучите работу со списками: создание, редактирование, сортировка, фильтрация и практические задачи. От простых манипуляций до сложных алгоритмов — всё начинается со списков!</p>
+
+    <!-- === ТЕОРИЯ === -->
+    <h2>📚 Теория: Списки в Python</h2>
+
+    <div class="theory-block">
+        <h3>1. Что такое список?</h3>
+        <p>Список — это упорядоченная изменяемая последовательность элементов, заключённая в квадратные скобки:</p>
+        <pre>
+my_list = [1, 2, 3, "яблоко", True]</pre>
+        <p>Списки могут содержать любые типы данных: числа, строки, булевые значения и даже другие списки.</p>
+        <p>В Python списки — <b>изменяемые</b>: можно добавлять, удалять и изменять элементы.</p>
+    </div>
+
+    <div class="theory-block">
+        <h3>2. Индексы и срезы</h3>
+        <p>Каждый элемент в списке имеет индекс (с 0):</p>
+        <pre>
+my_list = ["a", "b", "c", "d"]
+print(my_list[0])  # 'a'
+print(my_list[-1]) # 'd' (последний)</pre>
+        <p>Срезы — извлечение части списка:</p>
+        <pre>
+my_list[1:3]  # ['b', 'c']
+my_list[:2]   # ['a', 'b']
+my_list[2:]   # ['c', 'd']
+my_list[::-1] # ['d', 'c', 'b', 'a'] (реверс)</pre>
+    </div>
+
+    <div class="theory-block">
+        <h3>3. Полезные методы списков</h3>
+        <p>Python предоставляет десятки методов для работы со списками:</p>
+        <ul>
+            <li><code>.append(item)</code> — добавить элемент в конец</li>
+            <li><code>.remove(item)</code> — удалить первое вхождение</li>
+            <li><code>.pop(index)</code> — удалить и вернуть элемент</li>
+            <li><code>.sort()</code>, <code>sorted()</code> — сортировка</li>
+            <li><code>.reverse()</code> — перевернуть список</li>
+            <li><code>.index(item)</code> — найти индекс элемента</li>
+            <li><code>.count(item)</code> — подсчёт вхождений</li>
+        </ul>
+        <pre>
+my_list = [3, 1, 4]
+my_list.sort()  # [1, 3, 4]</pre>
+    </div>
+
+    <div class="theory-block">
+        <h3>4. Работа с вложенными списками</h3>
+        <p>Списки могут содержать другие списки:</p>
+        <pre>
+matrix = [[1, 2], [3, 4]]
+print(matrix[0][1])  # 2</pre>
+    </div>
+
+    <div class="theory-block">
+        <h3>5. Генераторы списков</h3>
+        <p>Способ быстро создать список на основе другого:</p>
+        <pre>
+squares = [x**2 for x in range(5)]  # [0, 1, 4, 9, 16]</pre>
+    </div>
+
+    <!-- === ЗАДАЧИ === -->
+    <h2>🎯 Задачи</h2>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задание 1: Замена элементов в строке
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Пользователь вводит строку: например, <code>Три два раз</code>. Преобразуйте строку в список слов. Поменяйте местами <strong>первый</strong> и <strong>последний</strong> элемент. Элемент <strong>посередине</strong> преобразуйте в <strong>верхний регистр</strong>. Выведите получившийся список.</p>
+                <div class="task-goal">
+                    <p>Пример:</p>
+                    <p>Ввод: "Три два раз" → Список: ['Три', 'два', 'раз'] → После замены: ['раз', 'ДВА', 'Три']</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задание 2: Удаление дубликатов
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Пользователь вводит слова по одному. Выведите на экран <strong>уникальные</strong> слова в том порядке, в котором они были введены.</p>
+                <div class="task-goal">
+                    <p>Пример:</p>
+                    <p>Ввод: first, second, first, third, second → Вывод: first, second, third</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header medium" onclick="toggleAccordion(this)">
+            Задание 3: Разделение списка на числа и буквы
+        </div>
+        <div class="accordion-content medium">
+            <div class="accordion-content-inner">
+                <p>Дан список: <code>['a', '1', 'b', '2', 'c', '3']</code>. Разбейте его на <strong>два списка</strong>: один — только с <strong>буквами</strong>, второй — только с <strong>цифрами</strong>. Исходный список удалите. Выведите оба новых списка, каждый на отдельной строке.</p>
+                <div class="task-goal">
+                    <p>Пример:</p>
+                    <p>Буквы: ['a', 'b', 'c']<br>Цифры: ['1', '2', '3']</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header medium" onclick="toggleAccordion(this)">
+            Задание 4: Температуры недели
+        </div>
+        <div class="accordion-content medium">
+            <div class="accordion-content-inner">
+                <p>Дан список температур за неделю: <code>[5, -2, 8, 10, 3, -1, 6]</code>. Найдите: дни с <strong>отрицательной</strong> температурой (вывести <strong>номера дней с 1</strong>), <strong>среднюю</strong> температуру.</p>
+                <div class="task-goal">
+                    <p>Пример:</p>
+                    <p>Отрицательные дни: 2, 6<br>Средняя температура: 3.7°C</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header medium" onclick="toggleAccordion(this)">
+            Задание 5: Счастливый билет
+        </div>
+        <div class="accordion-content medium">
+            <div class="accordion-content-inner">
+                <p>Сгенерирован случайный 6-значный номер билета (например, 123321). Проверьте, является ли билет <strong>счастливым</strong> (сумма первых трёх цифр = сумме последних трёх).</p>
+                <div class="task-goal">
+                    <p>Пример:</p>
+                    <p>Билет: 123321 → Сумма первых: 6, последних: 6 → Счастливый: Да</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header medium" onclick="toggleAccordion(this)">
+            Задание 6: Результаты забега
+        </div>
+        <div class="accordion-content medium">
+            <div class="accordion-content-inner">
+                <p>Участники забега на 100 м показали время (в секундах): <code>[12.5, 11.8, 13.2, 11.8, 12.1]</code>. Найдите: лучшее (минимальное) время, сколько участников показали это лучшее время, выведите <strong>индексы</strong> этих участников.</p>
+                <div class="task-goal">
+                    <p>Пример:</p>
+                    <p>Лучшее время: 11.8<br>Количество участников: 2<br>Их позиции (индексы): 1 и 3</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header hard" onclick="toggleAccordion(this)">
+            Задание 7: Трёхзначный автомат
+        </div>
+        <div class="accordion-content hard">
+            <div class="accordion-content-inner">
+                <p>Автомат получает на вход трёхзначное число. По этому числу строится новое число по следующим правилам:</p>
+                <ol>
+                    <li>Складываются <strong>первая и вторая</strong>, а также <strong>вторая и третья</strong> цифры исходного числа.</li>
+                    <li>Полученные два числа записываются друг за другом в порядке <strong>убывания</strong> (без разделителей).</li>
+                </ol>
+                <p><strong>Пример:</strong> Исходное число: 348 → суммы: 3+4=7, 4+8=12 → результат: 127.</p>
+                <div class="task-goal">
+                    <p><strong>Задача:</strong> Найдите <strong>наименьшее</strong> трёхзначное число, при обработке которого автомат выдаст число <code>1412</code>.</p>
+                    <p><em>Подсказка:</em> Число 1412 состоит из двух частей: 14 и 12. Подберите цифры A, B, C такие, что A+B=14, B+C=12 (или наоборот), и число ABC — минимально.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header hard" onclick="toggleAccordion(this)">
+            Задание 8: Четырёхзначный автомат
+        </div>
+        <div class="accordion-content hard">
+            <div class="accordion-content-inner">
+                <p>Автомат получает на вход четырёхзначное число. По этому числу строится новое число по следующим правилам:</p>
+                <ol>
+                    <li>Складываются <strong>первая и вторая</strong>, а также <strong>третья и четвёртая</strong> цифры исходного числа.</li>
+                    <li>Полученные два числа записываются друг за другом в порядке <strong>возрастания</strong> (без разделителей).</li>
+                </ol>
+                <p><strong>Пример:</strong> Исходное число: 2366 → суммы: 2+3=5, 6+6=12 → результат: 512.</p>
+                <div class="task-goal">
+                    <p><strong>Задача:</strong> Найдите <strong>наибольшее</strong> четырёхзначное число, при обработке которого автомат выдаст число <code>117</code>.</p>
+                    <p><em>Подсказка:</em> Число 117 можно интерпретировать как 1 и 17 или 11 и 7. Проверьте оба варианта и подберите максимальное исходное число.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header hard" onclick="toggleAccordion(this)">
+            Задание 9: Пятизначный автомат
+        </div>
+        <div class="accordion-content hard">
+            <div class="accordion-content-inner">
+                <p>Автомат получает на вход пятизначное число. По этому числу строится новое число по следующим правилам:</p>
+                <ol>
+                    <li>Складываются <strong>первая, третья и пятая</strong> цифры, а также <strong>вторая и четвёртая</strong> цифры.</li>
+                    <li>Полученные два числа записываются друг за другом в порядке <strong>неубывания</strong> (без разделителей).</li>
+                </ol>
+                <p><strong>Пример:</strong> Исходное число: 63179 → суммы: 6+1+9=16, 3+7=10 → результат: 1016.</p>
+                <div class="task-goal">
+                    <p><strong>Задача:</strong> Найдите <strong>наименьшее</strong> пятизначное число, при обработке которого автомат выдаст результат <code>723</code>.</p>
+                    <p><em>Подсказка:</em> Результат 723 = 7 и 23 или 72 и 3. Проверьте, какая пара возможна, и минимизируйте исходное число.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header hard" onclick="toggleAccordion(this)">
+            Задание 10: Крестики-нолики
+        </div>
+        <div class="accordion-content hard">
+            <div class="accordion-content-inner">
+                <p>Напишите игру «Крестики-нолики» на поле 3×3 для двух игроков. Используйте <strong>список</strong> для хранения состояния поля (например, список из 9 элементов или вложенный список 3×3).</p>
+                <p>Игроки по очереди вводят номер клетки (от 1 до 9), куда хотят поставить свой знак. Программа должна:</p>
+                <ul>
+                    <li>отображать текущее состояние поля после каждого хода;</li>
+                    <li>не позволять ставить знак в уже занятую клетку;</li>
+                    <li>проверять, не выиграл ли кто-то (три знака в ряд по горизонтали, вертикали или диагонали);</li>
+                    <li>проверять, не заполнилось ли поле полностью (ничья);</li>
+                    <li>завершать игру при победе одного из игроков или ничьей.</li>
+                </ul>
+                <div class="task-goal">
+                    <p>Пример поля:</p>
+                    <pre>
+ 1 | 2 | 3
+---+---+---
+ 4 | 5 | 6
+---+---+---
+ 7 | 8 | 9</pre>
+                    <p>Пример игры:</p>
+                    <p>Игрок 1 (X), введите номер клетки: 5</p>
+                    <p>Игрок 2 (O), введите номер клетки: 1</p>
+                    <p>Игрок 1 (X), введите номер клетки: 9</p>
+                    <p>...</p>
+                    <p>Игрок 1 (X), введите номер клетки: 3</p>
+                    <p>Победил Игрок 1 (X)!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === САМОСТОЯТЕЛЬНАЯ РАБОТА === -->
+    <h2>✍️ Самостоятельная работа</h2>
+    <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Решите задачи самостоятельно. Подсказки спрятаны — открывайте только если застряли.</p>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 1: Сумма и произведение
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список чисел <code>[2, 4, 6, 8]</code>. Найдите сумму всех элементов и их произведение.</p>
+                <p><strong>💡 Подсказка:</strong> для суммы можно использовать <code>sum(my_list)</code>. Для произведения заведи переменную <code>result = 1</code> и в цикле <code>for x in my_list:</code> делай <code>result = result * x</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 2: Максимум и минимум
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список <code>[15, 3, 42, 8, 27]</code>. Найдите наибольший и наименьший элемент.</p>
+                <p><strong>💡 Подсказка:</strong> функции <code>max(my_list)</code> и <code>min(my_list)</code> возвращают максимум и минимум. Либо пройди циклом и сравнивай с текущим максимумом/минимумом.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 3: Чётные числа
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список <code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code>. Создайте новый список только из чётных чисел.</p>
+                <p><strong>💡 Подсказка:</strong> создай пустой список <code>even = []</code> и в цикле <code>for x in my_list:</code> проверяй <code>if x % 2 == 0: even.append(x)</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 4: Обратный порядок
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список <code>["яблоко", "банан", "вишня", "груша"]</code>. Выведите его в обратном порядке.</p>
+                <p><strong>💡 Подсказка:</strong> можно использовать срез <code>my_list[::-1]</code> или метод <code>.reverse()</code> (он меняет список на месте). Также можно пройти циклом от последнего индекса к первому.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 5: Поиск элемента
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список <code>[10, 20, 30, 40, 50]</code>. Пользователь вводит число. Проверьте, есть ли оно в списке, и если да — выведите его индекс.</p>
+                <p><strong>💡 Подсказка:</strong> проверка <code>if x in my_list:</code>, индекс — <code>my_list.index(x)</code>. Если элемента нет, выведи сообщение «Не найдено».</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 6: Среднее арифметическое
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список оценок <code>[4, 5, 3, 4, 5, 2]</code>. Найдите средний балл.</p>
+                <p><strong>💡 Подсказка:</strong> среднее = <code>sum(my_list) / len(my_list)</code>. <code>len()</code> возвращает количество элементов.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 7: Замена элементов
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список <code>[1, 2, 3, 4, 5]</code>. Замените все числа больше 3 на <code>0</code>.</p>
+                <p><strong>💡 Подсказка:</strong> используй цикл <code>for i in range(len(my_list)):</code> и обращайся к элементу по индексу <code>my_list[i]</code>. Если <code>my_list[i] > 3</code>, присвой <code>my_list[i] = 0</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 8: Объединение списков
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Даны два списка: <code>[1, 2, 3]</code> и <code>[4, 5, 6]</code>. Создайте третий список, содержащий элементы обоих.</p>
+                <p><strong>💡 Подсказка:</strong> оператор <code>+</code> для списков: <code>new_list = list1 + list2</code>. Или создай пустой список и добавь элементы через цикл и <code>.append()</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 9: Удаление элемента
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список <code>["a", "b", "c", "d", "e"]</code>. Удалите элемент <code>"c"</code>.</p>
+                <p><strong>💡 Подсказка:</strong> метод <code>.remove("c")</code> удаляет по значению. Или найди индекс через <code>.index("c")</code> и удали через <code>.pop(index)</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <div class="accordion-header basic" onclick="toggleAccordion(this)">
+            Задача 10: Подсчёт гласных
+        </div>
+        <div class="accordion-content basic">
+            <div class="accordion-content-inner">
+                <p>Дан список букв <code>["а", "б", "у", "к", "о", "и"]</code>. Посчитайте, сколько среди них гласных (а, е, ё, и, о, у, ы, э, ю, я).</p>
+                <p><strong>💡 Подсказка:</strong> заведи строку <code>vowels = "аеёиоуыэюя"</code> и счётчик <code>count = 0</code>. В цикле <code>for letter in letters:</code> проверяй <code>if letter.lower() in vowels: count += 1</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- === ТЕСТ === -->
+    <h2>
+        <img src="https://cdn-icons-png.flaticon.com/512/3051/3051303.png" alt="Тест" style="vertical-align:middle;">
+        Тест по уроку
+    </h2>
+    <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Ответьте на 5 вопросов о списках в Python.</p>
+
+    <div class="test-container" id="testContainer">
+        <div class="test-question active" data-question="1">
+            <p><strong>1. Как обратиться к последнему элементу списка <code>my_list</code>?</strong></p>
+            <label><input type="radio" name="q1" value="a"> my_list[len(my_list)]</label>
+            <label><input type="radio" name="q1" value="b"> my_list[-1]</label>
+            <label><input type="radio" name="q1" value="c"> my_list[0]</label>
+            <label><input type="radio" name="q1" value="d"> my_list[last]</label>
+        </div>
+
+        <div class="test-question" data-question="2">
+            <p><strong>2. Что делает выражение <code>my_list[::-1]</code>?</strong></p>
+            <label><input type="radio" name="q2" value="a"> Удаляет первый элемент</label>
+            <label><input type="radio" name="q2" value="b"> Переворачивает список</label>
+            <label><input type="radio" name="q2" value="c"> Делает все буквы заглавными</label>
+            <label><input type="radio" name="q2" value="d"> Заменяет все пробелы на тире</label>
+        </div>
+
+        <div class="test-question" data-question="3">
+            <p><strong>3. Как узнать, сколько раз число 5 встречается в списке <code>my_list</code>?</strong></p>
+            <label><input type="radio" name="q3" value="a"> my_list.find(5)</label>
+            <label><input type="radio" name="q3" value="b"> my_list.length(5)</label>
+            <label><input type="radio" name="q3" value="c"> my_list.count(5)</label>
+            <label><input type="radio" name="q3" value="d"> count(my_list, 5)</label>
+        </div>
+
+        <div class="test-question" data-question="4">
+            <p><strong>4. Какой метод добавляет элемент в конец списка?</strong></p>
+            <label><input type="radio" name="q4" value="a"> append()</label>
+            <label><input type="radio" name="q4" value="b"> add()</label>
+            <label><input type="radio" name="q4" value="c"> insert()</label>
+            <label><input type="radio" name="q4" value="d"> push()</label>
+        </div>
+
+        <div class="test-question" data-question="5">
+            <p><strong>5. Как получить количество элементов в списке <code>my_list</code>?</strong></p>
+            <label><input type="radio" name="q5" value="a"> my_list.len()</label>
+            <label><input type="radio" name="q5" value="b"> length(my_list)</label>
+            <label><input type="radio" name="q5" value="c"> len(my_list)</label>
+            <label><input type="radio" name="q5" value="d"> my_list.size()</label>
+        </div>
+
+        <div class="test-controls">
+            <button id="nextBtn" onclick="nextOrSubmit()">Далее →</button>
+            <button id="submitBtn" onclick="submitTest()" style="display:none;">Завершить тест</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <!-- === 2048 GAME === -->
+    <div class="game-section">
+        <h2 class="game-title">🎮 2048</h2>
+
+        <div class="game-motivation">
+            🧠 Тренируй мозг и логическое мышление
+        </div>
+
+        <p style="color: var(--text-light); margin-bottom: 20px;">Соединяй плитки с одинаковыми числами!</p>
+
+        <div class="game-container">
+            <div class="game-2048-container">
+                <div id="game-2048">
+                    <!-- Grid будет сгенерирован JS -->
+                </div>
+            </div>
+            <div class="game-over" id="game-over-2048" style="display: none;">
+                <h3 style="margin-bottom: 10px; color: var(--secondary);">🎮 Игра окончена</h3>
+                <p style="margin-bottom: 15px;">🏆 Счет: <span id="final-score-2048">0</span></p>
+                <button class="game-btn" onclick="game2048.newGame()">🔄 Новая игра</button>
+            </div>
+        </div>
+
+        <div class="game-stats">
+            <div>⭐ Счет: <span id="score-2048">0</span></div>
+            <div>🏆 Рекорд: <span id="high-score-2048">0</span></div>
+        </div>
+
+        <div class="game-controls">
+            <button class="game-btn" onclick="game2048.newGame()">🔄 Новая игра</button>
+            <button class="game-btn secondary" onclick="game2048.undo()">↩️ Отменить</button>
+        </div>
+
+        <!-- Touch controls for mobile -->
+        <div class="touch-controls">
+            <div></div>
+            <button class="touch-btn" onclick="game2048.move('up')">⬆️</button>
+            <div></div>
+            <button class="touch-btn" onclick="game2048.move('left')">⬅️</button>
+            <button class="touch-btn" onclick="game2048.move('down')">⬇️</button>
+            <button class="touch-btn" onclick="game2048.move('right')">➡️</button>
+        </div>
+
+        <div style="margin-top: 20px; font-size: 0.9rem; color: var(--text-light);">
+            🎮 Управление: Стрелки ← ↑ → ↓
+        </div>
+    </div>
+
+    <script type="application/json" id="lesson-answers">
+eyJxMSI6ImIiLCJxMiI6ImIiLCJxMyI6ImMiLCJxNCI6ImEiLCJxNSI6ImMifQ==
+</script>
+
+    <script src="../shared/js/lesson-core.js"></script>
+
+    <script>
+        // 2048 Game Implementation
+        class Game2048 {
+            constructor() {
+                this.grid = [];
+                this.score = 0;
+                this.highScore = parseInt(localStorage.getItem('game2048HighScore')) || 0;
+                this.size = 4;
+                this.gameOver = false;
+                this.history = [];
+
+                this.gridElement = document.getElementById('game-2048');
+                this.scoreElement = document.getElementById('score-2048');
+                this.highScoreElement = document.getElementById('high-score-2048');
+                this.finalScoreElement = document.getElementById('final-score-2048');
+                this.gameOverElement = document.getElementById('game-over-2048');
+
+                this.highScoreElement.textContent = this.highScore;
+                this.init();
+            }
+
+            init() {
+                this.grid = Array(this.size).fill().map(() => Array(this.size).fill(0));
+                this.addNewTile();
+                this.addNewTile();
+                this.saveState();
+                this.updateDisplay();
+                this.setupEventListeners();
+            }
+
+            saveState() {
+                this.history.push({
+                    grid: JSON.parse(JSON.stringify(this.grid)),
+                    score: this.score
+                });
+                if (this.history.length > 10) this.history.shift();
+            }
+
+            undo() {
+                if (this.history.length < 2) return;
+                this.history.pop();
+                const prev = this.history[this.history.length - 1];
+                this.grid = JSON.parse(JSON.stringify(prev.grid));
+                this.score = prev.score;
+                this.gameOver = false;
+                this.gameOverElement.style.display = 'none';
+                this.updateDisplay();
+                this.scoreElement.textContent = this.score;
+            }
+
+            addNewTile() {
+                const empty = [];
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        if (this.grid[i][j] === 0) empty.push({x: i, y: j});
+                    }
+                }
+                if (empty.length > 0) {
+                    const {x, y} = empty[Math.floor(Math.random() * empty.length)];
+                    this.grid[x][y] = Math.random() < 0.9 ? 2 : 4;
+                }
+            }
+
+            updateDisplay() {
+                this.gridElement.innerHTML = '';
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        const value = this.grid[i][j];
+                        const tile = document.createElement('div');
+                        tile.className = `tile tile-${value}`;
+                        tile.textContent = value || '';
+                        this.gridElement.appendChild(tile);
+                    }
+                }
+            }
+
+            move(direction) {
+                if (this.gameOver) return false;
+
+                this.saveState();
+
+                let moved = false;
+                const oldGrid = JSON.parse(JSON.stringify(this.grid));
+
+                let vector = {x: 0, y: 0};
+                switch(direction) {
+                    case 'up':    vector = {x: 0, y: -1}; break;
+                    case 'down':  vector = {x: 0, y: 1}; break;
+                    case 'left':  vector = {x: -1, y: 0}; break;
+                    case 'right': vector = {x: 1, y: 0}; break;
+                }
+
+                const newGrid = Array(this.size).fill().map(() => Array(this.size).fill(0));
+
+                if (vector.y !== 0) {
+                    for (let col = 0; col < this.size; col++) {
+                        let column = [];
+                        for (let row = 0; row < this.size; row++) {
+                            if (this.grid[row][col] !== 0) {
+                                column.push(this.grid[row][col]);
+                            }
+                        }
+
+                        for (let i = 0; i < column.length - 1; i++) {
+                            if (column[i] === column[i + 1]) {
+                                column[i] *= 2;
+                                this.score += column[i];
+                                column.splice(i + 1, 1);
+                            }
+                        }
+
+                        while (column.length < this.size) {
+                            if (vector.y > 0) column.unshift(0);
+                            else column.push(0);
+                        }
+
+                        for (let row = 0; row < this.size; row++) {
+                            newGrid[row][col] = column[row];
+                        }
+                    }
+                } else {
+                    for (let row = 0; row < this.size; row++) {
+                        let line = this.grid[row].filter(val => val !== 0);
+
+                        for (let i = 0; i < line.length - 1; i++) {
+                            if (line[i] === line[i + 1]) {
+                                line[i] *= 2;
+                                this.score += line[i];
+                                line.splice(i + 1, 1);
+                            }
+                        }
+
+                        while (line.length < this.size) {
+                            if (vector.x > 0) line.unshift(0);
+                            else line.push(0);
+                        }
+
+                        newGrid[row] = line;
+                    }
+                }
+
+                if (JSON.stringify(oldGrid) !== JSON.stringify(newGrid)) {
+                    moved = true;
+                    this.grid = newGrid;
+                    this.addNewTile();
+                    this.updateDisplay();
+                }
+
+                this.scoreElement.textContent = this.score;
+
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    localStorage.setItem('game2048HighScore', this.highScore);
+                    this.highScoreElement.textContent = this.highScore;
+                }
+
+                if (this.checkGameOver()) {
+                    this.gameOver = true;
+                    this.finalScoreElement.textContent = this.score;
+                    this.gameOverElement.style.display = 'block';
+                }
+
+                return moved;
+            }
+
+            checkGameOver() {
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        if (this.grid[i][j] === 0) return false;
+                    }
+                }
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size - 1; j++) {
+                        if (this.grid[i][j] === this.grid[i][j + 1]) return false;
+                    }
+                }
+                for (let j = 0; j < this.size; j++) {
+                    for (let i = 0; i < this.size - 1; i++) {
+                        if (this.grid[i][j] === this.grid[i + 1][j]) return false;
+                    }
+                }
+                return true;
+            }
+
+            newGame() {
+                this.grid = Array(this.size).fill().map(() => Array(this.size).fill(0));
+                this.score = 0;
+                this.gameOver = false;
+                this.history = [];
+                this.addNewTile();
+                this.addNewTile();
+                this.saveState();
+                this.updateDisplay();
+                this.scoreElement.textContent = this.score;
+                this.gameOverElement.style.display = 'none';
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                        e.preventDefault();
+                        if (!this.gameOver) {
+                            switch(e.key) {
+                                case 'ArrowUp': this.move('up'); break;
+                                case 'ArrowDown': this.move('down'); break;
+                                case 'ArrowLeft': this.move('left'); break;
+                                case 'ArrowRight': this.move('right'); break;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        let game2048;
+        document.addEventListener('DOMContentLoaded', () => {
+            game2048 = new Game2048();
+        });
+    </script>
+</body>
+</html>
