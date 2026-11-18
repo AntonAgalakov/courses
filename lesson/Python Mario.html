@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python Mario · Строки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html,body{margin:0;height:100%;background:#0c0c10;color:#eee;font-family:"Press Start 2P",ui-monospace,monospace;overflow:hidden}
+#wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#hud{width:800px;max-width:100%;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:10px;padding:0 4px}
+canvas{width:800px;max-width:100%;height:auto;aspect-ratio:800/480;border:3px solid #222;image-rendering:pixelated}
+#ctrl{font-size:8px;opacity:.6;text-align:center;line-height:1.8;max-width:800px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;padding:12px}
+#modal.show{display:flex}
+#box{background:#14141c;border:3px solid #4ff;padding:20px;width:min(560px,100%);font-size:10px;line-height:1.7}
+#box h3{margin:0 0 12px;font-size:12px;color:#4ff}
+#tCode{background:#000;padding:12px;color:#7f7;white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:13px;line-height:1.5;margin:0}
+#box input{width:100%;margin-top:12px;padding:10px;background:#000;color:#fff;border:2px solid #4ff;font-family:ui-monospace,monospace;font-size:14px;box-sizing:border-box}
+#box button{margin-top:12px;margin-right:6px;padding:9px 14px;background:#4ff;color:#000;border:0;cursor:pointer;font:inherit;font-size:10px}
+#box button.sec{background:#333;color:#eee}
+#msg{min-height:1.6em;margin-top:10px;color:#fd4}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hud"><span id="hWorld"></span><span id="hCoins"></span><span id="hLives"></span><span id="hTasks"></span></div>
+  <canvas id="c" width="800" height="480"></canvas>
+  <div id="ctrl">← → / A D — идти · Пробел / ↑ / W — прыжок · прыгни сверху на врага · Enter у терминала — задание</div>
+</div>
+
+<div id="modal"><div id="box">
+  <h3 id="tTitle"></h3>
+  <pre id="tCode"></pre>
+  <div style="margin-top:12px">Введи ответ (вывод print() или слово):</div>
+  <input id="tAns" autocomplete="off" spellcheck="false">
+  <button id="tOk">Проверить</button><button class="sec" id="tCancel">Закрыть</button>
+  <div id="msg"></div>
+</div></div>
+
+<script>
+const T=32, VW=800, VH=480;
+const cv=document.getElementById('c'), g=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+
+// Задания: c — что показать игроку, a — ожидаемый ответ (вывод или слово)
+const TASKS=[
+  {t:'Волшебная длина',       c:'print(len("Python"))',                               a:'6'},
+  {t:'Крик лесного духа',     c:'print("hello".upper())',                             a:'HELLO'},
+  {t:'Тихий шёпот',           c:'Какой метод переводит строку в нижний регистр?',     a:'lower'},
+  {t:'Первый символ',         c:'print("Python"[0])',                                 a:'P'},
+  {t:'Лесной пароль',         c:'word = "forest"\nprint(len(word))',                  a:'6'},
+  {t:'Неизменная магия',      c:'s = "cat"\ns.upper()\nprint(s)',                    a:'cat'},
+  {t:'Срез кристалла',        c:'print("programming"[0:4])',                          a:'prog'},
+  {t:'Символ из прошлого',    c:'print("programming"[-1])',                   a:'g'},
+  {t:'Кристальная середина',  c:'print("adventure"[:3])',                             a:'adv'},
+  {t:'Шаг через символ',      c:'print("abcdef"[::2])',                               a:'ace'},
+  {t:'Длина с пробелом',      c:'print(len("hi there"))',                             a:'8'},
+  {t:'Зеркальный кристалл',   c:'print("Python"[::-1])',                              a:'nohtyP'},
+  {t:'След искомого слова',   c:'print("abracadabra".find("cad"))',                   a:'4'},
+  {t:'Проверка начала',       c:'print("Python".startswith("Py"))',                   a:'True'},
+  {t:'Поиск сокровища',       c:'print("treasure_map".find("map"))',                  a:'9'},
+  {t:'Чем заканчивается?',    c:'print("photo.png".endswith(".png"))',                a:'True'},
+  {t:'Только цифры?',         c:'print("2026".isdigit())',                            a:'True'},
+  {t:'Охотник за ошибками',   c:'print("th" in "Python")',                            a:'True'}
+];
+
+// tm: [tileX, taskIndex]; en: enemy tileX; sp: spike tileX; plat: [x, row, length]
+const WORLDS=[
+  {name:'МИР 1 · ЗАЧАРОВАННЫЙ ЛЕС', w:60, start:2, portal:57,
+   bg:'#5c94fc', ground:'#8b5a2b', top:'#3a9d23', brick:'#c0622a',
+   gaps:[[30,32],[44,46]],
+   plat:[[9,10,5],[14,8,4],[18,6,4],[22,4,4],[26,6,4],[30,8,4],[34,10,4],[40,10,4],[50,10,4]],
+   pil:[[20,11,12],[50,11,12]],
+   coins:[[10,9],[12,9],[15,7],[16,7],[19,5],[20,5],[23,3],[24,3],[27,5],[31,7],[35,9],[41,9],[42,9],[51,9],[52,9]],
+   en:[14,38,52], sp:[22,49],
+   tm:[[6,0],[18,1],[26,2],[34,3],[41,4],[54,5]]},
+  {name:'МИР 2 · КРИСТАЛЬНАЯ ПЕЩЕРА', w:70, start:2, portal:67,
+   bg:'#2b1d4a', ground:'#5d4e6d', top:'#9b7fd1', brick:'#7d6aa8',
+   gaps:[[20,23],[36,39],[55,58]],
+   plat:[[6,10,4],[14,10,4],[18,8,3],[20,6,4],[25,4,4],[29,10,3],[42,10,5],[44,8,3],[48,6,3],[52,4,3],[53,10,4],[62,10,4]],
+   pil:[[12,11,12],[66,11,12]],
+   coins:[[7,9],[8,9],[15,9],[16,9],[30,9],[43,9],[44,9],[54,9],[63,9],[19,7],[21,5],[22,5],[26,3],[27,3],[45,7],[49,5],[53,3]],
+   en:[10,28,47,64], sp:[15,33,50],
+   tm:[[4,6],[24,7],[30,8],[41,9],[44,10],[60,11]]},
+  {name:'МИР 3 · БАШНЯ ЗАГАДОК', w:80, start:2, portal:77,
+   bg:'#0b1a2e', ground:'#4a3b2f', top:'#e0572b', brick:'#7a3b2e',
+   gaps:[[16,19],[34,37],[50,53],[66,69]],
+   plat:[[5,10,3],[13,10,3],[22,10,4],[26,8,3],[29,6,3],[32,4,3],[36,6,3],[40,4,3],[44,6,3],[30,10,3],[42,10,5],[57,10,4],[72,10,4]],
+   pil:[[10,11,12],[47,11,12],[62,11,12]],
+   coins:[[6,9],[14,9],[23,9],[31,9],[43,9],[58,9],[73,9],[27,7],[30,5],[33,3],[37,5],[41,3],[45,5]],
+   en:[9,27,46,61], sp:[23,41,57,73],
+   tm:[[3,12],[12,13],[25,14],[31,15],[44,16],[58,17]]}
+];
+
+let wi=0, W, G, P, en, coins, sp, tms, portalX, cam=0, lives=3, score=0;
+let solved=Array(TASKS.length).fill(false), modal=false, activeTask=-1, near=null, state='play';
+const keys={};
+const KEY={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r'};
+
+const solid=(tx,ty)=>tx<0||tx>=W.w||(ty>=0&&ty<15&&(G[ty][tx]==='#'||G[ty][tx]==='B'));
+function hit(x,y,w,h){
+  for(let ty=Math.floor(y/T);ty<=Math.floor((y+h-1)/T);ty++)
+    for(let tx=Math.floor(x/T);tx<=Math.floor((x+w-1)/T);tx++)
+      if(solid(tx,ty)) return true;
+  return false;
+}
+function moveX(e,dx){
+  e.x+=dx;
+  if(!hit(e.x,e.y,e.w,e.h)) return false;
+  if(dx>0) e.x=Math.floor((e.x+e.w-1)/T)*T-e.w; else e.x=(Math.floor(e.x/T)+1)*T;
+  return true;
+}
+function moveY(e,dy){
+  e.y+=dy;
+  if(!hit(e.x,e.y,e.w,e.h)) return;
+  if(dy>0) e.y=Math.floor((e.y+e.h-1)/T)*T-e.h; else e.y=(Math.floor(e.y/T)+1)*T;
+  e.vy=0;
+}
+const over=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+
+function loadWorld(i){
+  wi=i; W=WORLDS[i];
+  G=[]; for(let y=0;y<15;y++) G.push(Array(W.w).fill('.'));
+  for(let x=0;x<W.w;x++) for(const y of [13,14]) G[y][x]='#';
+  for(const [a,b] of W.gaps) for(let x=a;x<=b;x++) for(const y of [13,14]) G[y][x]='.';
+  for(const [x,y,len] of W.plat) for(let k=0;k<len;k++) G[y][x+k]='B';
+  for(const [x,a,b] of (W.pil||[])) for(let y=a;y<=b;y++) G[y][x]='B';
+  coins=W.coins.map(([x,y])=>({x:x*T+10,y:y*T+10,got:false}));
+  sp=W.sp; tms=W.tm.map(([x,t])=>({x:x*T,y:11*T,t}));
+  portalX=W.portal*T;
+  spawn();
+}
+function spawn(){
+  P={x:W.start*T,y:12*T+2,w:24,h:30,vx:0,vy:0,ground:false,face:1,jumpBuf:0,coyote:0};
+  en=W.en.map(x=>({x:x*T+2,y:12*T+4,w:28,h:28,vx:-0.8,vy:0,dead:0}));
+  cam=0; near=null; state='play';
+}
+function kill(){
+  if(state!=='play') return;
+  state='dead'; lives--;
+  setTimeout(()=>{
+    if(lives<=0){
+      lives=3; score=0;
+      W.tm.forEach(([,t])=>solved[t]=false);
+      loadWorld(wi);
+    } else spawn();
+  },900);
+}
+
+function update(){
+  if(state!=='play'||modal) return;
+  const d=(keys.l?-1:0)+(keys.r?1:0);
+  P.vx=d*3.6; if(d) P.face=d;
+  P.vy=Math.min(P.vy+0.55,12);
+  moveX(P,P.vx); moveY(P,P.vy);
+  P.ground=hit(P.x,P.y+1,P.w,P.h);
+  P.coyote=P.ground?6:Math.max(0,P.coyote-1);
+  if((P.ground||P.coyote>0)&&P.jumpBuf>0){ P.vy=-11; P.ground=false; P.jumpBuf=0; P.coyote=0; }
+  if(P.jumpBuf>0) P.jumpBuf--;
+  if(P.y>VH+T){ kill(); return; }
+
+  for(const e of en){
+    if(e.dead) continue;
+    e.vy=Math.min(e.vy+0.55,12);
+    if(moveX(e,e.vx)) e.vx=-e.vx;
+    moveY(e,e.vy);
+    if(e.y>VH+T) e.dead=1;
+  }
+  for(const e of en){
+    if(e.dead||!over(P,e)) continue;
+    if(P.vy>0&&P.y+P.h-P.vy<=e.y+8){ e.dead=1; P.vy=-7; score+=5; }
+    else { kill(); return; }
+  }
+  for(const c of coins) if(!c.got&&over(P,{x:c.x,y:c.y,w:12,h:12})){ c.got=true; score++; }
+  for(const s of sp) if(over(P,{x:s*T+4,y:12*T+16,w:24,h:16})){ kill(); return; }
+
+  near=tms.find(t=>!solved[t.t]&&over(P,{x:t.x-6,y:t.y,w:T+12,h:2*T}))||null;
+
+  const cleared=W.tm.every(([,t])=>solved[t]);
+  if(cleared&&over(P,{x:portalX,y:10*T,w:T,h:3*T})){
+    if(wi+1<WORLDS.length) loadWorld(wi+1);
+    else state='win';
+    return;
+  }
+  cam=Math.max(0,Math.min(P.x+P.w/2-VW/2,W.w*T-VW));
+}
+
+function draw(){
+  g.fillStyle=W.bg; g.fillRect(0,0,VW,VH);
+  const x0=Math.max(0,Math.floor(cam/T)), x1=Math.min(W.w-1,x0+Math.ceil(VW/T)+1);
+  for(let ty=0;ty<15;ty++) for(let tx=x0;tx<=x1;tx++){
+    const c=G[ty][tx]; if(c==='.') continue;
+    const X=tx*T-cam, Y=ty*T;
+    g.fillStyle=c==='#'?W.ground:W.brick; g.fillRect(X,Y,T,T);
+    if(!solid(tx,ty-1)){ g.fillStyle=W.top; g.fillRect(X,Y,T,6); }
+    g.fillStyle='rgba(0,0,0,.2)'; g.fillRect(X,Y+T-3,T,3);
+  }
+
+  const cleared=W.tm.every(([,t])=>solved[t]);
+  const px=portalX-cam, pt=Date.now()/300;
+  g.fillStyle=cleared?`hsl(${(pt*40)%360},80%,60%)`:'#444';
+  g.fillRect(px+4,10*T,T-8,3*T);
+  g.fillStyle='#000'; g.fillRect(px+10,10*T+8,T-20,3*T-8);
+  g.fillStyle=cleared?'#fff':'#777'; g.font='8px "Press Start 2P", monospace';
+  g.fillText(cleared?'PORTAL':'LOCKED',px-14,10*T-8);
+
+  for(const t of tms){
+    const X=t.x-cam, Y=t.y;
+    g.fillStyle='#222'; g.fillRect(X+2,Y,T-4,2*T);
+    g.fillStyle=solved[t.t]?'#4f4':'#fa4'; g.fillRect(X+6,Y+8,T-12,T-16);
+    g.fillStyle='#000'; g.font='10px monospace'; g.fillText(solved[t.t]?'OK':'>_',X+8,Y+T-2);
+  }
+  g.fillStyle='#ddd';
+  for(const s of sp){
+    const X=s*T-cam;
+    g.beginPath(); g.moveTo(X,13*T); g.lineTo(X+T/2,12*T+16); g.lineTo(X+T,13*T); g.fill();
+  }
+  for(const c of coins) if(!c.got){
+    g.fillStyle='#ffd700'; g.beginPath();
+    g.arc(c.x+6-cam,c.y+6+Math.sin(Date.now()/200+c.x)*1.5,6,0,7); g.fill();
+    g.fillStyle='#fff3a0'; g.fillRect(c.x+4-cam,c.y+3,2,3);
+  }
+  for(const e of en) if(!e.dead){
+    const X=e.x-cam;
+    g.fillStyle='#8b4513'; g.fillRect(X,e.y+6,e.w,e.h-6);
+    g.fillStyle='#fff'; g.fillRect(X+6,e.y+12,6,6); g.fillRect(X+16,e.y+12,6,6);
+    g.fillStyle='#000'; g.fillRect(X+8,e.y+14,3,3); g.fillRect(X+18,e.y+14,3,3);
+  }
+  const X=P.x-cam;
+  g.fillStyle='#e52521'; g.fillRect(X,P.y,P.w,10);
+  g.fillStyle='#fcb088'; g.fillRect(X+4,P.y+10,P.w-8,8);
+  g.fillStyle='#1d4fb8'; g.fillRect(X,P.y+18,P.w,P.h-18);
+  g.fillStyle='#000'; g.fillRect(X+(P.face>0?14:6),P.y+12,3,3);
+
+  if(near){ g.fillStyle='#fff'; g.font='8px "Press Start 2P", monospace'; g.fillText('ENTER',near.x-cam-6,near.y-8); }
+  if(state==='win'){
+    g.fillStyle='rgba(0,0,0,.7)'; g.fillRect(0,0,VW,VH);
+    g.fillStyle='#fd4'; g.font='18px "Press Start 2P", monospace'; g.textAlign='center';
+    g.fillText('ВСЕ МИРЫ ПРОЙДЕНЫ!',VW/2,VH/2-10);
+    g.fillStyle='#fff'; g.font='10px "Press Start 2P", monospace';
+    g.fillText('Задания: '+solved.filter(Boolean).length+'/'+TASKS.length,VW/2,VH/2+24);
+    g.textAlign='left';
+  }
+}
+function hud(){
+  $('hWorld').textContent=W.name;
+  $('hCoins').textContent='МОНЕТЫ '+score;
+  $('hLives').textContent='ЖИЗНИ '+lives;
+  $('hTasks').textContent='ЗАДАНИЯ '+solved.filter(Boolean).length+'/'+TASKS.length;
+}
+function loop(){ update(); draw(); hud(); requestAnimationFrame(loop); }
+
+function openTask(i){
+  modal=true; activeTask=i;
+  $('tTitle').textContent='Терминал: '+TASKS[i].t;
+  $('tCode').textContent=TASKS[i].c;
+  $('tAns').value=''; $('msg').textContent='';
+  $('modal').classList.add('show'); $('tAns').focus();
+}
+function closeModal(){
+  modal=false; $('modal').classList.remove('show');
+  for(const k in keys) delete keys[k];
+}
+function submit(){
+  const norm=s=>s.trim().toLowerCase().replace(/\s+/g,'').replace(/"/g,"'");
+  if(norm($('tAns').value)===norm(TASKS[activeTask].a)){
+    solved[activeTask]=true; score+=10;
+    $('msg').textContent='✅ Верно! +10 монет';
+    setTimeout(closeModal,900);
+  } else $('msg').textContent='❌ Неверно, проверь ещё раз';
+}
+$('tOk').onclick=submit;
+$('tCancel').onclick=closeModal;
+$('tAns').addEventListener('keydown',e=>{
+  if(e.key==='Enter') submit();
+  if(e.key==='Escape') closeModal();
+});
+
+addEventListener('keydown',e=>{
+  if(modal){ if(e.key==='Escape') closeModal(); return; }
+  if(KEY[e.code]) keys[KEY[e.code]]=1;
+  if(['Space','ArrowUp','KeyW'].includes(e.code)){
+    e.preventDefault();
+    if(!e.repeat&&P) P.jumpBuf=20;
+  }
+  if(e.key==='Enter'&&near&&state==='play') openTask(near.t);
+});
+addEventListener('keyup',e=>{ if(KEY[e.code]) delete keys[KEY[e.code]]; });
+
+loadWorld(0);
+loop();
+</script>
+</body>
+</html>
