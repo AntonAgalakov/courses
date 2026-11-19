@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лабораторная работа · Модули и функции по блок-схемам в Python</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #f5f7fb; --card: #ffffff; --border: #e4e8ef; --border-soft: #eef1f6;
+    --text: #0f172a; --muted: #64748b; --accent: #2563eb; --accent-soft: #eff6ff; --accent-line: #bfdbfe;
+    --green: #16a34a; --green-soft: #f0fdf4; --green-line: #bbf7d0;
+    --amber: #d97706; --amber-soft: #fffbeb; --amber-line: #fcd34d;
+    --red: #dc2626; --red-soft: #fef2f2; --red-line: #fecaca;
+    --violet: #7c3aed; --violet-soft: #f5f3ff; --violet-line: #ddd6fe;
+    --shadow-sm: 0 1px 3px rgba(15,23,42,0.04);
+    --shadow: 0 6px 20px rgba(15,23,42,0.06);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+nav { position: sticky; top: 0; z-index: 90; background: rgba(255,255,255,0.92); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+nav.scrolled { box-shadow: var(--shadow-sm); }
+.nav-inner { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; flex-wrap: wrap; gap: 10px; }
+.logo { font-weight: 700; font-size: 1.05rem; color: var(--accent); }
+.logo span { color: var(--text); font-weight: 500; }
+.nav-links { display: flex; gap: 4px; list-style: none; flex-wrap: wrap; }
+.nav-links a { text-decoration: none; font-size: .88rem; font-weight: 500; color: var(--muted); padding: 6px 12px; border-radius: 8px; }
+.nav-links a:hover { color: var(--accent); background: var(--accent-soft); }
+.hero { padding: 52px 0 36px; text-align: center; }
+.hero .badge { display: inline-block; background: var(--accent-soft); color: var(--accent); padding: 5px 14px; border-radius: 30px; font-size: .8rem; font-weight: 600; margin-bottom: 16px; }
+.hero h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1.1px; line-height: 1.15; margin-bottom: 14px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .sub { font-size: 1.08rem; color: var(--muted); max-width: 700px; margin: 0 auto; }
+section { padding: 40px 0; }
+.section-head { margin-bottom: 24px; }
+.section-head .kicker { font-size: .78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.section-head h2 { font-size: 1.75rem; font-weight: 700; letter-spacing: -.6px; }
+.section-head p { color: var(--muted); margin-top: 6px; font-size: .98rem; }
+.card { background: var(--card); border-radius: 16px; padding: 24px 28px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); }
+.card h4 { font-size: 1.02rem; font-weight: 700; margin-bottom: 8px; }
+.card p, .card li { color: #334155; font-size: .98rem; }
+.card ul, .card ol { padding-left: 22px; margin: 8px 0; }
+.card ul li, .card ol li { margin-bottom: 5px; }
+pre { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; font-size: .86rem; overflow-x: auto; line-height: 1.55; margin: 10px 0; }
+code { font-family: 'JetBrains Mono', monospace; }
+.inline-code { background: #eef2f7; color: #0f172a; padding: 2px 6px; border-radius: 5px; font-size: .88em; font-family: 'JetBrains Mono', monospace; }
+
+.callout { border-radius: 10px; padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; font-size: .95rem; margin-top: 12px; }
+.callout .ico { font-size: 1.1rem; line-height: 1.3; flex-shrink: 0; }
+.callout.hint { background: var(--amber-soft); border-left: 3px solid var(--amber); color: #78350f; }
+.callout.warn { background: var(--red-soft); border-left: 3px solid var(--red); color: #7f1d1d; }
+.callout.info { background: var(--accent-soft); border-left: 3px solid var(--accent); color: #1e3a8a; }
+.callout.success { background: var(--green-soft); border-left: 3px solid var(--green); color: #14532d; }
+
+.ref-table { width: 100%; border-collapse: collapse; background: #fbfcfe; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-soft); font-size: .92rem; margin-top: 10px; }
+.ref-table th, .ref-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-soft); }
+.ref-table th { background: #f7f9fc; font-weight: 600; color: var(--muted); font-size: .74rem; letter-spacing: .5px; text-transform: uppercase; }
+.ref-table tr:last-child td { border-bottom: none; }
+.mono { font-family: 'JetBrains Mono', monospace; font-size: .86rem; }
+
+/* Таблица критериев */
+.grade-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: .95rem; }
+.grade-table thead th { background: transparent; color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; padding: 0 16px 8px; text-align: left; }
+.grade-table tbody tr { background: #fbfcfe; transition: transform .15s ease, box-shadow .15s ease; }
+.grade-table tbody tr:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(15,23,42,.06); }
+.grade-table tbody td { padding: 13px 16px; border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); vertical-align: middle; }
+.grade-table tbody td:first-child { border-left: 1px solid var(--border-soft); border-top-left-radius: 12px; border-bottom-left-radius: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: .9rem; }
+.grade-table tbody td:last-child { border-right: 1px solid var(--border-soft); border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+.grade-mark { display: inline-flex; align-items: center; gap: 10px; }
+.grade-mark .mark-num { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 34px; border-radius: 9px; font-weight: 800; font-size: .95rem; font-family: 'JetBrains Mono', monospace; }
+.grade-mark .mark-label { font-weight: 500; color: #334155; font-size: .95rem; }
+.grade-row-3 .mark-num { background: #fef3c7; color: #92400e; }
+.grade-row-4 .mark-num { background: #dbeafe; color: #1e40af; }
+.grade-row-5 .mark-num { background: #d1fae5; color: #065f46; }
+.grade-row-5p .mark-num { background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #fff; }
+.grade-row-5p { border: 1px solid var(--violet-line); }
+.grade-pct { display: inline-block; min-width: 56px; padding: 4px 10px; border-radius: 8px; font-size: .82rem; background: #eef2f7; color: #475569; }
+.grade-row-5p .grade-pct { background: var(--violet-soft); color: var(--violet); }
+
+/* Навигация по заданиям и карусель */
+.task-nav-wrap { position: sticky; top: 55px; z-index: 80; background: linear-gradient(to bottom, var(--bg) 75%, rgba(245,247,251,0)); padding: 12px 0 8px; margin-bottom: 4px; }
+.task-nav { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+.task-nav::-webkit-scrollbar { height: 6px; }
+.task-nav::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.task-chip { flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; font-family: inherit; font-size: .88rem; font-weight: 500; color: #334155; cursor: pointer; white-space: nowrap; transition: all .15s ease; }
+.task-chip:hover { border-color: var(--accent-line); color: var(--accent); }
+.task-chip .chip-num { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 22px; border-radius: 6px; padding: 0 6px; background: #eef2f7; color: #475569; font-size: .74rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.task-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.25); }
+.task-chip.active .chip-num { background: rgba(255,255,255,.22); color: #fff; }
+
+.carousel-outer { position: relative; background: var(--card); border-radius: 20px; border: 1px solid var(--border-soft); box-shadow: var(--shadow); overflow: hidden; }
+.progress-track { height: 4px; background: var(--border-soft); position: relative; }
+.progress-fill { height: 100%; background: var(--accent); width: 12.5%; transition: width .3s ease; }
+.carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
+.carousel::-webkit-scrollbar { display: none; }
+.slide { flex: 0 0 100%; scroll-snap-align: start; scroll-snap-stop: always; padding: 32px 36px 28px; display: flex; flex-direction: column; }
+
+.slide-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; margin-bottom: 22px; border-bottom: 1px solid var(--border-soft); }
+.slide-head-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.task-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent); font-size: .74rem; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; padding: 6px 12px; border-radius: 8px; flex-shrink: 0; }
+.diff-badge { display: inline-flex; align-items: center; font-size: .75rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+.diff-easy { background: var(--green-soft); color: var(--green); border: 1px solid var(--green-line); }
+.diff-med { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-line); }
+.diff-hard { background: var(--violet-soft); color: var(--violet); border: 1px solid var(--violet-line); }
+.slide-head h3 { font-size: 1.45rem; font-weight: 700; letter-spacing: -.4px; line-height: 1.25; }
+
+.algo-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 24px; align-items: start; }
+.algo-col { display: flex; flex-direction: column; gap: 16px; }
+
+.story-block { background: linear-gradient(135deg, #f5f3ff 0%, #faf5ff 100%); border: 1px solid var(--violet-line); border-left: 4px solid var(--violet); border-radius: 12px; padding: 16px 18px; font-size: .96rem; color: #312e81; }
+.story-block p + p { margin-top: 8px; }
+.story-block strong { color: #1e1b4b; }
+
+.sig-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.sig-box .sig-label { font-size: .7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.sig-box code { font-size: .92rem; font-weight: 600; color: var(--accent); }
+
+.io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.io-card { border-radius: 10px; border: 1px solid var(--border-soft); overflow: hidden; background: #fbfcfe; }
+.io-card .io-head { padding: 8px 12px; font-size: .7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.io-card.input .io-head { background: var(--accent-soft); color: var(--accent); border-bottom: 1px solid var(--accent-line); }
+.io-card.output .io-head { background: var(--green-soft); color: var(--green); border-bottom: 1px solid var(--green-line); }
+.io-card .io-body { padding: 10px 12px; font-size: .88rem; color: #334155; }
+
+.diagram-card { background: #fbfcfe; border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; align-items: center; }
+.diagram-title { width: 100%; font-size: .74rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); display: flex; justify-content: space-between; align-items: center; }
+.diagram-card svg { max-width: 100%; height: auto; display: block; }
+
+.carousel-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: #fafbfd; border-top: 1px solid var(--border-soft); gap: 12px; }
+.nav-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: #334155; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; transition: all .15s ease; }
+.nav-btn:hover:not(:disabled) { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+.counter { font-size: .88rem; font-weight: 600; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.counter .cur { color: var(--text); font-size: 1.02rem; }
+
+footer { text-align: center; padding: 32px 0 24px; color: var(--muted); font-size: .88rem; border-top: 1px solid var(--border-soft); margin-top: 20px; }
+
+@media (max-width: 860px) {
+    .algo-grid { grid-template-columns: 1fr; }
+    .slide { padding: 22px 20px; }
+    .hero h1 { font-size: 1.9rem; }
+}
+@media (max-width: 600px) {
+    .io-grid { grid-template-columns: 1fr; }
+    .task-nav-wrap { top: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+    <div class="container nav-inner">
+        <div class="logo">Лабораторная работа <span>· Алгоритмы и модули</span></div>
+        <ul class="nav-links">
+            <li><a href="#goal">Цель и требования</a></li>
+            <li><a href="#structure">Структура модуля</a></li>
+            <li><a href="#tasks">Задания (1–8)</a></li>
+            <li><a href="#grading">Критерии оценки</a></li>
+        </ul>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="container">
+        <div class="badge">Программирование на Python · Алгоритмизация</div>
+        <h1>Создание модуля<br>по <em>блок-схемам</em></h1>
+        <p class="sub">Реализация классических алгоритмов в виде переиспользуемого Python-модуля <code class="inline-code">algorithms.py</code> по графическим блок-схемам и проверка работы через тестовый скрипт.</p>
+    </div>
+</header>
+
+<div class="container">
+
+<!-- ===================== ЦЕЛЬ И ТРЕБОВАНИЯ ===================== -->
+<section id="goal">
+    <div class="section-head">
+        <div class="kicker">Раздел 01</div>
+        <h2>Цель работы и правила оформления</h2>
+        <p>Как читать блок-схемы и оформлять код модуля</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>1.1. Цель лабораторной работы</h4>
+        <p>Научиться читать алгоритмы, представленные в виде блок-схем, корректно переносить ветвления, циклы и граничные условия в функции на языке Python, а также оформлять набор функций в виде самостоятельного подключаемого модуля.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <h4>1.2. Обозначения элементов на блок-схемах</h4>
+        <table class="ref-table">
+            <thead>
+                <tr>
+                    <th>Фигура</th>
+                    <th>Назначение</th>
+                    <th>Соответствие в Python</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Овал (терминатор)</strong></td>
+                    <td>Начало функции с входными параметрами или выход с возвратом значения</td>
+                    <td class="mono">def func(...): / return ...</td>
+                </tr>
+                <tr>
+                    <td><strong>Прямоугольник</strong></td>
+                    <td>Вычислительный процесс, присваивание или обновление переменных</td>
+                    <td class="mono">x = 0, i = i + 1</td>
+                </tr>
+                <tr>
+                    <td><strong>Ромб</strong></td>
+                    <td>Проверка логического условия (ветвление «Да» / «Нет»)</td>
+                    <td class="mono">if ...: / else: / while ...:</td>
+                </tr>
+                <tr>
+                    <td><strong>Стрелки</strong></td>
+                    <td>Направление потока управления; возврат стрелки вверх образует цикл</td>
+                    <td class="mono">while условие: ...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h4>1.3. Обязательные требования к реализации</h4>
+        <ol>
+            <li>Все функции должны находиться в одном файле-модуле <code class="inline-code">algorithms.py</code> и иметь <strong>строго заданные имена и параметры</strong>.</li>
+            <li>Логика каждой функции должна воспроизводить алгоритм с блок-схемы (нельзя заменять алгоритм готовыми библиотечными функциями вроде <code class="inline-code">math.gcd</code>, <code class="inline-code">math.sqrt</code> или срезом <code class="inline-code">[::-1]</code>).</li>
+            <li>Каждая функция должна содержать краткую строку документации (<code class="inline-code">docstring</code>), описывающую её назначение и параметры.</li>
+            <li>В модуле <code class="inline-code">algorithms.py</code> не должно быть «висящих» вызовов <code class="inline-code">input()</code> или <code class="inline-code">print()</code> на верхнем уровне — при импорте модуль должен загружаться молча.</li>
+        </ol>
+    </div>
+</section>
+
+<!-- ===================== СТРУКТУРА МОДУЛЯ ===================== -->
+<section id="structure">
+    <div class="section-head">
+        <div class="kicker">Раздел 02</div>
+        <h2>Структура проекта и пример подключения</h2>
+        <p>Как организовать файлы <code class="inline-code">algorithms.py</code> и <code class="inline-code">main.py</code></p>
+    </div>
+
+    <div class="card">
+        <h4>2.1. Файловая структура</h4>
+        <pre><code>lab_algorithms/
+├── algorithms.py   # модуль с реализацией функций по блок-схемам
+└── main.py         # скрипт для импорта модуля и проверки тестов</code></pre>
+
+        <h4 style="margin-top: 18px;">2.2. Шаблон модуля <code class="inline-code">algorithms.py</code></h4>
+        <pre><code>"""Модуль с реализацией базовых алгоритмов по блок-схемам."""
+
+
+def reverse_number(n):
+    """Возвращает целое число с цифрами в обратном порядке."""
+    # Реализуйте алгоритм по блок-схеме №1
+    ...
+
+
+def gcd(a, b):
+    """Возвращает наибольший общий делитель чисел a и b."""
+    # Реализуйте алгоритм по блок-схеме №2
+    ...</code></pre>
+
+        <h4 style="margin-top: 18px;">2.3. Пример проверочного файла <code class="inline-code">main.py</code></h4>
+        <pre><code>import algorithms as alg
+
+
+if __name__ == "__main__":
+    assert alg.reverse_number(1234) == 4321
+    assert alg.reverse_number(1200) == 21
+    assert alg.gcd(48, 18) == 6
+    assert alg.is_prime(17) is True
+    assert alg.fibonacci(6) == 8
+    assert alg.max_increasing_len([1, 3, 5, 2, 4]) == 3
+    assert abs(alg.sqrt_newton(25, 1e-6) - 5.0) &lt;= 1e-6
+    assert alg.second_max([10, 20, 4, 45, 99]) == 45
+    assert alg.count_primes_up_to(10) == 4
+    print("Все базовые проверки пройдены успешно!")</code></pre>
+    </div>
+</section>
+
+<!-- ===================== ЗАДАНИЯ 1-8 ===================== -->
+<section id="tasks">
+    <div class="section-head">
+        <div class="kicker">Раздел 03</div>
+        <h2>Задания · 8 алгоритмов по возрастанию сложности</h2>
+        <p>Изучите описание каждого алгоритма и его блок-схему, затем реализуйте соответствующую функцию в <code class="inline-code">algorithms.py</code>.</p>
+    </div>
+
+    <div class="task-nav-wrap">
+        <div class="task-nav" id="tasks-nav">
+            <button class="task-chip active" data-idx="0"><span class="chip-num">01</span>reverse_number</button>
+            <button class="task-chip" data-idx="1"><span class="chip-num">02</span>gcd</button>
+            <button class="task-chip" data-idx="2"><span class="chip-num">03</span>is_prime</button>
+            <button class="task-chip" data-idx="3"><span class="chip-num">04</span>fibonacci</button>
+            <button class="task-chip" data-idx="4"><span class="chip-num">05</span>max_increasing_len</button>
+            <button class="task-chip" data-idx="5"><span class="chip-num">06</span>sqrt_newton</button>
+            <button class="task-chip" data-idx="6"><span class="chip-num">07</span>second_max</button>
+            <button class="task-chip" data-idx="7"><span class="chip-num">08</span>count_primes_up_to</button>
+        </div>
+    </div>
+
+    <div class="carousel-outer">
+        <div class="progress-track"><div class="progress-fill" id="tasks-progress"></div></div>
+        <div class="carousel" id="tasks-carousel">
+
+            <!-- ========== ЗАДАНИЕ 1 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <div class="slide-head-left">
+                        <span class="task-badge">Функция 01</span>
+                        <h3>Разворот цифр числа</h3>
+                    </div>
+                    <span class="diff-badge diff-easy">Уровень: базовый</span>
+                </div>
+                <div class="algo-grid">
+                    <div class="algo-col">
+                        <div class="sig-box">
+                            <div class="sig-label">Сигнатура функции</div>
+                            <code>def reverse_number(n):</code>
+                        </div>
+                        <div class="story-block">
+                            <p><strong>Описание задачи:</strong> функция принимает неотрицательное целое число <code class="inline-code">n</code> и возвращает новое целое число, полученное записью цифр исходного числа в обратном порядке.</p>
+                            <p><strong>Принцип работы:</strong> создаётся аккумулятор <code class="inline-code">rev = 0</code>. Пока <code class="inline-code">n &gt; 0</code>, на каждом шаге извлекается последняя цифра (<code class="inline-code">n % 10</code>), дописывается в конец нового числа (<code class="inline-code">rev * 10 + digit</code>), а последний разряд исходного числа отбрасывается (<code class="inline-code">n // 10</code>).</p>
+                        </div>
+                        <div class="io-grid">
+                            <div class="io-card input">
+                                <div class="io-head">Входные данные</div>
+                                <div class="io-body"><code class="inline-code">n: int</code> — целое число (<code class="inline-code">n &gt;= 0</code>)</div>
+                            </div>
+                            <div class="io-card output">
+                                <div class="io-head">Возвращаемое значение</div>
+                                <div class="io-body"><code class="inline-code">int</code> — число с обратным порядком цифр</div>
+                            </div>
+                        </div>
+                        <div class="callout hint">
+                            <span class="ico">💡</span>
+                            <div><strong>Граничные случаи:</strong> при <code class="inline-code">n = 0</code> цикл не выполняется и возвращается <code class="inline-code">0</code>; при <code class="inline-code">n = 1200</code> ведущие нули отбрасываются и возвращается <code class="inline-code">21</code>.</div>
+                        </div>
+                    </div>
+                    <div class="diagram-card">
+                        <div class="diagram-title"><span>Блок-схема алгоритма</span><span class="mono">reverse_number</span></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 500" width="540" height="500">
+                          <defs>
+                            <marker id="arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                              <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+                            </marker>
+                            <style>
+                              .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; }
+                              .term { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; }
+                              .cond { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+                              .txt { font-family: 'Inter', Arial, sans-serif; font-size: 13px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+                              .lbl { font-family: 'Inter', Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #334155; }
+                              .line { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow1); }
+                            </style>
+                          </defs>
+                          <rect x="140" y="18" width="160" height="40" rx="20" class="term"/>
+                          <text x="220" y="38" class="txt">Начало: n</text>
+                          <line x1="220" y1="58" x2="220" y2="88" class="line"/>
+                          <rect x="155" y="88" width="130" height="38" rx="4" class="box"/>
+                          <text x="220" y="107" class="txt">rev = 0</text>
+                          <line x1="220" y1="126" x2="220" y2="158" class="line"/>
+                          <polygon points="220,158 295,198 220,238 145,198" class="cond"/>
+                          <text x="220" y="198" class="txt">n &gt; 0?</text>
+                          <line x1="295" y1="198" x2="365" y2="198" class="line"/>
+                          <text x="308" y="188" class="lbl">Нет</text>
+                          <rect x="365" y="178" width="145" height="40" rx="20" class="term"/>
+                          <text x="437" y="198" class="txt">Вернуть rev</text>
+                          <line x1="220" y1="238" x2="220" y2="272" class="line"/>
+                          <text x="230" y="256" class="lbl">Да</text>
+                          <rect x="140" y="272" width="160" height="38" rx="4" class="box"/>
+                          <text x="220" y="291" class="txt">digit = n % 10</text>
+                          <line x1="220" y1="310" x2="220" y2="342" class="line"/>
+                          <rect x="125" y="342" width="190" height="38" rx="4" class="box"/>
+                          <text x="220" y="361" class="txt">rev = rev * 10 + digit</text>
+                          <line x1="220" y1="380" x2="220" y2="412" class="line"/>
+                          <rect x="140" y="412" width="160" height="38" rx="4" class="box"/>
+                          <text x="220" y="431" class="txt">n = n // 10</text>
+                          <path d="M 140 431 L 65 431 L 65 198 L 145 198" class="line"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== ЗАДАНИЕ 2 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <div class="slide-head-left">
+                        <span class="task-badge">Функция 02</span>
+                        <h3>Наибольший общий делитель (алгоритм Евклида)</h3>
+                    </div>
+                    <span class="diff-badge diff-easy">Уровень: базовый</span>
+                </div>
+                <div class="algo-grid">
+                    <div class="algo-col">
+                        <div class="sig-box">
+                            <div class="sig-label">Сигнатура функции</div>
+                            <code>def gcd(a, b):</code>
+                        </div>
+                        <div class="story-block">
+                            <p><strong>Описание задачи:</strong> функция вычисляет наибольший общий делитель (НОД) двух целых неотрицательных чисел <code class="inline-code">a</code> и <code class="inline-code">b</code>.</p>
+                            <p><strong>Принцип работы:</strong> используется свойство <code class="inline-code">НОД(a, b) = НОД(b, a % b)</code>. Пока <code class="inline-code">b != 0</code>, значение <code class="inline-code">b</code> сохраняется во временную переменную <code class="inline-code">temp</code>, новое <code class="inline-code">b</code> становится равным остатку от деления <code class="inline-code">a % b</code>, а <code class="inline-code">a</code> получает прежнее значение <code class="inline-code">b</code>.</p>
+                        </div>
+                        <div class="io-grid">
+                            <div class="io-card input">
+                                <div class="io-head">Входные данные</div>
+                                <div class="io-body"><code class="inline-code">a: int, b: int</code> — целые неотрицательные числа</div>
+                            </div>
+                            <div class="io-card output">
+                                <div class="io-head">Возвращаемое значение</div>
+                                <div class="io-body"><code class="inline-code">int</code> — наибольший общий делитель</div>
+                            </div>
+                        </div>
+                        <div class="callout hint">
+                            <span class="ico">💡</span>
+                            <div><strong>Граничные случаи:</strong> если одно из чисел равно <code class="inline-code">0</code> (например, <code class="inline-code">gcd(10, 0)</code> или <code class="inline-code">gcd(0, 7)</code>), функция возвращает второе число.</div>
+                        </div>
+                    </div>
+                    <div class="diagram-card">
+                        <div class="diagram-title"><span>Блок-схема алгоритма</span><span class="mono">gcd</span></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 430" width="520" height="430">
+                          <defs>
+                            <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                              <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+                            </marker>
+                            <style>
+                              .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; }
+                              .term { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; }
+                              .cond { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+                              .txt { font-family: 'Inter', Arial, sans-serif; font-size: 13px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+                              .lbl { font-family: 'Inter', Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #334155; }
+                              .line { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow2); }
+                            </style>
+                          </defs>
+                          <rect x="135" y="18" width="170" height="40" rx="20" class="term"/>
+                          <text x="220" y="38" class="txt">Начало: a, b</text>
+                          <line x1="220" y1="58" x2="220" y2="90" class="line"/>
+                          <polygon points="220,90 295,130 220,170 145,130" class="cond"/>
+                          <text x="220" y="130" class="txt">b != 0?</text>
+                          <line x1="295" y1="130" x2="360" y2="130" class="line"/>
+                          <text x="308" y="120" class="lbl">Нет</text>
+                          <rect x="360" y="110" width="135" height="40" rx="20" class="term"/>
+                          <text x="427" y="130" class="txt">Вернуть a</text>
+                          <line x1="220" y1="170" x2="220" y2="206" class="line"/>
+                          <text x="230" y="190" class="lbl">Да</text>
+                          <rect x="145" y="206" width="150" height="38" rx="4" class="box"/>
+                          <text x="220" y="225" class="txt">temp = b</text>
+                          <line x1="220" y1="244" x2="220" y2="276" class="line"/>
+                          <rect x="145" y="276" width="150" height="38" rx="4" class="box"/>
+                          <text x="220" y="295" class="txt">b = a % b</text>
+                          <line x1="220" y1="314" x2="220" y2="346" class="line"/>
+                          <rect x="145" y="346" width="150" height="38" rx="4" class="box"/>
+                          <text x="220" y="365" class="txt">a = temp</text>
+                          <path d="M 145 365 L 70 365 L 70 130 L 145 130" class="line"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== ЗАДАНИЕ 3 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <div class="slide-head-left">
+                        <span class="task-badge">Функция 03</span>
+                        <h3>Проверка числа на простоту</h3>
+                    </div>
+                    <span class="diff-badge diff-easy">Уровень: базовый</span>
+                </div>
+                <div class="algo-grid">
+                    <div class="algo-col">
+                        <div class="sig-box">
+                            <div class="sig-label">Сигнатура функции</div>
+                            <code>def is_prime(n):</code>
+                        </div>
+                        <div class="story-block">
+                            <p><strong>Описание задачи:</strong> функция определяет, является ли целое число <code class="inline-code">n</code> простым (имеет ровно два натуральных делителя: 1 и само себя), и возвращает <code class="inline-code">True</code> или <code class="inline-code">False</code>.</p>
+                            <p><strong>Принцип работы:</strong> сначала отсекаются числа <code class="inline-code">n &lt;= 1</code>. Затем проверяются возможные делители <code class="inline-code">d</code> начиная с <code class="inline-code">2</code>, пока <code class="inline-code">d * d &lt;= n</code>. Если <code class="inline-code">n % d == 0</code>, число составное — возвращается <code class="inline-code">False</code>.</p>
+                        </div>
+                        <div class="io-grid">
+                            <div class="io-card input">
+                                <div class="io-head">Входные данные</div>
+                                <div class="io-body"><code class="inline-code">n: int</code> — произвольное целое число</div>
+                            </div>
+                            <div class="io-card output">
+                                <div class="io-head">Возвращаемое значение</div>
+                                <div class="io-body"><code class="inline-code">bool</code> — <code class="inline-code">True</code>, если простое, иначе <code class="inline-code">False</code></div>
+                            </div>
+                        </div>
+                        <div class="callout hint">
+                            <span class="ico">💡</span>
+                            <div><strong>Граничные случаи:</strong> числа <code class="inline-code">-3</code>, <code class="inline-code">0</code>, <code class="inline-code">1</code> дают <code class="inline-code">False</code>; число <code class="inline-code">2</code> является наименьшим простым числом (<code class="inline-code">True</code>).</div>
+                        </div>
+                    </div>
+                    <div class="diagram-card">
+                        <div class="diagram-title"><span>Блок-схема алгоритма</span><span class="mono">is_prime</span></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 560" width="540" height="560">
+                          <defs>
+                            <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                              <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+                            </marker>
+                            <style>
+                              .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; }
+                              .term { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; }
+                              .cond { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+                              .txt { font-family: 'Inter', Arial, sans-serif; font-size: 13px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+                              .lbl { font-family: 'Inter', Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #334155; }
+                              .line { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow3); }
+                            </style>
+                          </defs>
+                          <rect x="140" y="18" width="160" height="40" rx="20" class="term"/>
+                          <text x="220" y="38" class="txt">Начало: n</text>
+                          <line x1="220" y1="58" x2="220" y2="88" class="line"/>
+                          <polygon points="220,88 295,126 220,164 145,126" class="cond"/>
+                          <text x="220" y="126" class="txt">n &lt;= 1?</text>
+                          <line x1="295" y1="126" x2="365" y2="126" class="line"/>
+                          <text x="308" y="116" class="lbl">Да</text>
+                          <rect x="365" y="106" width="145" height="40" rx="20" class="term"/>
+                          <text x="437" y="126" class="txt">Вернуть False</text>
+                          <line x1="220" y1="164" x2="220" y2="198" class="line"/>
+                          <text x="230" y="182" class="lbl">Нет</text>
+                          <rect x="155" y="198" width="130" height="38" rx="4" class="box"/>
+                          <text x="220" y="217" class="txt">d = 2</text>
+                          <line x1="220" y1="236" x2="220" y2="268" class="line"/>
+                          <polygon points="220,268 305,308 220,348 135,308" class="cond"/>
+                          <text x="220" y="308" class="txt">d*d &lt;= n?</text>
+                          <line x1="305" y1="308" x2="365" y2="308" class="line"/>
+                          <text x="318" y="298" class="lbl">Нет</text>
+                          <rect x="365" y="288" width="145" height="40" rx="20" class="term"/>
+                          <text x="437" y="308" class="txt">Вернуть True</text>
+                          <line x1="220" y1="348" x2="220" y2="382" class="line"/>
+                          <text x="230" y="366" class="lbl">Да</text>
+                          <polygon points="220,382 305,422 220,462 135,422" class="cond"/>
+                          <text x="220" y="422" class="txt">n % d == 0?</text>
+                          <line x1="305" y1="422" x2="365" y2="422" class="line"/>
+                          <text x="318" y="412" class="lbl">Да</text>
+                          <rect x="365" y="402" width="145" height="40" rx="20" class="term"/>
+                          <text x="437" y="422" class="txt">Вернуть False</text>
+                          <line x1="220" y1="462" x2="220" y2="494" class="line"/>
+                          <text x="230" y="480" class="lbl">Нет</text>
+                          <rect x="155" y="494" width="130" height="38" rx="4" class="box"/>
+                          <text x="220" y="513" class="txt">d = d + 1</text>
+                          <path d="M 155 513 L 65 513 L 65 308 L 135 308" class="line"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== ЗАДАНИЕ 4 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <div class="slide-head-left">
+                        <span class="task-badge">Функция 04</span>
+                        <h3>N-е число Фибоначчи</h3>
+                    </div>
+                    <span class="diff-badge diff-med">Уровень: средний</span>
+                </div>
+                <div class="algo-grid">
+                    <div class="algo-col">
+                        <div class="sig-box">
+                            <div class="sig-label">Сигнатура функции</div>
+                            <code>def fibonacci(n):</code>
+                        </div>
+                        <div class="story-block">
+                            <p><strong>Описание задачи:</strong> функция вычисляет <code class="inline-code">n</code>-е число Фибоначчи для целого <code class="inline-code">n &gt;= 0</code>, где последовательность начинается с <code class="inline-code">0, 1, 1, 2, 3, 5, 8...</code>.</p>
+                            <p><strong>Принцип работы:</strong> при <code class="inline-code">n == 0</code> возвращается <code class="inline-code">0</code>. Иначе задаются два соседних члена <code class="inline-code">prev = 0</code>, <code class="inline-code">curr = 1</code> и счётчик <code class="inline-code">i = 1</code>. Пока <code class="inline-code">i &lt; n</code>, вычисляется <code class="inline-code">nxt = prev + curr</code>, после чего значения сдвигаются вперёд.</p>
+                        </div>
+                        <div class="io-grid">
+                            <div class="io-card input">
+                                <div class="io-head">Входные данные</div>
+                                <div class="io-body"><code class="inline-code">n: int</code> — индекс элемента (<code class="inline-code">n &gt;= 0</code>)</div>
+                            </div>
+                            <div class="io-card output">
+                                <div class="io-head">Возвращаемое значение</div>
+                                <div class="io-body"><code class="inline-code">int</code> — <code class="inline-code">n</code>-е число Фибоначчи</div>
+                            </div>
+                        </div>
+                        <div class="callout hint">
+                            <span class="ico">💡</span>
+                            <div><strong>Граничные случаи:</strong> при <code class="inline-code">n = 0</code> возвращается <code class="inline-code">0</code>; при <code class="inline-code">n = 1</code> цикл не выполняется ни разу и возвращается <code class="inline-code">1</code>.</div>
+                        </div>
+                    </div>
+                    <div class="diagram-card">
+                        <div class="diagram-title"><span>Блок-схема алгоритма</span><span class="mono">fibonacci</span></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 590" width="580" height="590">
+                          <defs>
+                            <marker id="arrow4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                              <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+                            </marker>
+                            <style>
+                              .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; }
+                              .term { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; }
+                              .cond { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+                              .txt { font-family: 'Inter', Arial, sans-serif; font-size: 13px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+                              .lbl { font-family: 'Inter', Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #334155; }
+                              .line { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow4); }
+                            </style>
+                          </defs>
+                          <rect x="150" y="18" width="160" height="40" rx="20" class="term"/>
+                          <text x="230" y="38" class="txt">Начало: n</text>
+                          <line x1="230" y1="58" x2="230" y2="88" class="line"/>
+                          <polygon points="230,88 305,126 230,164 155,126" class="cond"/>
+                          <text x="230" y="126" class="txt">n == 0?</text>
+                          <line x1="305" y1="126" x2="380" y2="126" class="line"/>
+                          <text x="318" y="116" class="lbl">Да</text>
+                          <rect x="380" y="106" width="145" height="40" rx="20" class="term"/>
+                          <text x="452" y="126" class="txt">Вернуть 0</text>
+                          <line x1="230" y1="164" x2="230" y2="198" class="line"/>
+                          <text x="240" y="182" class="lbl">Нет</text>
+                          <rect x="120" y="198" width="220" height="40" rx="4" class="box"/>
+                          <text x="230" y="218" class="txt">prev = 0, curr = 1, i = 1</text>
+                          <line x1="230" y1="238" x2="230" y2="272" class="line"/>
+                          <polygon points="230,272 305,312 230,352 155,312" class="cond"/>
+                          <text x="230" y="312" class="txt">i &lt; n?</text>
+                          <line x1="305" y1="312" x2="380" y2="312" class="line"/>
+                          <text x="318" y="302" class="lbl">Нет</text>
+                          <rect x="380" y="292" width="145" height="40" rx="20" class="term"/>
+                          <text x="452" y="312" class="txt">Вернуть curr</text>
+                          <line x1="230" y1="352" x2="230" y2="386" class="line"/>
+                          <text x="240" y="370" class="lbl">Да</text>
+                          <rect x="140" y="386" width="180" height="38" rx="4" class="box"/>
+                          <text x="230" y="405" class="txt">nxt = prev + curr</text>
+                          <line x1="230" y1="424" x2="230" y2="456" class="line"/>
+                          <rect x="130" y="456" width="200" height="38" rx="4" class="box"/>
+                          <text x="230" y="475" class="txt">prev = curr, curr = nxt</text>
+                          <line x1="230" y1="494" x2="230" y2="526" class="line"/>
+                          <rect x="160" y="526" width="140" height="38" rx="4" class="box"/>
+                          <text x="230" y="545" class="txt">i = i + 1</text>
+                          <path d="M 160 545 L 65 545 L 65 312 L 155 312" class="line"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== ЗАДАНИЕ 5 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <div class="slide-head-left">
+                        <span class="task-badge">Функция 05</span>
+                        <h3>Наибольшая последовательность возрастающих элементов</h3>
+                    </div>
+                    <span class="diff-badge diff-med">Уровень: средний</span>
+                </div>
+                <div class="algo-grid">
+                    <div class="algo-col">
+                        <div class="sig-box">
+                            <div class="sig-label">Сигнатура функции</div>
+                            <code>def max_increasing_len(arr):</code>
+                        </div>
+                        <div class="story-block">
+                            <p><strong>Описание задачи:</strong> функция принимает список чисел <code class="inline-code">arr</code> и находит максимальную длину непрерывного строго возрастающего подотрезка (<code class="inline-code">arr[i] &gt; arr[i - 1]</code>).</p>
+                            <p><strong>Принцип работы:</strong> если список пуст, возвращается <code class="inline-code">0</code>. Иначе задаются <code class="inline-code">cur = 1</code>, <code class="inline-code">best = 1</code> и индекс <code class="inline-code">i = 1</code>. При росте элемента <code class="inline-code">cur</code> увеличивается на <code class="inline-code">1</code>, при нарушении возрастания сбрасывается в <code class="inline-code">1</code>. На каждом шаге обновляется <code class="inline-code">best = max(best, cur)</code>.</p>
+                        </div>
+                        <div class="io-grid">
+                            <div class="io-card input">
+                                <div class="io-head">Входные данные</div>
+                                <div class="io-body"><code class="inline-code">arr: list</code> — список чисел</div>
+                            </div>
+                            <div class="io-card output">
+                                <div class="io-head">Возвращаемое значение</div>
+                                <div class="io-body"><code class="inline-code">int</code> — максимальная длина возрастающего участка</div>
+                            </div>
+                        </div>
+                        <div class="callout hint">
+                            <span class="ico">💡</span>
+                            <div><strong>Граничные случаи:</strong> пустой список даёт <code class="inline-code">0</code>; список из одного элемента или строго убывающий список возвращает <code class="inline-code">1</code>.</div>
+                        </div>
+                    </div>
+                    <div class="diagram-card">
+                        <div class="diagram-title"><span>Блок-схема алгоритма</span><span class="mono">max_increasing_len</span></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 630" width="600" height="630">
+                          <defs>
+                            <marker id="arrow5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                              <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+                            </marker>
+                            <style>
+                              .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; }
+                              .term { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; }
+                              .cond { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+                              .txt { font-family: 'Inter', Arial, sans-serif; font-size: 13px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+                              .lbl { font-family: 'Inter', Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #334155; }
+                              .line { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow5); }
+                            </style>
+                          </defs>
+                          <rect x="145" y="18" width="170" height="40" rx="20" class="term"/>
+                          <text x="230" y="38" class="txt">Начало: arr</text>
+                          <line x1="230" y1="58" x2="230" y2="88" class="line"/>
+                          <polygon points="230,88 320,126 230,164 140,126" class="cond"/>
+                          <text x="230" y="126" class="txt">len(arr) == 0?</text>
+                          <line x1="320" y1="126" x2="390" y2="126" class="line"/>
+                          <text x="332" y="116" class="lbl">Да</text>
+                          <rect x="390" y="106" width="145" height="40" rx="20" class="term"/>
+                          <text x="462" y="126" class="txt">Вернуть 0</text>
+                          <line x1="230" y1="164" x2="230" y2="196" class="line"/>
+                          <text x="240" y="182" class="lbl">Нет</text>
+                          <rect x="115" y="196" width="230" height="38" rx="4" class="box"/>
+                          <text x="230" y="215" class="txt">cur = 1, best = 1, i = 1</text>
+                          <line x1="230" y1="234" x2="230" y2="266" class="line"/>
+                          <polygon points="230,266 320,306 230,346 140,306" class="cond"/>
+                          <text x="230" y="306" class="txt">i &lt; len(arr)?</text>
+                          <line x1="320" y1="306" x2="390" y2="306" class="line"/>
+                          <text x="332" y="296" class="lbl">Нет</text>
+                          <rect x="390" y="286" width="145" height="40" rx="20" class="term"/>
+                          <text x="462" y="306" class="txt">Вернуть best</text>
+                          <line x1="230" y1="346" x2="230" y2="378" class="line"/>
+                          <text x="240" y="364" class="lbl">Да</text>
+                          <polygon points="230,378 325,418 230,458 135,418" class="cond"/>
+                          <text x="230" y="418" class="txt">arr[i] &gt; arr[i-1]?</text>
+                          <line x1="325" y1="418" x2="395" y2="418" class="line"/>
+                          <text x="338" y="408" class="lbl">Да</text>
+                          <rect x="395" y="400" width="140" height="36" rx="4" class="box"/>
+                          <text x="465" y="418" class="txt">cur = cur + 1</text>
+                          <path d="M 465 436 L 465 478 L 230 478" class="line"/>
+                          <line x1="230" y1="458" x2="230" y2="478" class="line"/>
+                          <text x="240" y="470" class="lbl">Нет</text>
+                          <rect x="175" y="478" width="110" height="34" rx="4" class="box"/>
+                          <text x="230" y="495" class="txt">cur = 1</text>
+                          <line x1="230" y1="512" x2="230" y2="532" class="line"/>
+                          <rect x="125" y="532" width="210" height="36" rx="4" class="box"/>
+                          <text x="230" y="550" class="txt">best = max(best, cur)</text>
+                          <line x1="230" y1="568" x2="230" y2="588" class="line"/>
+                          <rect x="165" y="588" width="130" height="32" rx="4" class="box"/>
+                          <text x="230" y="604" class="txt">i = i + 1</text>
+                          <path d="M 165 604 L 60 604 L 60 306 L 140 306" class="line"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== ЗАДАНИЕ 6 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <div class="slide-head-left">
+                        <span class="task-badge">Функция 06</span>
+                        <h3>Квадратный корень методом Ньютона (Герона)</h3>
+                    </div>
+                    <span class="diff-badge diff-med">Уровень: средний</span>
+                </div>
+                <div class="algo-grid">
+                    <div class="algo-col">
+                        <div class="sig-box">
+                            <div class="sig-label">Сигнатура функции</div>
+                            <code>def sqrt_newton(n, eps=1e-6):</code>
+                        </div>
+                        <div class="story-block">
+                            <p><strong>Описание задачи:</strong> функция приближённо вычисляет квадратный корень из неотрицательного числа <code class="inline-code">n</code> с заданной точностью <code class="inline-code">eps</code>.</p>
+                            <p><strong>Принцип работы:</strong> при <code class="inline-code">n == 0</code> сразу возвращается <code class="inline-code">0.0</code>. Иначе берётся начальное приближение <code class="inline-code">x = n / 2</code>, и пока погрешность <code class="inline-code">|x * x - n| &gt; eps</code>, приближение уточняется по итерационной формуле Герона <code class="inline-code">x = 0.5 * (x + n / x)</code>.</p>
+                        </div>
+                        <div class="io-grid">
+                            <div class="io-card input">
+                                <div class="io-head">Входные данные</div>
+                                <div class="io-body"><code class="inline-code">n: float</code> (<code class="inline-code">n &gt;= 0</code>), <code class="inline-code">eps: float</code> (<code class="inline-code">eps &gt; 0</code>)</div>
+                            </div>
+                            <div class="io-card output">
+                                <div class="io-head">Возвращаемое значение</div>
+                                <div class="io-body"><code class="inline-code">float</code> — приближённое значение <code class="inline-code">√n</code></div>
+                            </div>
+                        </div>
+                        <div class="callout hint">
+                            <span class="ico">💡</span>
+                            <div><strong>Граничные случаи:</strong> случай <code class="inline-code">n == 0</code> обрабатывается отдельной веткой до входа в цикл, чтобы избежать деления на ноль.</div>
+                        </div>
+                    </div>
+                    <div class="diagram-card">
+                        <div class="diagram-title"><span>Блок-схема алгоритма</span><span class="mono">sqrt_newton</span></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 460" width="580" height="460">
+                          <defs>
+                            <marker id="arrow6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                              <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+                            </marker>
+                            <style>
+                              .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; }
+                              .term { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; }
+                              .cond { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+                              .txt { font-family: 'Inter', Arial, sans-serif; font-size: 13px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+                              .lbl { font-family: 'Inter', Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #334155; }
+                              .line { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow6); }
+                            </style>
+                          </defs>
+                          <rect x="145" y="18" width="170" height="40" rx="20" class="term"/>
+                          <text x="230" y="38" class="txt">Начало: n, eps</text>
+                          <line x1="230" y1="58" x2="230" y2="88" class="line"/>
+                          <polygon points="230,88 310,126 230,164 150,126" class="cond"/>
+                          <text x="230" y="126" class="txt">n == 0?</text>
+                          <line x1="310" y1="126" x2="375" y2="126" class="line"/>
+                          <text x="322" y="116" class="lbl">Да</text>
+                          <rect x="375" y="106" width="145" height="40" rx="20" class="term"/>
+                          <text x="447" y="126" class="txt">Вернуть 0.0</text>
+                          <line x1="230" y1="164" x2="230" y2="196" class="line"/>
+                          <text x="240" y="182" class="lbl">Нет</text>
+                          <rect x="165" y="196" width="130" height="38" rx="4" class="box"/>
+                          <text x="230" y="215" class="txt">x = n / 2</text>
+                          <line x1="230" y1="234" x2="230" y2="266" class="line"/>
+                          <polygon points="230,266 335,310 230,354 125,310" class="cond"/>
+                          <text x="230" y="310" class="txt">|x*x - n| &gt; eps?</text>
+                          <line x1="335" y1="310" x2="375" y2="310" class="line"/>
+                          <text x="345" y="300" class="lbl">Нет</text>
+                          <rect x="375" y="290" width="145" height="40" rx="20" class="term"/>
+                          <text x="447" y="310" class="txt">Вернуть x</text>
+                          <line x1="230" y1="354" x2="230" y2="390" class="line"/>
+                          <text x="240" y="374" class="lbl">Да</text>
+                          <rect x="115" y="390" width="230" height="40" rx="4" class="box"/>
+                          <text x="230" y="410" class="txt">x = 0.5 * (x + n / x)</text>
+                          <path d="M 115 410 L 55 410 L 55 310 L 125 310" class="line"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== ЗАДАНИЕ 7 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <div class="slide-head-left">
+                        <span class="task-badge">Функция 07</span>
+                        <h3>Поиск второго максимума</h3>
+                    </div>
+                    <span class="diff-badge diff-hard">Уровень: повышенный</span>
+                </div>
+                <div class="algo-grid">
+                    <div class="algo-col">
+                        <div class="sig-box">
+                            <div class="sig-label">Сигнатура функции</div>
+                            <code>def second_max(arr):</code>
+                        </div>
+                        <div class="story-block">
+                            <p><strong>Описание задачи:</strong> функция принимает список чисел <code class="inline-code">arr</code> и возвращает второй по величине элемент среди различных значений списка.</p>
+                            <p><strong>Принцип работы:</strong> если в списке меньше двух элементов, возвращается <code class="inline-code">None</code>. Иначе заводятся два лидера <code class="inline-code">m1 = -inf</code> и <code class="inline-code">m2 = -inf</code>. Если <code class="inline-code">arr[i] &gt; m1</code>, бывший лидер переходит в <code class="inline-code">m2</code>, а <code class="inline-code">m1</code> обновляется; если <code class="inline-code">m2 &lt; arr[i] &lt; m1</code>, обновляется <code class="inline-code">m2</code>.</p>
+                        </div>
+                        <div class="io-grid">
+                            <div class="io-card input">
+                                <div class="io-head">Входные данные</div>
+                                <div class="io-body"><code class="inline-code">arr: list</code> — список чисел</div>
+                            </div>
+                            <div class="io-card output">
+                                <div class="io-head">Возвращаемое значение</div>
+                                <div class="io-body">второй максимум или <code class="inline-code">None</code> (или <code class="inline-code">-inf</code> при отсутствии второго уникального)</div>
+                            </div>
+                        </div>
+                        <div class="callout hint">
+                            <span class="ico">💡</span>
+                            <div><strong>Подсказка:</strong> в Python отрицательную бесконечность можно задать как <code class="inline-code">float("-inf")</code> — это позволяет корректно обрабатывать списки отрицательных чисел.</div>
+                        </div>
+                    </div>
+                    <div class="diagram-card">
+                        <div class="diagram-title"><span>Блок-схема алгоритма</span><span class="mono">second_max</span></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 620" width="600" height="620">
+                          <defs>
+                            <marker id="arrow7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                              <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+                            </marker>
+                            <style>
+                              .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; }
+                              .term { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; }
+                              .cond { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+                              .txt { font-family: 'Inter', Arial, sans-serif; font-size: 13px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+                              .lbl { font-family: 'Inter', Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #334155; }
+                              .line { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow7); }
+                            </style>
+                          </defs>
+                          <rect x="145" y="18" width="170" height="40" rx="20" class="term"/>
+                          <text x="230" y="38" class="txt">Начало: arr</text>
+                          <line x1="230" y1="58" x2="230" y2="88" class="line"/>
+                          <polygon points="230,88 320,126 230,164 140,126" class="cond"/>
+                          <text x="230" y="126" class="txt">len(arr) &lt; 2?</text>
+                          <line x1="320" y1="126" x2="390" y2="126" class="line"/>
+                          <text x="332" y="116" class="lbl">Да</text>
+                          <rect x="390" y="106" width="145" height="40" rx="20" class="term"/>
+                          <text x="462" y="126" class="txt">Вернуть None</text>
+                          <line x1="230" y1="164" x2="230" y2="196" class="line"/>
+                          <text x="240" y="182" class="lbl">Нет</text>
+                          <rect x="115" y="196" width="230" height="38" rx="4" class="box"/>
+                          <text x="230" y="215" class="txt">m1 = -inf, m2 = -inf, i = 0</text>
+                          <line x1="230" y1="234" x2="230" y2="266" class="line"/>
+                          <polygon points="230,266 320,306 230,346 140,306" class="cond"/>
+                          <text x="230" y="306" class="txt">i &lt; len(arr)?</text>
+                          <line x1="320" y1="306" x2="390" y2="306" class="line"/>
+                          <text x="332" y="296" class="lbl">Нет</text>
+                          <rect x="390" y="286" width="145" height="40" rx="20" class="term"/>
+                          <text x="462" y="306" class="txt">Вернуть m2</text>
+                          <line x1="230" y1="346" x2="230" y2="378" class="line"/>
+                          <text x="240" y="364" class="lbl">Да</text>
+                          <polygon points="230,378 315,416 230,454 145,416" class="cond"/>
+                          <text x="230" y="416" class="txt">arr[i] &gt; m1?</text>
+                          <line x1="315" y1="416" x2="385" y2="416" class="line"/>
+                          <text x="328" y="406" class="lbl">Да</text>
+                          <rect x="385" y="396" width="185" height="40" rx="4" class="box"/>
+                          <text x="477" y="416" class="txt">m2 = m1, m1 = arr[i]</text>
+                          <path d="M 477 436 L 477 540 L 230 540" class="line"/>
+                          <line x1="230" y1="454" x2="230" y2="476" class="line"/>
+                          <text x="240" y="466" class="lbl">Нет</text>
+                          <polygon points="230,476 325,508 230,540 135,508" class="cond"/>
+                          <text x="230" y="508" class="txt">m2 &lt; arr[i] &lt; m1?</text>
+                          <line x1="325" y1="508" x2="385" y2="508" class="line"/>
+                          <text x="335" y="498" class="lbl">Да</text>
+                          <rect x="385" y="490" width="150" height="36" rx="4" class="box"/>
+                          <text x="460" y="508" class="txt">m2 = arr[i]</text>
+                          <path d="M 460 526 L 460 555 L 230 555" class="line"/>
+                          <line x1="230" y1="540" x2="230" y2="555" class="line"/>
+                          <rect x="165" y="555" width="130" height="36" rx="4" class="box"/>
+                          <text x="230" y="573" class="txt">i = i + 1</text>
+                          <path d="M 165 573 L 60 573 L 60 306 L 140 306" class="line"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+            <!-- ========== ЗАДАНИЕ 8 ========== -->
+            <article class="slide">
+                <div class="slide-head">
+                    <div class="slide-head-left">
+                        <span class="task-badge">Функция 08</span>
+                        <h3>Количество простых чисел в диапазоне от 2 до N</h3>
+                    </div>
+                    <span class="diff-badge diff-hard">Уровень: повышенный</span>
+                </div>
+                <div class="algo-grid">
+                    <div class="algo-col">
+                        <div class="sig-box">
+                            <div class="sig-label">Сигнатура функции</div>
+                            <code>def count_primes_up_to(n):</code>
+                        </div>
+                        <div class="story-block">
+                            <p><strong>Описание задачи:</strong> функция подсчитывает, сколько простых чисел содержится в диапазоне от <code class="inline-code">2</code> до целого числа <code class="inline-code">n</code> включительно.</p>
+                            <p><strong>Принцип работы:</strong> внешний цикл перебирает кандидатов <code class="inline-code">num</code> от <code class="inline-code">2</code> до <code class="inline-code">n</code>. Для каждого числа выставляется флаг <code class="inline-code">is_p = True</code>, а внутренний цикл ищет делители <code class="inline-code">d</code> до <code class="inline-code">d * d &lt;= num</code>. Если делитель не найден (<code class="inline-code">is_p == True</code>), счётчик <code class="inline-code">cnt</code> увеличивается на <code class="inline-code">1</code>.</p>
+                        </div>
+                        <div class="io-grid">
+                            <div class="io-card input">
+                                <div class="io-head">Входные данные</div>
+                                <div class="io-body"><code class="inline-code">n: int</code> — верхняя граница диапазона</div>
+                            </div>
+                            <div class="io-card output">
+                                <div class="io-head">Возвращаемое значение</div>
+                                <div class="io-body"><code class="inline-code">int</code> — количество простых чисел на отрезке <code class="inline-code">[2, n]</code></div>
+                            </div>
+                        </div>
+                        <div class="callout warn">
+                            <span class="ico">⚠️</span>
+                            <div><strong>Обратите внимание:</strong> реализуйте алгоритм <strong>строго по вложенной блок-схеме</strong> (без вызова вашей функции <code class="inline-code">is_prime</code> внутри).</div>
+                        </div>
+                    </div>
+                    <div class="diagram-card">
+                        <div class="diagram-title"><span>Блок-схема алгоритма</span><span class="mono">count_primes_up_to</span></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 695" width="600" height="695">
+                          <defs>
+                            <marker id="arrow8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                              <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155"/>
+                            </marker>
+                            <style>
+                              .box { fill: #f8fafc; stroke: #334155; stroke-width: 2; }
+                              .term { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; }
+                              .cond { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+                              .txt { font-family: 'Inter', Arial, sans-serif; font-size: 13px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+                              .lbl { font-family: 'Inter', Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #334155; }
+                              .line { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow8); }
+                            </style>
+                          </defs>
+                          <rect x="165" y="16" width="160" height="38" rx="19" class="term"/>
+                          <text x="245" y="35" class="txt">Начало: n</text>
+                          <line x1="245" y1="54" x2="245" y2="82" class="line"/>
+                          <rect x="155" y="82" width="180" height="36" rx="4" class="box"/>
+                          <text x="245" y="100" class="txt">cnt = 0, num = 2</text>
+                          <line x1="245" y1="118" x2="245" y2="146" class="line"/>
+                          <polygon points="245,146 330,184 245,222 160,184" class="cond"/>
+                          <text x="245" y="184" class="txt">num &lt;= n?</text>
+                          <line x1="330" y1="184" x2="395" y2="184" class="line"/>
+                          <text x="342" y="174" class="lbl">Нет</text>
+                          <rect x="395" y="164" width="145" height="40" rx="20" class="term"/>
+                          <text x="467" y="184" class="txt">Вернуть cnt</text>
+                          <line x1="245" y1="222" x2="245" y2="250" class="line"/>
+                          <text x="255" y="238" class="lbl">Да</text>
+                          <rect x="140" y="250" width="210" height="36" rx="4" class="box"/>
+                          <text x="245" y="268" class="txt">is_p = True, d = 2</text>
+                          <line x1="245" y1="286" x2="245" y2="314" class="line"/>
+                          <polygon points="245,314 345,354 245,394 145,354" class="cond"/>
+                          <text x="245" y="354" class="txt">d*d &lt;= num и is_p?</text>
+                          <line x1="245" y1="394" x2="245" y2="424" class="line"/>
+                          <text x="255" y="410" class="lbl">Да</text>
+                          <polygon points="245,424 335,462 245,500 155,462" class="cond"/>
+                          <text x="245" y="462" class="txt">num % d == 0?</text>
+                          <line x1="335" y1="462" x2="405" y2="462" class="line"/>
+                          <text x="348" y="452" class="lbl">Да</text>
+                          <rect x="405" y="444" width="145" height="36" rx="4" class="box"/>
+                          <text x="477" y="462" class="txt">is_p = False</text>
+                          <path d="M 477 480 L 477 520 L 245 520" class="line"/>
+                          <line x1="245" y1="500" x2="245" y2="520" class="line"/>
+                          <rect x="180" y="520" width="130" height="34" rx="4" class="box"/>
+                          <text x="245" y="537" class="txt">d = d + 1</text>
+                          <path d="M 180 537 L 105 537 L 105 354 L 145 354" class="line"/>
+                          <path d="M 345 354 L 565 354 L 565 575 L 245 575" class="line"/>
+                          <text x="358" y="344" class="lbl">Нет</text>
+                          <polygon points="245,575 325,605 245,635 165,605" class="cond"/>
+                          <text x="245" y="605" class="txt">is_p?</text>
+                          <line x1="325" y1="605" x2="395" y2="605" class="line"/>
+                          <text x="338" y="596" class="lbl">Да</text>
+                          <rect x="395" y="588" width="135" height="34" rx="4" class="box"/>
+                          <text x="462" y="605" class="txt">cnt = cnt + 1</text>
+                          <path d="M 462 622 L 462 648 L 245 648" class="line"/>
+                          <line x1="245" y1="635" x2="245" y2="648" class="line"/>
+                          <rect x="180" y="648" width="130" height="32" rx="4" class="box"/>
+                          <text x="245" y="664" class="txt">num = num + 1</text>
+                          <path d="M 180 664 L 50 664 L 50 184 L 160 184" class="line"/>
+                        </svg>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+
+        <div class="carousel-bar">
+            <button class="nav-btn" id="tasks-prev" disabled>← Предыдущая</button>
+            <span class="counter"><span class="cur" id="tasks-cur">1</span> / <span id="tasks-total">8</span></span>
+            <button class="nav-btn" id="tasks-next">Следующая →</button>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== КРИТЕРИИ ОЦЕНКИ ===================== -->
+<section id="grading">
+    <div class="section-head">
+        <div class="kicker">Раздел 04</div>
+        <h2>Критерии оценивания</h2>
+        <p>Требования к сдаче и защите лабораторной работы</p>
+    </div>
+
+    <div class="card">
+        <h4>Шкала оценивания</h4>
+        <p style="margin-bottom: 14px; color: var(--muted); font-size: .95rem;">Итоговая оценка зависит от числа корректно реализованных функций в модуле <code class="inline-code">algorithms.py</code>, наличия тестов в <code class="inline-code">main.py</code> и ответов на контрольные вопросы при защите:</p>
+        <table class="grade-table">
+            <thead>
+                <tr>
+                    <th>Выполненные функции</th>
+                    <th>Оценка</th>
+                    <th style="text-align: right;">Объём</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="grade-row-3">
+                    <td>Функции 01 – 04</td>
+                    <td>
+                        <span class="grade-mark">
+                            <span class="mark-num">3</span>
+                            <span class="mark-label">удовлетворительно</span>
+                        </span>
+                    </td>
+                    <td><span class="grade-pct">50%</span></td>
+                </tr>
+                <tr class="grade-row-4">
+                    <td>Функции 01 – 06</td>
+                    <td>
+                        <span class="grade-mark">
+                            <span class="mark-num">4</span>
+                            <span class="mark-label">хорошо</span>
+                        </span>
+                    </td>
+                    <td><span class="grade-pct">75%</span></td>
+                </tr>
+                <tr class="grade-row-5">
+                    <td>Функции 01 – 08 + тесты</td>
+                    <td>
+                        <span class="grade-mark">
+                            <span class="mark-num">5</span>
+                            <span class="mark-label">отлично</span>
+                        </span>
+                    </td>
+                    <td><span class="grade-pct">100%</span></td>
+                </tr>
+                <tr class="grade-row-5p">
+                    <td>01 – 08 + docstring + краевые тесты</td>
+                    <td>
+                        <span class="grade-mark">
+                            <span class="mark-num">5+</span>
+                            <span class="mark-label">отлично с отличием</span>
+                        </span>
+                    </td>
+                    <td><span class="grade-pct">100%+</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+</div>
+
+<footer>
+    <p>Лабораторная работа · Создание модуля на Python по блок-схемам · 2026</p>
+</footer>
+
+<script>
+window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) window.scrollTo({ top: t.getBoundingClientRect().top + window.pageYOffset - 70, behavior: 'smooth' });
+});
+
+(function initCarousel() {
+    const carousel = document.getElementById('tasks-carousel');
+    const slides = carousel.querySelectorAll('.slide');
+    const chips = document.querySelectorAll('#tasks-nav .task-chip');
+    const btnPrev = document.getElementById('tasks-prev');
+    const btnNext = document.getElementById('tasks-next');
+    const counterCur = document.getElementById('tasks-cur');
+    const counterTotal = document.getElementById('tasks-total');
+    const progressFill = document.getElementById('tasks-progress');
+    const total = slides.length;
+
+    counterTotal.textContent = total;
+
+    function updateUI(idx) {
+        chips.forEach((c, i) => c.classList.toggle('active', i === idx));
+        counterCur.textContent = idx + 1;
+        btnPrev.disabled = idx === 0;
+        btnNext.disabled = idx === total - 1;
+        progressFill.style.width = ((idx + 1) / total * 100) + '%';
+        const activeChip = chips[idx];
+        if (activeChip) activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    function scrollToSlide(idx) {
+        carousel.scrollTo({ left: idx * carousel.clientWidth, behavior: 'smooth' });
+    }
+
+    let scrollTimeout;
+    carousel.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+            if (idx >= 0 && idx < total) updateUI(idx);
+        }, 50);
+    }, { passive: true });
+
+    btnPrev.addEventListener('click', () => {
+        const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+        scrollToSlide(Math.max(0, idx - 1));
+    });
+    btnNext.addEventListener('click', () => {
+        const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+        scrollToSlide(Math.min(total - 1, idx + 1));
+    });
+
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => scrollToSlide(parseInt(chip.dataset.idx, 10)));
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        const rect = carousel.getBoundingClientRect();
+        if (rect.bottom < 100 || rect.top > window.innerHeight - 100) return;
+        if (e.key === 'ArrowRight') btnNext.click();
+        if (e.key === 'ArrowLeft') btnPrev.click();
+    });
+
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const idx = Math.round(carousel.scrollLeft / carousel.clientWidth);
+            scrollToSlide(idx);
+        }, 150);
+    });
+
+    updateUI(0);
+})();
+</script>
+
+</body>
+</html>
