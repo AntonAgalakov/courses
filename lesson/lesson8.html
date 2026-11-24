@@ -6,6 +6,27 @@
     <title>Урок #8: Строки и списки в Python</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../shared/css/lesson-core.css">
+    <style>
+        /* Фикс: длинные задания не помещались в блок аккордеона */
+        .accordion-content.active,
+        .accordion-content.open,
+        .accordion-content.show,
+        .accordion-content.is-open,
+        .accordion-content.expanded,
+        .accordion-item.active > .accordion-content,
+        .accordion-item.open > .accordion-content {
+            max-height: 6000px !important;
+        }
+        .accordion-content-inner {
+            max-height: 75vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .accordion-content-inner pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
 </head>
 <body>
 
@@ -305,16 +326,15 @@ receipt = [
         </div>
     </div>
 
+    <!-- === ВИСЕЛИЦА, ЧАСТЬ 1 === -->
     <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-            Задание 9: Игра "Виселица"
+            Задание 9: Виселица — часть 1. Кадры виселицы
         </div>
         <div class="accordion-content">
             <div class="accordion-content-inner">
                 <p>Напишите программу, которая реализует текстовую версию игры «Виселица».</p>
-                <p>Программа должна загадывать слово, показывать количество букв и давать игроку ограниченное количество попыток угадать буквы.</p>
-
-                <p><strong>Визуализация виселицы.</strong> Используйте список строк — по одному «кадру» на каждое количество совершённых ошибок. Нулевой элемент — пустая виселица, последний — полностью нарисованный человечек:</p>
+                <p>На первом шаге подготовьте «кадры» — список строк, по одному на каждое количество совершённых ошибок. Нулевой элемент — пустая виселица, последний — полностью нарисованный человечек:</p>
                 <pre>
 HANGMAN_PICS = [
     """
@@ -386,23 +406,44 @@ HANGMAN_PICS = [
                 <div class="task-goal">
                     <p><strong>Что сделать:</strong></p>
                     <ol>
-                        <li>Загадать слово, например из списка: <code>WORDS = ["питон", "алгоритм", "программирование", "функция"]</code>.</li>
-                        <li>Завести счётчик ошибок <code>wrong = 0</code>.</li>
-                        <li>На каждом ходу выводить <code>HANGMAN_PICS[wrong]</code> — виселицу, соответствующую числу ошибок.</li>
-                        <li>Выводить загаданное слово с прочерками для неугаданных букв (например, <code>п _ _ о _</code>).</li>
-                        <li>Спрашивать у игрока одну букву и проверять корректность ввода: <code>len(letter) == 1</code> и <code>letter.isalpha()</code>.</li>
-                        <li>Хранить уже названные буквы в отдельном списке — за повтор буквы попытку не списывать.</li>
-                        <li>Если буквы нет в слове — увеличивать <code>wrong</code> на 1.</li>
-                        <li>Игра заканчивается при угадывании всех букв (победа) или когда <code>wrong == 6</code> (поражение) — тогда показать последний кадр виселицы и загаданное слово.</li>
+                        <li>Скопировать список <code>HANGMAN_PICS</code> в свой файл.</li>
+                        <li>Вывести все 7 кадров через цикл — убедиться, что человечек «достраивается» шаг за шагом.</li>
+                        <li>Загадать слово, например: <code>WORDS = ["питон", "алгоритм", "программирование", "функция"]</code> — и научиться выводить <code>HANGMAN_PICS[wrong]</code> по числу ошибок.</li>
                     </ol>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- === ВИСЕЛИЦА, ЧАСТЬ 2 === -->
     <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-            Задание 10: Викторина (мини-проект)
+            Задание 10: Виселица — часть 2. Логика игры
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p>Теперь добавьте саму игру: игрок угадывает буквы по одной.</p>
+                <div class="task-goal">
+                    <p><strong>Что сделать:</strong></p>
+                    <ol>
+                        <li>Загадать слово из списка <code>WORDS</code> (например, через <code>random.choice</code>).</li>
+                        <li>Завести счётчик ошибок <code>wrong = 0</code> и список уже названных букв <code>used = []</code>.</li>
+                        <li>На каждом ходу выводить <code>HANGMAN_PICS[wrong]</code> — виселицу по числу ошибок.</li>
+                        <li>Выводить загаданное слово с прочерками для неугаданных букв (например, <code>п _ _ о _</code>).</li>
+                        <li>Спрашивать у игрока одну букву и проверять корректность ввода: <code>len(letter) == 1</code> и <code>letter.isalpha()</code>.</li>
+                        <li>Если буква уже была — попытку не списывать, попросить другую.</li>
+                        <li>Если буквы нет в слове — увеличивать <code>wrong</code> на 1.</li>
+                        <li>Игра заканчивается при угадывании всех букв (победа) или когда <code>wrong == 6</code> (поражение) — показать последний кадр виселицы и загаданное слово.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === ВИКТОРИНА, УРОВЕНЬ 1 === -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 11: Викторина — Уровень 1 «Разминка»
         </div>
         <div class="accordion-content">
             <div class="accordion-content-inner">
@@ -413,19 +454,13 @@ HANGMAN_PICS = [
                     <p><strong>Правило урока:</strong> меняем только 🟢 <strong>зелёную зону</strong> (вверху файла). Ниже красной линии — «мотор», его не трогаем.</p>
                 </div>
 
-                <h4>🟢 Уровень 1 — «Разминка» (5–7 минут)</h4>
-                <p><em>Работаем со строками и числами</em></p>
-
-                <p><strong>Задание 1. Своё название.</strong><br>
-                Найди строку:</p>
+                <p><strong>Задание 1. Своё название.</strong><br>Найди строку:</p>
                 <pre>NAME = "Моя крутая викторина"</pre>
                 <p>Замени текст на свой. Запусти игру — название должно появиться в заголовке окна.</p>
 
-                <p><strong>Задание 2. Своя подсказка.</strong><br>
-                В списке <code>hints</code> выбери любую подсказку и перепиши её своими словами. Нажми в игре <strong>H</strong> — проверь, что подсказка изменилась.</p>
+                <p><strong>Задание 2. Своя подсказка.</strong><br>В списке <code>hints</code> выбери любую подсказку и перепиши её своими словами. Нажми в игре <strong>H</strong> — проверь, что подсказка изменилась.</p>
 
-                <p><strong>Задание 3. Свои цвета.</strong><br>
-                Поменяй числа в списках цветов:</p>
+                <p><strong>Задание 3. Свои цвета.</strong><br>Поменяй числа в списках цветов:</p>
                 <pre>color_background = [40, 40, 80]
 color_buttons    = [100, 150, 255]</pre>
                 <p>Шпаргалка (красный, зелёный, синий — от 0 до 255):</p>
@@ -438,12 +473,20 @@ color_buttons    = [100, 150, 255]</pre>
                     <li>⚪ Белый — <code>[255, 255, 255]</code></li>
                 </ul>
                 <p>✅ <strong>Готово, если:</strong> игра запускается, название своё, цвета другие.</p>
+            </div>
+        </div>
+    </div>
 
-                <h4>🟡 Уровень 2 — «Списочник» (10–15 минут)</h4>
-                <p><em>Работаем со списками</em></p>
+    <!-- === ВИКТОРИНА, УРОВЕНЬ 2 === -->
+    <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            Задание 12: Викторина — Уровень 2 «Списочник»
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-content-inner">
+                <p><em>Работаем со списками. Всё так же — только зелёная зона.</em></p>
 
-                <p><strong>Задание 4. Добавь 3 своих вопроса.</strong><br>
-                В список <code>questions</code> допиши три строки по образцу:</p>
+                <p><strong>Задание 4. Добавь 3 своих вопроса.</strong><br>В список <code>questions</code> допиши три строки по образцу:</p>
                 <pre>["Твой вопрос?", "ответ1", "ответ2", "ответ3", "ответ4", "правильный ответ"],</pre>
                 <p>⚠️ Важно:</p>
                 <ul>
@@ -452,12 +495,10 @@ color_buttons    = [100, 150, 255]</pre>
                     <li>всего в вопросе <strong>6 элементов</strong>.</li>
                 </ul>
 
-                <p><strong>Задание 5. Добавь подсказки к новым вопросам.</strong><br>
-                В список <code>hints</code> допиши 3 подсказки — по одной на каждый новый вопрос.</p>
+                <p><strong>Задание 5. Добавь подсказки к новым вопросам.</strong><br>В список <code>hints</code> допиши 3 подсказки — по одной на каждый новый вопрос.</p>
                 <p>📌 Порядок подсказок = порядок вопросов!</p>
 
-                <p><strong>Задание 6. Удали один вопрос.</strong><br>
-                Два способа — попробуй любой:</p>
+                <p><strong>Задание 6. Удали один вопрос.</strong><br>Два способа — попробуй любой:</p>
                 <p><strong>Способ 1 (просто удалить строку):</strong> сотри строку с вопросом из списка.</p>
                 <p><strong>Способ 2 (через код):</strong> сразу после списка <code>questions</code> допиши:</p>
                 <pre>questions.pop(0)     # удалит первый вопрос
