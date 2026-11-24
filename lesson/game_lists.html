@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cyber Runner · Python Списки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html,body{margin:0;height:100%;background:#07070d;color:#eee;font-family:"Press Start 2P",ui-monospace,monospace;overflow:hidden}
+#wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#hud{width:800px;max-width:100%;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:10px;padding:0 4px}
+canvas{width:800px;max-width:100%;height:auto;aspect-ratio:800/480;border:3px solid #1f243a;box-shadow:0 0 24px rgba(0,255,255,.15);image-rendering:pixelated}
+#ctrl{font-size:8px;opacity:.65;text-align:center;line-height:1.8;max-width:800px}
+#modal{position:fixed;inset:0;background:rgba(4,6,14,.84);display:none;align-items:center;justify-content:center;padding:12px}
+#modal.show{display:flex}
+#box{background:#101322;border:3px solid #0ff;box-shadow:0 0 20px rgba(0,255,255,.3);padding:20px;width:min(560px,100%);font-size:10px;line-height:1.7}
+#box h3{margin:0 0 12px;font-size:12px;color:#0ff}
+#tCode{background:#05070e;border:1px solid #223;padding:12px;color:#5f9;white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:14px;line-height:1.5;margin:0}
+#box input{width:100%;margin-top:12px;padding:10px;background:#05070e;color:#fff;border:2px solid #0ff;font-family:ui-monospace,monospace;font-size:14px;box-sizing:border-box}
+#box button{margin-top:12px;margin-right:6px;padding:9px 14px;background:#0ff;color:#000;border:0;cursor:pointer;font:inherit;font-size:10px}
+#box button.sec{background:#282c3f;color:#eee}
+#msg{min-height:1.6em;margin-top:10px;color:#fd4}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hud"><span id="hWorld"></span><span id="hCoins"></span><span id="hLives"></span><span id="hTasks"></span></div>
+  <canvas id="c" width="800" height="480"></canvas>
+  <div id="ctrl">← → / A D — бег · Пробел / ↑ / W — прыжок (×2 в воздухе) · Shift / X — рывок · прыгни сверху на дрона · Enter — взлом</div>
+</div>
+
+<div id="modal"><div id="box">
+  <h3 id="tTitle"></h3>
+  <pre id="tCode"></pre>
+  <div id="tPrompt" style="margin-top:12px">Введи вывод print() (например: 4, chip, [20, 30]):</div>
+  <input id="tAns" autocomplete="off" spellcheck="false">
+  <button id="tOk">Проверить</button><button class="sec" id="tCancel">Закрыть</button>
+  <div id="msg"></div>
+</div></div>
+
+<script>
+const T=32, VW=800, VH=480;
+const cv=document.getElementById('c'), g=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+
+// mode: 'print' — вводим вывод print(), mode: 'cmd' — вводим команду Python
+const TASKS=[
+  // Уровень 1: Индексы, длина и операторы +, *, in
+  {mode:'print', t:'Длина списка',          c:'nums = [10, 20, 30, 40]\nprint(len(nums))',                        a:'4'},
+  {mode:'print', t:'Первый элемент',        c:'colors = ["red", "green", "blue"]\nprint(colors[0])',            a:'red'},
+  {mode:'print', t:'Последний элемент',     c:'items = ["key", "card", "chip"]\nprint(items[-1])',              a:'chip'},
+  {mode:'print', t:'Слияние списков',       c:'a = [1, 2]\nb = [3, 4, 5]\nprint(len(a + b))',                  a:'5'},
+  {mode:'print', t:'Умножение списка',      c:'dots = [0] * 4\nprint(len(dots))',                               a:'4'},
+  {mode:'print', t:'Поиск в списке',        c:'print(15 in [5, 10, 15, 20])',                                    a:'True'},
+
+  // Уровень 2: Изменяемость списков, ссылки и базовые срезы
+  {mode:'print', t:'Замена по индексу',     c:'lst = [10, 20, 30]\nlst[1] = 99\nprint(lst[1])',                a:'99'},
+  {mode:'print', t:'Общая ссылка',          c:'a = [1, 2, 3]\nb = a\nb[0] = 7\nprint(a[0])',                 a:'7'},
+  {mode:'print', t:'Срез середины',         c:'nums = [10, 20, 30, 40, 50]\nprint(nums[1:3])',                 a:'[20, 30]'},
+  {mode:'print', t:'Срез с начала',         c:'letters = ["a", "b", "c", "d"]\nprint(letters[:2])',             a:"['a', 'b']"},
+  {mode:'print', t:'Через один элемент',    c:'nums = [1, 2, 3, 4, 5]\nprint(nums[::2])',                       a:'[1, 3, 5]'},
+  {mode:'print', t:'Разворот срезом',       c:'nums = [10, 20, 30]\nprint(nums[::-1][0])',                     a:'30'},
+
+  // Уровень 3: Встроенные функции, сложные срезы и распаковка
+  {mode:'print', t:'Размах значений',       c:'scores = [15, 42, 8, 23]\nprint(max(scores) - min(scores))',     a:'34'},
+  {mode:'print', t:'Сумма элементов',       c:'nums = [4, 5, 6, 5]\nprint(sum(nums))',                          a:'20'},
+  {mode:'print', t:'Минимум через sorted',  c:'vals = [30, 10, 20]\nprint(sorted(vals)[0])',                    a:'10'},
+  {mode:'print', t:'Срез с шагом от 1',     c:'nums = [10, 20, 30, 40, 50]\nprint(nums[1::2])',                a:'[20, 40]'},
+  {mode:'print', t:'Замена среза',          c:'a = [1, 2, 3, 4]\na[1:3] = [9]\nprint(len(a))',                a:'3'},
+  {mode:'print', t:'Звёздочная распаковка', c:'a, *b, c = [10, 20, 30, 40, 50]\nprint(sum(b))',                a:'90'},
+
+  // Уровень 4: Ввод команд (методы списков)
+  {mode:'cmd',   t:'Добавление в конец',    c:'items = [1, 2, 3]\n# Добавь число 4 в конец списка items:',     a:'items.append(4)'},
+  {mode:'cmd',   t:'Удаление последнего',   c:'stack = ["a", "b", "c"]\n# Удали последний элемент из stack:',   a:'stack.pop()'},
+  {mode:'cmd',   t:'Вставка по индексу',    c:'nums = [10, 30, 40]\n# Вставь число 20 на индекс 1 в nums:',     a:'nums.insert(1, 20)'},
+  {mode:'cmd',   t:'Удаление по значению',  c:'tags = ["py", "bug", "ai"]\n# Удали элемент "bug" из tags:',    a:'tags.remove("bug")'},
+  {mode:'cmd',   t:'Удаление по индексу',   c:'data = [100, 200, 300]\n# Удали элемент по индексу 0 из data:',a:'data.pop(0)'},
+  {mode:'cmd',   t:'Разворот списка',       c:'logs = [1, 2, 3]\n# Разверни список logs на месте методом:',  a:'logs.reverse()'}
+];
+
+const WORLDS=[
+  {
+    name:'УРОВЕНЬ 1 · НЕОНОВЫЕ КРЫШИ', w:78, start:[2,10], portal:[74,4],
+    bg:'#090d1e', sky2:'#131b3a', roof:'#1b2238', neon:'#00f5d4', platCol:'#283250', platNeon:'#ff2a85',
+    blocks:[
+      [0,12,11,3],[14,10,9,5],[16,6,5,1],[26,13,12,2],[29,9,6,1],
+      [33,5,7,1],[42,11,10,4],[55,8,8,7],[66,12,12,3],[71,6,7,1]
+    ],
+    mplat:[[22,8,3, 3,0,0.025],[51,9,3, 0,-3,0.03],[62,9,3, 3,-2,0.025]],
+    pads:[[9,12],[35,13],[68,12]],
+    gates:[[24,6,7,1],[53,5,6,3],[70,3,9,5]],
+    coins:[
+      [5,11],[6,11],[17,5],[18,5],[19,5],[30,8],[31,8],[34,4],[35,4],[36,4],
+      [45,10],[46,10],[58,7],[59,7],[73,5],[74,5]
+    ],
+    en:[[15,9,21],[27,12,36],[43,10,50],[56,7,61]],
+    sp:[[19,10],[32,13],[48,11]],
+    tm:[[7,10,0],[18,4,1],[38,3,2],[44,9,3],[60,6,4],[72,4,5]]
+  },
+
+  {
+    name:'УРОВЕНЬ 2 · ЭСТАКАДА', w:88, start:[2,6], portal:[84,11],
+    bg:'#160a24', sky2:'#2b1242', roof:'#241836', neon:'#ff3cac', platCol:'#33214d', platNeon:'#00e5ff',
+    blocks:[
+      [0,8,9,7],[12,12,10,3],[15,7,6,1],[25,10,8,5],[27,5,6,1],[37,13,11,2],
+      [40,9,5,1],[43,5,6,1],[52,8,9,7],[64,11,9,4],[66,6,6,1],[76,13,12,2]
+    ],
+    mplat:[[9,9,3, 2,2,0.028],[33,7,3, 3,0,0.032],[49,6,3, 0,4,0.03],[72,8,3, 3,2,0.028]],
+    pads:[[20,12],[45,13],[65,11]],
+    gates:[[23,4,8,7],[50,4,9,9],[75,5,8,11]],
+    coins:[
+      [4,7],[5,7],[16,6],[17,6],[28,4],[29,4],[30,4],[41,8],[44,4],[45,4],
+      [55,7],[56,7],[67,5],[68,5],[79,12],[80,12]
+    ],
+    en:[[13,11,20],[26,9,31],[38,12,46],[53,7,59],[65,10,71]],
+    sp:[[17,12],[42,13],[69,11],[78,13]],
+    tm:[[6,6,6],[18,5,7],[30,3,8],[46,3,9],[58,6,10],[69,4,11]]
+  },
+
+  {
+    name:'УРОВЕНЬ 3 · ВЕРШИНА БАШНИ', w:96, start:[2,11], portal:[92,3],
+    bg:'#061018', sky2:'#0d2233', roof:'#162635', neon:'#ffe600', platCol:'#1f364a', platNeon:'#00ff87',
+    blocks:[
+      [0,13,8,2],[11,10,7,5],[13,5,5,1],[22,12,9,3],[25,7,6,1],[35,9,7,6],
+      [37,4,5,1],[46,12,10,3],[49,8,5,1],[52,4,6,1],[61,10,8,5],[64,5,6,1],
+      [73,12,9,3],[76,7,6,1],[86,5,10,10]
+    ],
+    mplat:[[8,11,3, 2,-2,0.03],[18,7,3, 3,2,0.032],[31,9,3, 3,-2,0.032],[58,7,3, 2,3,0.03],[82,8,3, 3,-3,0.035]],
+    pads:[[6,13],[29,12],[47,12],[74,12]],
+    gates:[[20,3,9,13],[44,3,9,15],[71,4,8,16],[85,2,3,17]],
+    coins:[
+      [14,4],[15,4],[26,6],[27,6],[28,6],[38,3],[39,3],[50,7],[53,3],[54,3],
+      [65,4],[66,4],[77,6],[78,6],[88,4],[89,4],[90,4]
+    ],
+    en:[[12,9,16],[23,11,29],[36,8,40],[48,11,54],[62,9,67],[75,11,80]],
+    sp:[[15,10],[26,12],[52,12],[65,10],[78,12]],
+    tm:[[15,3,12],[16,8,13],[39,2,14],[40,7,15],[67,3,16],[79,5,17]]
+  },
+
+  {
+    name:'УРОВЕНЬ 4 · ЯДРО КОМАНД', w:102, start:[2,10], portal:[98,4],
+    bg:'#12071d', sky2:'#220c36', roof:'#1d142e', neon:'#ff6b00', platCol:'#2e1e47', platNeon:'#00f5d4',
+    blocks:[
+      [0,12,9,3],[12,10,8,5],[14,5,5,1],[23,13,10,2],[26,8,6,1],[36,10,8,5],
+      [38,5,5,1],[47,12,9,3],[50,7,6,1],[59,11,8,4],[62,6,5,1],[70,13,10,2],
+      [73,8,6,1],[83,10,8,5],[93,6,9,9]
+    ],
+    mplat:[
+      [9,10,3, 2,-1,0.03],[20,7,3, 2,2,0.032],[33,9,3, 2,-2,0.032],
+      [44,8,3, 2,2,0.03],[56,8,3, 2,-2,0.032],[67,9,3, 2,2,0.03],
+      [80,8,3, 2,-2,0.035],[90,7,3, 2,-1,0.03]
+    ],
+    pads:[[7,12],[30,13],[53,12],[76,13]],
+    gates:[[22,4,9,19],[46,4,8,21],[69,4,9,22],[92,2,4,23]],
+    coins:[
+      [5,11],[15,4],[16,4],[27,7],[28,7],[39,4],[40,4],[51,6],[52,6],
+      [63,5],[64,5],[74,7],[75,7],[85,9],[86,9],[95,5],[96,5]
+    ],
+    en:[[13,9,19],[24,12,32],[37,9,43],[48,11,55],[60,10,66],[71,12,79],[84,9,90]],
+    sp:[[17,10],[29,13],[41,10],[64,11],[87,10]],
+    tm:[[6,10,18],[16,3,19],[28,6,20],[40,3,21],[63,4,22],[85,8,23]]
+  }
+];
+
+let wi=0, W, G, P, en, coins, sp, tms, pads, gates, mplats, portalPos, cam=0, lives=3, score=0;
+let solved=Array(TASKS.length).fill(false), modal=false, activeTask=-1, near=null, state='play';
+let trails=[], buildings=[], shake=0;
+const keys={};
+const KEY={ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r'};
+
+const solid=(tx,ty)=>tx<0||tx>=W.w||(ty>=0&&ty<15&&(G[ty][tx]==='#'||G[ty][tx]==='B'));
+
+function hitWorld(x,y,w,h){
+  for(let ty=Math.floor(y/T);ty<=Math.floor((y+h-1)/T);ty++)
+    for(let tx=Math.floor(x/T);tx<=Math.floor((x+w-1)/T);tx++)
+      if(solid(tx,ty)) return true;
+  for(const gt of gates){
+    if(solved[gt.t]) continue;
+    if(x<gt.x+10 && x+w>gt.x+2 && y<gt.y+gt.h && y+h>gt.y) return true;
+  }
+  return false;
+}
+
+function hitMplat(x,y,w,h){
+  for(const m of mplats){
+    if(x<m.x+m.w && x+w>m.x && y<m.y+12 && y+h>m.y) return m;
+  }
+  return null;
+}
+
+function moveX(e,dx){
+  e.x+=dx;
+  if(!hitWorld(e.x,e.y,e.w,e.h)) return false;
+  if(dx>0){
+    let nx=Math.floor((e.x+e.w-1)/T)*T-e.w;
+    for(const gt of gates){
+      if(!solved[gt.t] && e.x+e.w>gt.x+2 && e.x<gt.x+10 && e.y<gt.y+gt.h && e.y+e.h>gt.y){
+        nx=Math.min(nx,gt.x+2-e.w);
+      }
+    }
+    e.x=nx;
+  } else {
+    let nx=(Math.floor(e.x/T)+1)*T;
+    for(const gt of gates){
+      if(!solved[gt.t] && e.x<gt.x+10 && e.x+e.w>gt.x+2 && e.y<gt.y+gt.h && e.y+e.h>gt.y){
+        nx=Math.max(nx,gt.x+10);
+      }
+    }
+    e.x=nx;
+  }
+  return true;
+}
+
+function moveY(e,dy){
+  e.y+=dy;
+  if(!hitWorld(e.x,e.y,e.w,e.h)){
+    if(dy>0){
+      const m=hitMplat(e.x,e.y,e.w,e.h);
+      if(m && e.y+e.h-dy<=m.y+6){
+        e.y=m.y-e.h;
+        e.vy=0;
+        e.onPlat=m;
+      }
+    }
+    return;
+  }
+  if(dy>0) e.y=Math.floor((e.y+e.h-1)/T)*T-e.h;
+  else e.y=(Math.floor(e.y/T)+1)*T;
+  e.vy=0;
+}
+
+const over=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+
+function genCity(w){
+  const b=[];
+  for(let x=0;x<w*T+500;x+=68){
+    const bw=46+((x*17)%46);
+    const bh=140+((x*31)%230);
+    b.push({x,w:bw,h:bh,lit:(x%136===0)});
+  }
+  return b;
+}
+
+function loadWorld(i){
+  wi=i; W=WORLDS[i];
+  buildings=genCity(W.w);
+  G=[]; for(let y=0;y<15;y++) G.push(Array(W.w).fill('.'));
+  for(const [bx,by,bw,bh] of W.blocks){
+    for(let y=by;y<by+bh && y<15;y++)
+      for(let x=bx;x<bx+bw && x<W.w;x++)
+        G[y][x]=(bh>1?'#':'B');
+  }
+  mplats=W.mplat.map(([x,y,w,dx,dy,spd],idx)=>({
+    bx:x*T, by:y*T, x:x*T, y:y*T, w:w*T, dx:dx*T, dy:dy*T, spd, t:idx*1.4, vx:0, vy:0
+  }));
+  pads=W.pads.map(([x,y])=>({x:x*T,y:y*T-8,anim:0}));
+  gates=W.gates.map(([x,y,h,t])=>({x:x*T+10,y:y*T,h:h*T,t}));
+  coins=W.coins.map(([x,y])=>({x:x*T+10,y:y*T+10,got:false}));
+  sp=W.sp.map(([x,y])=>({x:x*T,y:y*T}));
+  tms=W.tm.map(([x,y,t])=>({x:x*T,y:y*T,t}));
+  portalPos={x:W.portal[0]*T,y:W.portal[1]*T};
+  spawn();
+}
+
+function spawn(){
+  P={
+    x:W.start[0]*T, y:W.start[1]*T+2, w:22, h:30,
+    vx:0, vy:0, ground:false, face:1, jumpBuf:0, coyote:0,
+    jumpsLeft:2, dashTime:0, dashCd:0, onPlat:null
+  };
+  en=W.en.map(([x,y,maxX],idx)=>({
+    x:x*T+2, y:y*T+4, minX:x*T, maxX:maxX*T, w:28, h:22,
+    vx:(idx%2?-1.25:1.25), baseY:y*T+4, phase:idx, dead:0
+  }));
+  cam=0; near=null; trails=[]; state='play';
+}
+
+function kill(){
+  if(state!=='play') return;
+  state='dead'; lives--; shake=12;
+  setTimeout(()=>{
+    if(lives<=0){
+      lives=3; score=0;
+      W.tm.forEach(([,,t])=>solved[t]=false);
+      loadWorld(wi);
+    } else spawn();
+  },800);
+}
+
+function triggerDash(){
+  if(state!=='play'||modal||P.dashCd>0||P.dashTime>0) return;
+  P.dashTime=9;
+  P.dashCd=36;
+  P.vy=0;
+}
+
+function update(){
+  if(state!=='play'||modal) return;
+  if(shake>0) shake--;
+
+  for(const m of mplats){
+    const prevX=m.x, prevY=m.y;
+    m.t+=m.spd;
+    const s=(Math.sin(m.t)+1)/2;
+    m.x=m.bx+m.dx*s;
+    m.y=m.by+m.dy*s;
+    m.vx=m.x-prevX;
+    m.vy=m.y-prevY;
+  }
+
+  if(P.onPlat){
+    moveX(P,P.onPlat.vx);
+    P.y+=P.onPlat.vy;
+  }
+  P.onPlat=null;
+
+  const d=(keys.l?-1:0)+(keys.r?1:0);
+  if(d && P.dashTime<=0) P.face=d;
+  if(P.dashCd>0) P.dashCd--;
+
+  if(P.dashTime>0){
+    P.dashTime--;
+    P.vx=P.face*9.2;
+    P.vy=0;
+    moveX(P,P.vx);
+    trails.push({x:P.x+P.w/2,y:P.y+P.h/2,vx:0,vy:0,life:12,col:W.neon,big:true});
+  } else {
+    P.vx=d*4.2;
+    P.vy=Math.min(P.vy+0.54,12);
+    moveX(P,P.vx);
+    moveY(P,P.vy);
+  }
+
+  const onSolid=hitWorld(P.x,P.y+1,P.w,P.h);
+  const onMplat=hitMplat(P.x,P.y+2,P.w,P.h);
+  if(onMplat && P.vy>=0 && P.y+P.h<=onMplat.y+8){
+    P.y=onMplat.y-P.h;
+    P.vy=0;
+    P.onPlat=onMplat;
+  }
+  P.ground=onSolid || !!P.onPlat;
+
+  if(P.ground){ P.coyote=6; P.jumpsLeft=2; }
+  else P.coyote=Math.max(0,P.coyote-1);
+
+  for(const pd of pads){
+    if(pd.anim>0) pd.anim--;
+    if(over(P,{x:pd.x+2,y:pd.y,w:T-4,h:10}) && P.vy>=0){
+      P.vy=-16.5;
+      P.ground=false;
+      P.coyote=0;
+      P.jumpsLeft=1;
+      pd.anim=14;
+      for(let k=0;k<10;k++) trails.push({x:pd.x+T/2,y:pd.y,vx:(Math.random()-0.5)*4,vy:-Math.random()*3,life:16,col:'#ffe600'});
+    }
+  }
+
+  if(P.jumpBuf>0){
+    if(P.ground||P.coyote>0){
+      P.vy=-10.6; P.ground=false; P.onPlat=null; P.coyote=0; P.jumpsLeft=1; P.jumpBuf=0;
+    } else if(P.jumpsLeft>0){
+      P.vy=-9.8; P.jumpsLeft=0; P.jumpBuf=0;
+      for(let k=0;k<7;k++) trails.push({x:P.x+P.w/2,y:P.y+P.h,vx:(Math.random()-0.5)*3,vy:Math.random()*2+1,life:14,col:W.neon});
+    } else {
+      P.jumpBuf--;
+    }
+  }
+
+  if(Math.abs(P.vx)>0.5 && P.dashTime<=0 && Math.random()<0.45){
+    trails.push({x:P.x+P.w/2,y:P.y+P.h-4,vx:0,vy:0,life:10,col:W.platNeon});
+  }
+  for(const tr of trails){ tr.x+=tr.vx; tr.y+=tr.vy; tr.life--; }
+  trails=trails.filter(tr=>tr.life>0);
+
+  if(P.y>VH+T){ kill(); return; }
+
+  const now=Date.now()/240;
+  for(const e of en){
+    if(e.dead) continue;
+    if(moveX(e,e.vx) || e.x<e.minX || e.x>e.maxX) e.vx=-e.vx;
+    e.y=e.baseY+Math.sin(now+e.phase)*5;
+  }
+  for(const e of en){
+    if(e.dead||!over(P,e)) continue;
+    if((P.vy>0 && P.y+P.h-P.vy<=e.y+12) || P.dashTime>0){
+      e.dead=1; P.vy=-8.5; P.jumpsLeft=1; score+=5; shake=5;
+    } else { kill(); return; }
+  }
+
+  for(const c of coins) if(!c.got&&over(P,{x:c.x,y:c.y,w:12,h:12})){ c.got=true; score++; }
+  for(const s of sp) if(over(P,{x:s.x+5,y:s.y-14,w:22,h:14})){ kill(); return; }
+
+  near=tms.find(t=>!solved[t.t]&&over(P,{x:t.x-10,y:t.y,w:T+20,h:2*T}))||null;
+
+  const cleared=W.tm.every(([,,t])=>solved[t]);
+  if(cleared&&over(P,{x:portalPos.x,y:portalPos.y-T,w:T,h:3*T})){
+    if(wi+1<WORLDS.length) loadWorld(wi+1);
+    else state='win';
+    return;
+  }
+  cam=Math.max(0,Math.min(P.x+P.w/2-VW/2,W.w*T-VW));
+}
+
+function draw(){
+  g.save();
+  if(shake>0) g.translate((Math.random()-0.5)*5,(Math.random()-0.5)*5);
+
+  const grad=g.createLinearGradient(0,0,0,VH);
+  grad.addColorStop(0,W.bg);
+  grad.addColorStop(1,W.sky2);
+  g.fillStyle=grad; g.fillRect(0,0,VW,VH);
+
+  for(const b of buildings){
+    const bx=b.x-cam*0.35;
+    if(bx+b.w<0||bx>VW) continue;
+    const by=VH-b.h;
+    g.fillStyle='rgba(8,12,24,0.78)';
+    g.fillRect(bx,by,b.w,b.h);
+    g.fillStyle=b.lit?W.neon:W.platNeon;
+    g.globalAlpha=0.22;
+    for(let wy=by+14;wy<VH-30;wy+=18){
+      for(let wx=bx+8;wx<bx+b.w-10;wx+=14){
+        if(((wx+wy)%3)===0) g.fillRect(wx,wy,6,8);
+      }
+    }
+    g.globalAlpha=1;
+  }
+
+  const x0=Math.max(0,Math.floor(cam/T)), x1=Math.min(W.w-1,x0+Math.ceil(VW/T)+1);
+  for(let ty=0;ty<15;ty++) for(let tx=x0;tx<=x1;tx++){
+    const c=G[ty][tx]; if(c==='.') continue;
+    const X=tx*T-cam, Y=ty*T;
+    g.fillStyle=c==='#'?W.roof:W.platCol;
+    g.fillRect(X,Y,T,T);
+    if(c==='#' && ty%2===1 && tx%2===0){
+      g.fillStyle='rgba(255,255,255,0.07)';
+      g.fillRect(X+6,Y+8,8,12); g.fillRect(X+18,Y+8,8,12);
+    }
+    if(!solid(tx,ty-1)){
+      g.fillStyle=c==='#'?W.neon:W.platNeon;
+      g.fillRect(X,Y,T,4);
+    }
+    g.fillStyle='rgba(0,0,0,.32)'; g.fillRect(X,Y+T-2,T,2);
+  }
+
+  for(const m of mplats){
+    const X=m.x-cam, Y=m.y;
+    g.fillStyle='#19243d'; g.fillRect(X,Y,m.w,12);
+    g.fillStyle=W.neon; g.fillRect(X,Y,m.w,3);
+    g.fillStyle=W.platNeon; g.fillRect(X+6,Y+9,m.w-12,3);
+  }
+
+  for(const pd of pads){
+    const X=pd.x-cam, Y=pd.y-(pd.anim>0?4:0);
+    g.fillStyle='#222'; g.fillRect(X+2,pd.y+4,T-4,4);
+    g.fillStyle='#ffe600'; g.fillRect(X+4,Y,T-8,5);
+  }
+
+  for(const gt of gates){
+    if(solved[gt.t]) continue;
+    const X=gt.x-cam;
+    g.fillStyle='rgba(255,42,85,0.32)';
+    g.fillRect(X,gt.y,12,gt.h);
+    g.fillStyle='#ff2a55';
+    g.fillRect(X+4,gt.y,4,gt.h);
+    g.fillStyle='#fff'; g.font='7px "Press Start 2P", monospace';
+    g.fillText('#'+(gt.t+1),X-2,gt.y-5);
+  }
+
+  const cleared=W.tm.every(([,,t])=>solved[t]);
+  const px=portalPos.x-cam, py=portalPos.y-T, pt=Date.now()/250;
+  g.fillStyle=cleared?`hsl(${(pt*45)%360},90%,60%)`:'#333a52';
+  g.fillRect(px+3,py,T-6,3*T);
+  g.fillStyle='#05070e'; g.fillRect(px+9,py+6,T-18,3*T-6);
+  g.fillStyle=cleared?'#fff':'#778'; g.font='8px "Press Start 2P", monospace';
+  g.fillText(cleared?'EXIT':'LOCKED',px-12,py-8);
+
+  for(const t of tms){
+    const X=t.x-cam, Y=t.y;
+    g.fillStyle='#161b2e'; g.fillRect(X+2,Y,T-4,2*T);
+    g.strokeStyle=solved[t.t]?'#00ff87':W.neon; g.lineWidth=2;
+    g.strokeRect(X+2,Y,T-4,2*T);
+    g.fillStyle=solved[t.t]?'#00ff87':'#ffbe0b';
+    g.fillRect(X+6,Y+8,T-12,T-14);
+    g.fillStyle='#000'; g.font='8px monospace';
+    g.fillText(solved[t.t]?'OK':'#'+(t.t+1),X+7,Y+T-1);
+  }
+
+  for(const s of sp){
+    const X=s.x-cam, Y=s.y;
+    g.fillStyle='#ff2a55';
+    g.beginPath(); g.moveTo(X+2,Y); g.lineTo(X+T/2,Y-16); g.lineTo(X+T-2,Y); g.fill();
+    g.fillStyle='#fff';
+    g.fillRect(X+T/2-1,Y-12,2,8);
+  }
+
+  for(const c of coins) if(!c.got){
+    const cy=c.y+Math.sin(Date.now()/180+c.x)*2;
+    g.fillStyle=W.neon; g.fillRect(c.x+2-cam,cy+2,8,8);
+    g.fillStyle='#fff'; g.fillRect(c.x+4-cam,cy+4,4,4);
+  }
+
+  for(const e of en) if(!e.dead){
+    const X=e.x-cam, Y=e.y;
+    g.fillStyle='#2b324b'; g.fillRect(X+2,Y+5,e.w-4,13);
+    g.fillStyle='#ff2a55'; g.fillRect(X+6,Y+9,e.w-12,5);
+    g.fillStyle='#9aa5ce'; g.fillRect(X,Y+1,e.w,3);
+  }
+
+  for(const tr of trails){
+    g.fillStyle=tr.col;
+    g.globalAlpha=tr.life/16;
+    const sz=tr.big?10:4;
+    g.fillRect(tr.x-cam-sz/2,tr.y-sz/2,sz,sz);
+  }
+  g.globalAlpha=1;
+
+  const X=P.x-cam;
+  g.fillStyle=P.dashTime>0?W.neon:'#1d243b'; g.fillRect(X+2,P.y+6,P.w-4,P.h-6);
+  g.fillStyle=W.neon; g.fillRect(X+2,P.y+12,P.w-4,4);
+  g.fillStyle='#f4c29f'; g.fillRect(X+4,P.y,P.w-8,9);
+  g.fillStyle=W.platNeon; g.fillRect(X+(P.face>0?11:3),P.y+3,8,3);
+
+  if(near){
+    g.fillStyle='#0ff'; g.font='8px "Press Start 2P", monospace';
+    g.fillText('ENTER',near.x-cam-8,near.y-8);
+  }
+
+  if(state==='win'){
+    g.fillStyle='rgba(4,6,14,.82)'; g.fillRect(0,0,VW,VH);
+    g.fillStyle='#0ff'; g.font='18px "Press Start 2P", monospace'; g.textAlign='center';
+    g.fillText('СИСТЕМА ВЗЛОМАНА!',VW/2,VH/2-12);
+    g.fillStyle='#fff'; g.font='10px "Press Start 2P", monospace';
+    g.fillText('Задания: '+solved.filter(Boolean).length+'/'+TASKS.length+' · Очки: '+score,VW/2,VH/2+22);
+    g.textAlign='left';
+  }
+  g.restore();
+}
+
+function hud(){
+  $('hWorld').textContent=W.name;
+  $('hCoins').textContent='ЧИПЫ '+score;
+  $('hLives').textContent='ЖИЗНИ '+lives;
+  $('hTasks').textContent='ВЗЛОМ '+solved.filter(Boolean).length+'/'+TASKS.length;
+}
+function loop(){ update(); draw(); hud(); requestAnimationFrame(loop); }
+
+function openTask(i){
+  modal=true; activeTask=i;
+  const task=TASKS[i];
+  $('tTitle').textContent='Терминал #'+(i+1)+': '+task.t;
+  $('tCode').textContent=task.c;
+  $('tPrompt').textContent=task.mode==='cmd'
+    ? 'Введи команду Python (например: items.append(4)):'
+    : 'Введи вывод print() (например: 4, chip, [20, 30]):';
+  $('tAns').value=''; $('msg').textContent='';
+  $('modal').classList.add('show'); $('tAns').focus();
+}
+function closeModal(){
+  modal=false; $('modal').classList.remove('show');
+  for(const k in keys) delete keys[k];
+}
+function submit(){
+  const norm=s=>s.trim().toLowerCase().replace(/\s+/g,'').replace(/"/g,"'");
+  if(norm($('tAns').value)===norm(TASKS[activeTask].a)){
+    solved[activeTask]=true; score+=10;
+    $('msg').textContent='✅ Взломано! Барьер отключён (+10 чипов)';
+    setTimeout(closeModal,800);
+  } else $('msg').textContent='❌ Ошибка доступа, проверь ввод';
+}
+$('tOk').onclick=submit;
+$('tCancel').onclick=closeModal;
+$('tAns').addEventListener('keydown',e=>{
+  if(e.key==='Enter') submit();
+  if(e.key==='Escape') closeModal();
+});
+
+addEventListener('keydown',e=>{
+  if(modal){ if(e.key==='Escape') closeModal(); return; }
+  if(KEY[e.code]) keys[KEY[e.code]]=1;
+  if(['Space','ArrowUp','KeyW'].includes(e.code)){
+    e.preventDefault();
+    if(!e.repeat&&P) P.jumpBuf=12;
+  }
+  if(['ShiftLeft','ShiftRight','KeyX'].includes(e.code)){
+    e.preventDefault();
+    if(!e.repeat&&P) triggerDash();
+  }
+  if(e.key==='Enter'&&near&&state==='play') openTask(near.t);
+});
+addEventListener('keyup',e=>{ if(KEY[e.code]) delete keys[KEY[e.code]]; });
+
+loadWorld(0);
+loop();
+</script>
+</body>
+</html>
